@@ -1,45 +1,47 @@
+import { Colors } from '@/constants/Colors';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import NestIconSelected from '@/assets/icons/bird-fill-colored.svg';
+import NestIconRest from '@/assets/icons/bird-outline.svg';
+import WallIconSelected from '@/assets/icons/column-fill-colored.svg';
+import WallIconRest from '@/assets/icons/column-outline-v3.svg';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          backgroundColor: Colors.canarySand,
+          borderTopWidth: 2,
+          borderTopColor: Colors.canaryDark,
+        },
       }}>
       <Tabs.Screen
-        name="index"
+        name="upload"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color, focused, size }) =>
+            focused ? (
+              <WallIconSelected height={32} width={32} />
+            ) : (
+              <WallIconRest height={32} width={32} />
+            ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="profile"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color, focused, size }) =>
+            focused ? (
+              <NestIconSelected height={32} width={32} />
+            ) : (
+              <NestIconRest height={32} width={32} />
+            ),
         }}
       />
     </Tabs>
   );
 }
+

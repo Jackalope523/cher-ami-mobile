@@ -1,0 +1,211 @@
+import { useEffect, useState } from 'react';
+import {
+  NativeSyntheticEvent,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputSubmitEditingEventData,
+  View,
+} from 'react-native';
+
+import ErrorIcon from '@/assets/icons/error-fill.svg';
+import { borderRadius } from '@/constants/Borders';
+import { Colors } from '@/constants/Colors';
+import { globalStyles } from '@/constants/GlobalStyles';
+import { Spacings } from '@/constants/Spacings';
+import { Modals } from '@/lib/modalCurator';
+import countryCodeOptions, { attachAction } from './CountryCodeOptions';
+import LizardTextInput, { InputType } from './LizardTextInput';
+import RequiredAsterisk from './RequiredAsterisk';
+import SparrowIcon from './SparrowIcon';
+
+interface PhoneNumberInputProps {
+  textRef?: React.RefObject<TextInput>;
+  setNumber: React.Dispatch<React.SetStateAction<string>>;
+  setValid: React.Dispatch<React.SetStateAction<boolean>>;
+  disabled?: boolean;
+  required?: boolean;
+  description?: string;
+  onSubmitEditing?: (
+    e: NativeSyntheticEvent<TextInputSubmitEditingEventData>,
+  ) => void;
+}
+
+function PhoneNumberInput({
+  textRef,
+  setNumber,
+  setValid,
+  disabled = false,
+  required = false,
+  description,
+  onSubmitEditing,
+}: PhoneNumberInputProps) {
+  const [countryCode, setCountryCode] = useState('+1');
+  const [phoneNumber, setPhoneNumber] = useState('');
+
+  const [validCountryCode, setValidCountryCode] = useState(true);
+  const [validPhoneNumber, setValidPhoneNumber] = useState(false);
+
+  const [error, setError] = useState('');
+
+  function handleCountryCode() {
+    let countryCodes = attachAction(countryCodeOptions, (country) => {
+      setCountryCode(country);
+      Modals.dismissBottomSheets();
+    });
+    Modals.displayOptionsBottomSheet(
+      countryCodes,
+      'Country Code',
+      undefined,
+      styles.flagIcon,
+    );
+  }
+
+  useEffect(() => {
+    setError('');
+
+    if (phoneNumber.length === 0) {
+      setValid(false);
+    } else if (phoneNumber.length < 7) {
+      setValid(false);
+      setError('Too few numbers');
+    } else {
+      setValid(true);
+      setNumber(countryCode + phoneNumber);
+    }
+  }, [countryCode, validPhoneNumber]);
+
+  function onBlur() {
+    setNumber(countryCode + phoneNumber);
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.labelContainer}>
+        <Text
+          style={[
+            globalStyles.labelTextTwoAsTyped,
+            globalStyles.textDark,
+            disabled
+              ? globalStyles.textDisabled
+              : error
+              ? globalStyles.textError
+              : globalStyles.textDark,
+          ]}>
+          Phone Number
+        </Text>
+        <RequiredAsterisk disabled={disabled} required={required} />
+      </View>
+      <View style={styles.inputContainer}>
+        <Pressable style={{ flex: 3 }} onPress={handleCountryCode}>
+          <LizardTextInput
+            valid={validCountryCode}
+            setValid={setValidCountryCode}
+            text={countryCode}
+            setText={setCountryCode}
+            inputMode="none"
+            editable={false}
+            maxLength={5}
+            hideErrors
+            clearButton={false}
+            pointerEvents="none"
+          />
+        </Pressable>
+        <View style={{ flex: 10 }}>
+          <LizardTextInput
+            ref={textRef}
+            type={InputType.PhoneNumber}
+            valid={validPhoneNumber}
+            setValid={setValidPhoneNumber}
+            onBlur={onBlur}
+            text={phoneNumber}
+            setText={setPhoneNumber}
+            inputMode="tel"
+            maxLength={17}
+            keyboardType="phone-pad"
+            placeholder="(000) 000-0000"
+            hideErrors
+            onSubmitEditing={onSubmitEditing}
+          />
+        </View>
+      </View>
+      {error && !disabled ? (
+        <View style={styles.errorContainer}>
+          <SparrowIcon
+            Icon={ErrorIcon}
+            fill={Colors.red400}
+            style={styles.icon}
+          />
+          <Text
+            style={[globalStyles.bodyTextTwo, globalStyles.textErrorDarker]}>
+            {error}
+          </Text>
+        </View>
+      ) : disabled ? (
+        <Text
+          style={[
+            globalStyles.bodyTextTwo,
+            globalStyles.textDisabled,
+            styles.description,
+          ]}>
+          You cannot modify your phone number.
+        </Text>
+      ) : (
+        description && (
+          <Text
+            style={[
+              globalStyles.bodyTextTwo,
+              globalStyles.textDark,
+              styles.description,
+              error ? globalStyles.textError : globalStyles.textDark,
+            ]}>
+            {description}
+          </Text>
+        )
+      )}
+    </View>
+  );
+}
+
+export default PhoneNumberInput;
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    flexDirection: 'column',
+    rowGap: Spacings.xs,
+  },
+
+  labelContainer: {
+    flexDirection: 'row',
+  },
+
+  inputContainer: {
+    flexDirection: 'row',
+    columnGap: Spacings.mdsm,
+  },
+
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: Spacings.xs,
+    columnGap: Spacings.sm,
+  },
+
+  icon: {
+    flex: 0,
+  },
+
+  flagIcon: {
+    borderWidth: 2,
+    borderRadius: borderRadius.xs,
+    borderColor: Colors.brown800,
+    aspectRatio: 640 / 500,
+    justifyContent: 'center',
+  },
+
+  description: {
+    paddingTop: Spacings.xs,
+  },
+});
