@@ -4,9 +4,14 @@ import BannerMessage, {
   BannerMessageType,
 } from '@/components/BannerMessage';
 import { Spacings } from '@/constants/Spacings';
-import { ToastMessageContext } from '@/lib/contexts/toastMessageContext';
 import { useInterval } from '@/lib/customHooks';
-import { ReactNode, useEffect, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { View } from 'react-native';
 import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +19,30 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 interface ToastMessageProviderProps {
   children: ReactNode;
 }
+
+interface ToastMessageContextType {
+  showToastMessage(
+    message: string,
+    type: BannerMessageType,
+    timeout: number,
+    title?: string,
+  ): void;
+}
+
+export const ToastMessageContext =
+  createContext<ToastMessageContextType | null>(null);
+
+export const useToastMessage = () => {
+  const context = useContext(ToastMessageContext);
+
+  if (!context) {
+    throw new Error(
+      'useToastMessage must be used within a ToastMessageProvider',
+    );
+  }
+
+  return context.showToastMessage;
+};
 
 export default function ToastMessageProvider({
   children,

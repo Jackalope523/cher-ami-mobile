@@ -1,7 +1,5 @@
-import { FC, ReactNode, useState } from 'react';
+import { createContext, FC, ReactNode, useContext, useState } from 'react';
 import { Keyboard, StyleProp, ViewStyle } from 'react-native';
-
-import { BottomSheetModalContext } from '@/lib/contexts/bottomSheetModalContext';
 import { SvgProps } from 'react-native-svg';
 import BottomSheetModalGeneric from './BottomSheetModalBase';
 import BottomSheetModalChildIllustrated, {
@@ -20,29 +18,51 @@ export type ReportOption<T> = {
   option: T;
 } & ModalOption;
 
-export type BottomSheetModalProviderRef = {
-  dismissModals: () => void;
-  showGenericModal: (contents: ReactNode) => void;
-  showOptionsModal: (
+interface BottomSheetModalProviderProps {
+  children: ReactNode;
+}
+
+interface BottomSheetModalInterface {
+  dismissBottomSheets(): void;
+  displayOptionsBottomSheet(
     options: ModalOption[],
     title?: string,
     description?: string,
     iconStyle?: StyleProp<ViewStyle>,
-  ) => void;
-  showReportModal: <T>(
+  ): void;
+  displayGenericBottomSheet(contents: ReactNode): void;
+  displayReportBottomSheet<T>(
     options: ReportOption<T>[],
     availableReportsSync: Promise<T[]>,
-  ) => void;
-  showDualIllustrationModal: (
+  ): void;
+  displayIllustratedBottomSheet(
     optionOne: IllustrationOption,
     optionTwo: IllustrationOption,
     description?: string,
-  ) => void;
-};
-
-interface BottomSheetModalProviderProps {
-  children: ReactNode;
+  ): void;
 }
+
+const BottomSheetModalContext = createContext<BottomSheetModalInterface | null>(
+  null,
+);
+
+export const useBottomSheetModal = () => {
+  const context = useContext(BottomSheetModalContext);
+
+  if (!context) {
+    throw new Error(
+      'useBottomSheetModal must be used within a BottomSheetModalProvider',
+    );
+  }
+
+  return {
+    dismissBottomSheetModals: context.dismissBottomSheets,
+    displayOptionsBottomSheet: context.displayOptionsBottomSheet,
+    displayGenericBottomSheet: context.displayGenericBottomSheet,
+    displayReportBottomSheet: context.displayReportBottomSheet,
+    displayIllustratedBottomSheet: context.displayIllustratedBottomSheet,
+  };
+};
 
 export default function BottomSheetModalProvider({
   children,
@@ -145,6 +165,7 @@ export default function BottomSheetModalProvider({
         displayIllustratedBottomSheet,
         displayOptionsBottomSheet,
       }}>
+      {children}
       {openModals}
     </BottomSheetModalContext.Provider>
   );

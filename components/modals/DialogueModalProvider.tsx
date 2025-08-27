@@ -7,8 +7,7 @@ import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
 import { globalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
-import { DialogueModalContext } from '@/lib/contexts/dialogueModalContext';
-import { ReactNode, useState } from 'react';
+import { createContext, ReactNode, useContext, useState } from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -27,6 +26,33 @@ import ErrorIcon from '../../assets/icons/error-fill.svg';
 interface DialogueModalProviderProps {
   children: ReactNode;
 }
+
+interface DialogueModalContextType {
+  displayDialogue(
+    title: string,
+    description: string,
+    confirmText: string,
+    cancelText: string,
+    onConfirm: () => void,
+    onCancel: () => void,
+  ): void;
+}
+
+const DialogueModalContext = createContext<DialogueModalContextType | null>(
+  null,
+);
+
+export const useDialogueModal = () => {
+  const context = useContext(DialogueModalContext);
+
+  if (!context) {
+    throw new Error(
+      'useDialogueModal must be used within a DialogueModalProvider',
+    );
+  }
+
+  return context.displayDialogue;
+};
 
 export default function DialogueModalProvider({
   children,
