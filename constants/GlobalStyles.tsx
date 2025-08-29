@@ -328,6 +328,7 @@ export const globalStyles = StyleSheet.create({
     alignSelf: 'center',
     resizeMode: 'center',
     height: 280,
+    width: 280,
   },
 
   // Medium
@@ -335,6 +336,7 @@ export const globalStyles = StyleSheet.create({
     alignSelf: 'center',
     resizeMode: 'center',
     height: 200,
+    width: 200,
   },
 
   // Full

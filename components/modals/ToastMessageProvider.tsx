@@ -20,17 +20,16 @@ interface ToastMessageProviderProps {
   children: ReactNode;
 }
 
-interface ToastMessageContextType {
+interface ToastMessageInterface {
   showToastMessage(
-    message: string,
-    type: BannerMessageType,
-    timeout: number,
+    message?: string,
+    type?: BannerMessageType,
+    timeout?: number,
     title?: string,
   ): void;
 }
 
-export const ToastMessageContext =
-  createContext<ToastMessageContextType | null>(null);
+const ToastMessageContext = createContext<ToastMessageInterface | null>(null);
 
 export const useToastMessage = () => {
   const context = useContext(ToastMessageContext);
@@ -55,7 +54,7 @@ export default function ToastMessageProvider({
   const [toastMessage, setToastMessage] = useState('');
   const [toastMessageCache, setToastMessageCache] = useState<string>('');
 
-  const [count, setCount] = useState(-1);
+  const [count, setCount] = useState(4);
 
   const insets = useSafeAreaInsets();
   const headerHeight = insets.top + 50;
@@ -71,13 +70,11 @@ export default function ToastMessageProvider({
 
   useInterval(
     () => {
-      if (count !== undefined) {
-        if (count === 1) {
-          setToastTitle('');
-          setToastMessage('');
-        } else {
-          setCount(count - 1);
-        }
+      if (count === 1) {
+        setToastTitle('');
+        setToastMessage('');
+      } else {
+        setCount(count - 1);
       }
     },
     count > 0 && (toastTitle !== '' || toastMessage !== '') ? 1000 : null,
@@ -85,14 +82,14 @@ export default function ToastMessageProvider({
 
   function showToastMessage(
     message: string,
-    type: BannerMessageType,
-    timeout: number,
+    type?: BannerMessageType,
+    timeout?: number,
     title?: string,
   ) {
-    setToastSize(BannerMessageSize.Medium);
+    setToastSize(BannerMessageSize.Small);
     setToastMessage(message);
-    setToastType(type);
-    setCount(timeout);
+    type && setToastType(type);
+    timeout && setCount(timeout);
     title && setToastTitle(title);
   }
 

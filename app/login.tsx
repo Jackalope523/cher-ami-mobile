@@ -11,49 +11,57 @@ import {
 } from 'react-native';
 
 import PhoneNumberImage from '@/assets/illustrations/phone-number-illustration.png';
+import { useAPI } from '@/components/APIProvider';
 import { BannerMessageType } from '@/components/BannerMessage';
 import Button, {
   ButtonDisplay,
   ButtonSize,
   ButtonType,
 } from '@/components/Button';
+import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PhoneNumberInput from '@/components/PhoneNumberInput';
 import { Spacings } from '@/constants/Spacings';
-import { handleCuratorError } from '@/lib/errorHandler';
-import { Modals } from '@/lib/modalCurator';
+import { useMutation } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 
 export default function Login() {
+  const api = useAPI();
+  const showToastMessage = useToastMessage();
+
   const [validPhoneNumber, setValidPhoneNumber] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [buttonEnabled, setButtonEnabled] = useState(true);
+
+  const mutation = useMutation({
+    mutationFn: () => {
+      console.log(phoneNumber);
+      return api.post('/account/login', { phoneNumber });
+    },
+    onSuccess: () => {
+      router.push({
+        pathname: '/verify',
+        params: { phoneNumber },
+      });
+    },
+    onError: (err) => {
+      console.error('Login failed: ', err.message);
+      showToastMessage('Login failed.', BannerMessageType.Error);
+    },
+  });
 
   function handleLogin() {
-    setButtonEnabled(false);
-
-    login({ phoneNumber })
-      .then(navigate)
-      .catch(handleCuratorError)
-      .finally(() => setButtonEnabled(true));
-  }
-
-  function navigate() {
-    router.push({
-      pathname: '/verify',
-      params: { phoneNumber },
-    });
+    mutation.mutate();
   }
 
   function handleHelp() {
     if (validPhoneNumber) {
-      Modals.toastMiniMessage(
+      showToastMessage(
         'If this account has an email address attached, a recovery link will be sent.',
         BannerMessageType.Success,
       );
     } else {
-      Modals.toastMiniMessage(
+      showToastMessage(
         'Please enter a valid phone number.',
         BannerMessageType.Alert,
       );
@@ -82,7 +90,7 @@ export default function Login() {
               display={ButtonDisplay.Full}
               text={'Log in'}
               onPress={handleLogin}
-              disabled={!validPhoneNumber || !buttonEnabled}
+              disabled={!validPhoneNumber || mutation.isPending}
             />
             <TouchableOpacity onPress={handleHelp} style={styles.pressable}>
               <Text style={globalStyles.textDark}>{"Can't log in?"}</Text>
@@ -126,4 +134,3 @@ const styles = StyleSheet.create({
     columnGap: Spacings.sm,
   },
 });
-

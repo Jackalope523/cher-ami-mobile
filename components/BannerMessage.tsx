@@ -64,10 +64,6 @@ const BannerMessage = ({
   onMessagePress = () => {},
   onButtonPress = () => {},
 }: BannerMessageProps) => {
-  // ! ||--------------------------------------------------------------------------------||
-  // ! ||                                      Type                                      ||
-  // ! ||--------------------------------------------------------------------------------||
-  //#region Type
   switch (type) {
     case BannerMessageType.Error:
       bannerContainerStyle = [styles.error];
@@ -119,12 +115,7 @@ const BannerMessage = ({
       Icon = SuccessIcon;
       break;
   }
-  //#endregion
 
-  // ! ||--------------------------------------------------------------------------------||
-  // ! ||                                      Size                                      ||
-  // ! ||--------------------------------------------------------------------------------||
-  //#region Size
   switch (size) {
     case BannerMessageSize.Small:
       bannerContainerStyle = [...bannerContainerStyle, styles.smallContainer];
@@ -137,12 +128,6 @@ const BannerMessage = ({
       break;
   }
 
-  //#endregion
-
-  // ! ||--------------------------------------------------------------------------------||
-  // ! ||                                    Display                                     ||
-  // ! ||--------------------------------------------------------------------------------||
-  //#region Size
   switch (display) {
     case BannerMessageDisplay.Alert:
       bannerContainerStyle = [
@@ -171,8 +156,6 @@ const BannerMessage = ({
       }
       break;
   }
-
-  //#endregion
 
   return (
     <Pressable onPress={onMessagePress}>

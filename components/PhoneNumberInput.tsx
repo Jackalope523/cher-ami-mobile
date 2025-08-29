@@ -14,11 +14,11 @@ import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
 import { globalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
-import { Modals } from '@/lib/modalCurator';
 import countryCodeOptions, { attachAction } from './CountryCodeOptions';
 import LizardTextInput, { InputType } from './LizardTextInput';
 import RequiredAsterisk from './RequiredAsterisk';
 import SparrowIcon from './SparrowIcon';
+import { useBottomSheetModal } from './modals/BottomSheetModalProvider';
 
 interface PhoneNumberInputProps {
   textRef?: React.RefObject<TextInput>;
@@ -41,6 +41,9 @@ function PhoneNumberInput({
   description,
   onSubmitEditing,
 }: PhoneNumberInputProps) {
+  const { dismissBottomSheetModals, displayOptionsBottomSheet } =
+    useBottomSheetModal();
+
   const [countryCode, setCountryCode] = useState('+1');
   const [phoneNumber, setPhoneNumber] = useState('');
 
@@ -52,9 +55,9 @@ function PhoneNumberInput({
   function handleCountryCode() {
     let countryCodes = attachAction(countryCodeOptions, (country) => {
       setCountryCode(country);
-      Modals.dismissBottomSheets();
+      dismissBottomSheetModals();
     });
-    Modals.displayOptionsBottomSheet(
+    displayOptionsBottomSheet(
       countryCodes,
       'Country Code',
       undefined,
