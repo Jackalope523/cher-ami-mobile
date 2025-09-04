@@ -27,7 +27,7 @@ interface CreateCircleRequest {
   imageName: string;
 }
 
-export default function CreateCircle() {
+export default function Create() {
   const api = useAPI();
   const showToastMessage = useToastMessage();
 

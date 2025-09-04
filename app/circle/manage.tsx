@@ -13,7 +13,7 @@ interface JoinCircleRequest {
   code: string;
 }
 
-export default function JoinCircle() {
+export default function Manage() {
   const api = useAPI();
   const showToastMessage = useToastMessage();
 

@@ -36,8 +36,9 @@ export default function RootLayout() {
                   </Stack.Protected>
                   <Stack.Protected guard={loggedIn}>
                     <Stack.Screen name="(tabs)" />
-                    <Stack.Screen name="createCircle" />
-                    <Stack.Screen name="joinCircle" />
+                    <Stack.Screen name="circle/create" />
+                    <Stack.Screen name="circle/join" />
+                    <Stack.Screen name="circle/manage" />
                   </Stack.Protected>
                 </Stack>
               </APIProvider>

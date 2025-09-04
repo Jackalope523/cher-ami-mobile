@@ -1,5 +1,4 @@
 import PlaceholderImage from '@/assets/images/placeholder.jpg';
-import { useAPI } from '@/components/APIProvider';
 import { BannerMessageType } from '@/components/BannerMessage';
 import Button, { ButtonType } from '@/components/Button';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
@@ -7,7 +6,11 @@ import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
 import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  useAddPostMutation,
+  useCurrentIssueQuery,
+  useUserCircleQuery,
+} from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -17,64 +20,28 @@ import 'react-native-get-random-values';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { v4 } from 'uuid';
 
-interface AddPostRequest {
-  issueId: number;
-  time: string;
-  caption: string;
-  imageUri: string;
-  imageName: string;
-}
-
 export default function Upload() {
-  const api = useAPI();
   const showToastMessage = useToastMessage();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const circleQuery = useQuery({
-    queryKey: ['userCircle'],
-    queryFn: async () => (await api.get('/circle')).data,
-  });
-
-  const uploadMutation = useMutation({
-    mutationFn: async (request: AddPostRequest) => {
-      const formData = new FormData();
-
-      formData.append('IssueId', request.issueId.toString());
-      formData.append('Time', request.time);
-      formData.append('Caption', request.caption);
-      formData.append('Image', {
-        uri: request.imageUri,
-        type: 'image/jpeg',
-        name: request.imageName,
-      } as any);
-
-      const response = await api.post(
-        `/issues/${request.issueId}/posts`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
-      );
-
-      return response.data;
-    },
-    onSuccess: () => {
+  const circleQuery = useUserCircleQuery();
+  const currentIssueQuery = useCurrentIssueQuery(circleQuery.data !== null);
+  const uploadMutation = useAddPostMutation({
+    onSuccess: (_) => {
       showToastMessage('Upload success!', BannerMessageType.Success);
       setSelectedImage(null);
     },
-    onError: (err) => {
-      console.error('Upload failed:', err);
+    onError: (error) => {
+      console.error('Upload failed:', error);
       showToastMessage('Upload failed.', BannerMessageType.Error);
     },
   });
 
   function handleUpload() {
-    if (selectedImage) {
+    if (selectedImage && currentIssueQuery.data) {
       uploadMutation.mutate({
-        issueId: 1,
+        issueId: currentIssueQuery.data.id,
         time: new Date().toISOString(),
         caption: 'Sugaring',
         imageUri: selectedImage,
@@ -112,7 +79,7 @@ export default function Upload() {
     );
   }
 
-  if (!circleQuery.data) {
+  if (circleQuery.data === null) {
     return (
       <SafeAreaView style={styles.noCircleContainer}>
         <Text style={GlobalStyles.headingTextThree}>
@@ -122,12 +89,12 @@ export default function Upload() {
           <Button
             type={ButtonType.Function}
             text={'Create a Circle'}
-            onPress={() => router.push('/createCircle')}
+            onPress={() => router.push('/circle/create')}
           />
           <Button
             type={ButtonType.Success}
             text={'Join a Circle'}
-            onPress={() => router.push('/joinCircle')}
+            onPress={() => router.push('/circle/join')}
           />
         </View>
       </SafeAreaView>
@@ -154,6 +121,16 @@ export default function Upload() {
           type={ButtonType.Success}
           text={'Use this Photo'}
           onPress={handleUpload}
+          disabled={
+            uploadMutation.isPending ||
+            !selectedImage ||
+            !currentIssueQuery.isSuccess
+          }
+        />
+        <Button
+          type={ButtonType.Warning}
+          text={'Manage Circle'}
+          onPress={() => router.push('/circle/manage', {})}
           disabled={uploadMutation.isPending || !selectedImage}
         />
       </View>

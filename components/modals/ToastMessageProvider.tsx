@@ -4,7 +4,7 @@ import BannerMessage, {
   BannerMessageType,
 } from '@/components/BannerMessage';
 import { Spacings } from '@/constants/Spacings';
-import { useInterval } from '@/lib/customHooks';
+import { useInterval } from '@/lib/hooks';
 import {
   createContext,
   ReactNode,
