@@ -1,6 +1,5 @@
 import { Colors } from '@/constants/Colors';
 import { Tabs } from 'expo-router';
-import React from 'react';
 
 import NestIconSelected from '@/assets/icons/bird-fill-colored.svg';
 import NestIconRest from '@/assets/icons/bird-outline.svg';
@@ -44,4 +43,3 @@ export default function TabLayout() {
     </Tabs>
   );
 }
-

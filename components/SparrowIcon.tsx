@@ -1,13 +1,13 @@
 import { Colors } from '@/constants/Colors';
-import React from 'react';
+import { FC } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { SvgProps } from 'react-native-svg';
 
 export interface SparrowIconProps extends SvgProps {
-  Icon: React.FC<SvgProps>;
+  Icon: FC<SvgProps>;
 }
 
-const SparrowIcon: React.FC<SparrowIconProps> = ({
+export default function SparrowIcon({
   Icon,
   onPress,
   width = 24,
@@ -15,7 +15,7 @@ const SparrowIcon: React.FC<SparrowIconProps> = ({
   fill = Colors.canaryDarkBrown,
   style,
   ...props
-}) => {
+}: SparrowIconProps) {
   // Don't trust hitSlop he lies to you and will break your heart
   // He does not extend past the parent view
 
@@ -36,6 +36,4 @@ const SparrowIcon: React.FC<SparrowIconProps> = ({
       </TouchableOpacity>
     </View>
   );
-};
-
-export default SparrowIcon;
+}

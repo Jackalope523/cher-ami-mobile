@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 
-import { globalStyles } from '@/constants/GlobalStyles';
+import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 
 export type IllustrationOption = {
@@ -37,7 +37,7 @@ function BottomSheetModalChildIllustrated({
             resizeMode="contain"
             style={styles.illustration}
           />
-          <Text style={[globalStyles.textDark, globalStyles.buttonTextTwo]}>
+          <Text style={[GlobalStyles.textDark, GlobalStyles.buttonTextTwo]}>
             {optionOne.label}
           </Text>
         </Pressable>
@@ -48,13 +48,13 @@ function BottomSheetModalChildIllustrated({
             style={styles.illustration}
           />
 
-          <Text style={[globalStyles.textDark, globalStyles.buttonTextTwo]}>
+          <Text style={[GlobalStyles.textDark, GlobalStyles.buttonTextTwo]}>
             {optionTwo.label}
           </Text>
         </Pressable>
       </View>
       {description && (
-        <Text style={[globalStyles.textDark, globalStyles.bodyTextOne]}>
+        <Text style={[GlobalStyles.textDark, GlobalStyles.bodyTextOne]}>
           {description}
         </Text>
       )}

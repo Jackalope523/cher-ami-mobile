@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import axios, { AxiosInstance } from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import { router } from 'expo-router';
+import { deleteItemAsync, getItemAsync } from 'expo-secure-store';
 import { createContext, ReactNode, useContext, useEffect } from 'react';
 
 interface APIProviderProps {
@@ -35,28 +36,38 @@ export default function APIProvider({ children }: APIProviderProps) {
   useEffect(() => {
     api.interceptors.request.use(
       async (config) => {
-        const token = await SecureStore.getItemAsync('token');
-
-        if (
-          config.url &&
-          !['/verify', '/login', '/signup'].includes(config.url)
-        ) {
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-          }
+        let openURLs = ['/account/signup', '/account/login', '/account/verify'];
+        if (config.url && !openURLs.includes(config.url)) {
+          let token = await getItemAsync('token');
+          config.headers.Authorization = `Bearer ${token}`;
         }
 
         return config;
       },
-      (error) => Promise.reject(error),
+      (error) => {
+        console.error('Error attaching JWT to request: ', error);
+        return Promise.reject(error);
+      },
+    );
+
+    api.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        if (error.response?.status === 401) {
+          await deleteItemAsync('token');
+          router.replace('/');
+        }
+        return Promise.reject(error);
+      },
     );
 
     api.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response?.status === 401) {
-          console.error('Unauthorized! Maybe logout user');
+        if (error.response?.data) {
+          console.error('ProblemDetails: ', error.response.data);
         }
+
         return Promise.reject(error);
       },
     );

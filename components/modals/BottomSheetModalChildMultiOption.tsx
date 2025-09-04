@@ -1,5 +1,5 @@
 import { Colors } from '@/constants/Colors';
-import { globalStyles } from '@/constants/GlobalStyles';
+import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 import { useEffect, useState } from 'react';
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
@@ -59,8 +59,8 @@ function BottomSheetModalChildMultiOption({
         <PerhapsText
           forceLoading={optionsLoading}
           style={[
-            globalStyles.buttonTextTwo,
-            option.disabled ? globalStyles.textDisabled : globalStyles.textDark,
+            GlobalStyles.buttonTextTwo,
+            option.disabled ? GlobalStyles.textDisabled : GlobalStyles.textDark,
           ]}>
           {option.label}
         </PerhapsText>
@@ -74,12 +74,12 @@ function BottomSheetModalChildMultiOption({
         <View style={styles.info}>
           {title && (
             <Text
-              style={[globalStyles.headingTextThree, globalStyles.textDark]}>
+              style={[GlobalStyles.headingTextThree, GlobalStyles.textDark]}>
               {title}
             </Text>
           )}
           {description && (
-            <Text style={[globalStyles.bodyTextOne, globalStyles.textDark]}>
+            <Text style={[GlobalStyles.bodyTextOne, GlobalStyles.textDark]}>
               {description}
             </Text>
           )}
@@ -98,7 +98,7 @@ function BottomSheetModalChildMultiOption({
         ListEmptyComponent={
           <>
             {optionsEmpty && (
-              <Text style={[globalStyles.buttonTextTwo, globalStyles.textDark]}>
+              <Text style={[GlobalStyles.buttonTextTwo, GlobalStyles.textDark]}>
                 No options to display!
               </Text>
             )}

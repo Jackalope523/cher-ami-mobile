@@ -5,7 +5,7 @@ import { Spacings } from './Spacings';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-export const globalStyles = StyleSheet.create({
+export const GlobalStyles = StyleSheet.create({
   // ! ||--------------------------------------------------------------------------------||
   // ! ||                                     Layout                                     ||
   // ! ||--------------------------------------------------------------------------------||

@@ -1,5 +1,5 @@
 import { Colors } from '@/constants/Colors';
-import { globalStyles } from '@/constants/GlobalStyles';
+import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Dimensions, StyleSheet, Text } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -25,7 +25,7 @@ export default function OTPSquare({ value, focused }: OTPSquareProps) {
 
   return (
     <Animated.View style={[styles.inputContainer, focusStyle]}>
-      <Text style={[globalStyles.textDark, globalStyles.buttonTextTwo]}>
+      <Text style={[GlobalStyles.textDark, GlobalStyles.buttonTextTwo]}>
         {value}
       </Text>
     </Animated.View>

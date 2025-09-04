@@ -1,8 +1,5 @@
-import Button, {
-  ButtonDisplay,
-  ButtonSize,
-  ButtonType,
-} from '@/components/Button';
+import Button, { ButtonType } from '@/components/Button';
+import { Spacings } from '@/constants/Spacings';
 import { router } from 'expo-router';
 import { View } from 'react-native';
 
@@ -20,24 +17,15 @@ export default function Index() {
       style={{
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
+        paddingHorizontal: Spacings.lg,
+        rowGap: Spacings.xs,
       }}>
       <Button
-        type={ButtonType.Success}
-        size={ButtonSize.Medium}
-        display={ButtonDisplay.Full}
         text={'Sign Up'}
         onPress={handleSignup}
-        disabled={false}
+        type={ButtonType.Success}
       />
-      <Button
-        type={ButtonType.Function}
-        size={ButtonSize.Medium}
-        display={ButtonDisplay.Full}
-        text={'Login'}
-        onPress={handleLogin}
-        disabled={false}
-      />
+      <Button text={'Login'} onPress={handleLogin} type={ButtonType.Function} />
     </View>
   );
 }

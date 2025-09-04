@@ -5,7 +5,7 @@ import Button, {
 } from '@/components/Button';
 import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
-import { globalStyles } from '@/constants/GlobalStyles';
+import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 import { createContext, ReactNode, useContext, useState } from 'react';
 import {
@@ -116,13 +116,13 @@ export default function DialogueModalProvider({
             <View style={styles.info}>
               <ErrorIcon width={40} height={40} fill={Colors.red400} />
               <Text
-                style={[globalStyles.headingTextTwo, globalStyles.textDark]}>
+                style={[GlobalStyles.headingTextTwo, GlobalStyles.textDark]}>
                 {title}
               </Text>
               <Text
                 style={[
-                  globalStyles.bodyTextOne,
-                  globalStyles.textDark,
+                  GlobalStyles.bodyTextOne,
+                  GlobalStyles.textDark,
                   { textAlign: 'center' },
                 ]}>
                 {description}

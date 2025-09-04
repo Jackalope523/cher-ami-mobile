@@ -1,7 +1,7 @@
 import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
 import { Spacings } from '@/constants/Spacings';
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
@@ -27,7 +27,7 @@ TODO add shadow (differs from the shadow we use in the Button components - inste
 type BottomSheetModalGenericProps = {
   onHide: () => any;
   index: number;
-  children?: React.ReactNode;
+  children?: ReactNode;
 };
 
 function BottomSheetModalGeneric({

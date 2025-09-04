@@ -1,229 +1,85 @@
+import { borderRadius } from '@/constants/Borders';
 import { buttonStyles } from '@/constants/ButtonStyles';
-import { Colors } from '@/constants/Colors';
-import { globalStyles } from '@/constants/GlobalStyles';
-import { Gap, Spacings } from '@/constants/Spacings';
-import { FC } from 'react';
-import { StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native';
-import { SvgProps } from 'react-native-svg';
-import SparrowIcon from './SparrowIcon';
+import { GlobalStyles } from '@/constants/GlobalStyles';
+import { Spacings } from '@/constants/Spacings';
+import { StyleSheet, Text, View } from 'react-native';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 import WickedCreamyPressable, { ShadowSize } from './WickedCreamyPressable';
 
-// Types
 export interface ButtonProps {
   onPress?: () => void;
   text?: string;
-  Icon?: FC<SvgProps>;
-
-  disabled?: boolean;
   type?: ButtonType;
-  size?: ButtonSize;
-  display?: ButtonDisplay;
-  hideIcon?: boolean;
+  disabled?: boolean;
 }
 
-const Button: FC<ButtonProps> = ({
+export default function Button({
   onPress = () => {},
   text = 'NULL',
-  Icon = null,
-
+  type = ButtonType.Success,
   disabled = false,
-  type = null,
-  size = null,
-  display = null,
-  hideIcon = false,
-}) => {
-  // Rest styles
-  let btnStyle: ViewStyle[] = [];
-  let btnTextStyle: TextStyle[] = [];
-  let btnIconStyle: string = '';
-
-  // Disabled styles
-  let btnDisabledStyle: ViewStyle[] = [];
-  let btnDisabledTextStyle: TextStyle[] = [];
-  let btnDisabledIconStyle: string = '';
-
-  // Shadow
-  let shadowStyle: ViewStyle = {};
-  let shadowBorderRadiusStyle: ViewStyle = {};
-  let shadowSize: ShadowSize = ShadowSize.Large;
+}: ButtonProps) {
+  let buttonStyle;
+  let buttonDisabledStyle;
+  let textStyle;
+  let textDisabledStyle;
+  let shadowStyle;
 
   switch (type) {
     case ButtonType.PrimaryLight:
-      btnStyle = [buttonStyles.buttonPrimaryLight];
-      btnTextStyle = [globalStyles.textLight];
-      btnIconStyle = Colors.canarySand;
-
-      btnDisabledStyle = [buttonStyles.buttonPrimaryLightDisabled];
-      btnDisabledTextStyle = [globalStyles.textLight];
-      btnDisabledIconStyle = Colors.canarySand;
-
+      buttonStyle = buttonStyles.buttonPrimaryLight;
+      buttonDisabledStyle = buttonStyles.buttonPrimaryLightDisabled;
+      textStyle = { color: Colors.canaryDark };
+      textDisabledStyle = { color: Colors.canaryDark };
       shadowStyle = buttonStyles.shadowPrimaryLight;
       break;
 
     case ButtonType.SecondaryDark:
-      btnStyle = [buttonStyles.buttonSecondaryDark];
-      btnTextStyle = [globalStyles.textLight];
-      btnIconStyle = Colors.canarySand;
-
-      btnDisabledStyle = [buttonStyles.buttonSecondaryDisabled];
-      btnDisabledTextStyle = [globalStyles.textDisabled];
-      btnDisabledIconStyle = Colors.brown300;
+      buttonStyle = buttonStyles.buttonSecondaryDark;
+      buttonDisabledStyle = buttonStyles.buttonSecondaryLight;
+      textStyle = { color: Colors.canaryDark };
+      textDisabledStyle = { color: Colors.canaryDark };
+      shadowStyle = buttonStyles.shadowPrimaryLight;
       break;
 
     case ButtonType.SecondaryLight:
-      btnStyle = [buttonStyles.buttonSecondaryLight];
-      btnTextStyle = [globalStyles.textDark];
-      btnIconStyle = Colors.brown800;
-
-      btnDisabledStyle = [buttonStyles.buttonSecondaryDisabled];
-      btnDisabledTextStyle = [globalStyles.textDisabled];
-      btnDisabledIconStyle = Colors.brown300;
+      buttonStyle = buttonStyles.buttonSecondaryDark;
+      buttonDisabledStyle = buttonStyles.buttonSecondaryLight;
+      textStyle = { color: Colors.canaryDark };
+      textDisabledStyle = { color: Colors.canaryDark };
+      shadowStyle = buttonStyles.shadowPrimaryLight;
       break;
 
     case ButtonType.Success:
-      btnStyle = [buttonStyles.buttonSuccess];
-      btnTextStyle = [buttonStyles.buttonSuccessText];
-      btnIconStyle = Colors.canaryGreen700;
-
-      btnDisabledStyle = [buttonStyles.buttonSuccessDisabled];
-      btnDisabledTextStyle = [buttonStyles.buttonSuccessDisabledText];
-      btnDisabledIconStyle = Colors.canaryGreen300;
-
+      buttonStyle = buttonStyles.buttonSuccess;
+      buttonDisabledStyle = buttonStyles.buttonSuccessDisabled;
+      textStyle = buttonStyles.buttonSuccessText;
+      textDisabledStyle = buttonStyles.buttonSuccessDisabledText;
       shadowStyle = buttonStyles.shadowSuccess;
       break;
 
     case ButtonType.Warning:
-      btnStyle = [buttonStyles.buttonWarning];
-      btnTextStyle = [buttonStyles.buttonWarningText];
-      btnIconStyle = Colors.orange700;
-
-      btnDisabledStyle = [buttonStyles.buttonWarningDisabled];
-      btnDisabledTextStyle = [buttonStyles.buttonWarningDisabledText];
-      btnDisabledIconStyle = Colors.orange300;
-
+      buttonStyle = buttonStyles.buttonWarning;
+      buttonDisabledStyle = buttonStyles.buttonWarningDisabled;
+      textStyle = buttonStyles.buttonWarningText;
+      textDisabledStyle = buttonStyles.buttonWarningDisabledText;
       shadowStyle = buttonStyles.shadowWarning;
       break;
 
     case ButtonType.Error:
-      btnStyle = [buttonStyles.buttonError];
-      btnTextStyle = [buttonStyles.buttonErrorText];
-      btnIconStyle = Colors.red700;
-
-      btnDisabledStyle = [buttonStyles.buttonErrorDisabled];
-      btnDisabledTextStyle = [buttonStyles.buttonErrorDisabledText];
-      btnDisabledIconStyle = Colors.red300;
-
+      buttonStyle = buttonStyles.buttonError;
+      buttonDisabledStyle = buttonStyles.buttonErrorDisabled;
+      textStyle = buttonStyles.buttonErrorText;
+      textDisabledStyle = buttonStyles.buttonErrorDisabledText;
       shadowStyle = buttonStyles.shadowError;
       break;
 
     case ButtonType.Function:
-      btnStyle = [buttonStyles.buttonFunction];
-      btnTextStyle = [buttonStyles.buttonFunctionText];
-      btnIconStyle = Colors.turqoise700;
-
-      btnDisabledStyle = [buttonStyles.buttonFunctionDisabled];
-      btnDisabledTextStyle = [buttonStyles.buttonFunctionDisabledText];
-      btnDisabledIconStyle = Colors.turqoise300;
-
-      shadowStyle = buttonStyles.shadowFunction;
-      break;
-  }
-
-  switch (size) {
-    case ButtonSize.ExtraSmall:
-      btnStyle = [
-        ...btnStyle,
-        buttonStyles.textButtonExtraSmall,
-        Gap.gapMedium,
-      ];
-      btnTextStyle = [...btnTextStyle, globalStyles.buttonTextThree];
-
-      btnDisabledStyle = [
-        ...btnDisabledStyle,
-        buttonStyles.textButtonExtraSmall,
-        Gap.gapMedium,
-      ];
-      btnDisabledTextStyle = [
-        ...btnDisabledTextStyle,
-        globalStyles.buttonTextThree,
-      ];
-
-      shadowBorderRadiusStyle = buttonStyles.buttonShadowBorderRadius;
-      shadowSize = ShadowSize.ExtraSmall;
-
-      break;
-
-    case ButtonSize.Small:
-      btnStyle = [...btnStyle, buttonStyles.textButtonSmall, Gap.gapMedium];
-      btnTextStyle = [...btnTextStyle, globalStyles.buttonTextTwo];
-
-      btnDisabledStyle = [
-        ...btnDisabledStyle,
-        buttonStyles.textButtonSmall,
-        Gap.gapMedium,
-      ];
-      btnDisabledTextStyle = [
-        ...btnDisabledTextStyle,
-        globalStyles.buttonTextTwo,
-      ];
-
-      shadowBorderRadiusStyle = buttonStyles.buttonShadowBorderRadius;
-      shadowSize = ShadowSize.Small;
-
-      break;
-
-    case ButtonSize.Medium:
-      btnStyle = [...btnStyle, buttonStyles.textButtonMedium, Gap.gapMedium];
-      btnTextStyle = [...btnTextStyle, globalStyles.buttonTextOne];
-
-      btnDisabledStyle = [
-        ...btnDisabledStyle,
-        buttonStyles.textButtonMedium,
-        Gap.gapMedium,
-      ];
-      btnDisabledTextStyle = [
-        ...btnDisabledTextStyle,
-        globalStyles.buttonTextOne,
-      ];
-
-      shadowBorderRadiusStyle = buttonStyles.buttonShadowBorderRadius;
-      shadowSize = ShadowSize.Medium;
-
-      break;
-
-    case ButtonSize.Large:
-      btnStyle = [...btnStyle, buttonStyles.textButtonLarge, Gap.gapMedium];
-      btnTextStyle = [...btnTextStyle, globalStyles.buttonTextOne];
-
-      btnDisabledStyle = [
-        ...btnDisabledStyle,
-        buttonStyles.textButtonLarge,
-        Gap.gapMedium,
-      ];
-      btnDisabledTextStyle = [
-        ...btnDisabledTextStyle,
-        globalStyles.buttonTextOne,
-      ];
-
-      shadowBorderRadiusStyle = buttonStyles.buttonShadowBorderRadius;
-      shadowSize = ShadowSize.Large;
-
-      break;
-  }
-
-  switch (display) {
-    case ButtonDisplay.Contained:
-      btnStyle = [...btnStyle, buttonStyles.buttonContained];
-      btnDisabledStyle = [...btnDisabledStyle, buttonStyles.buttonContained];
-      break;
-
-    case ButtonDisplay.Flex:
-      btnStyle = [...btnStyle, buttonStyles.buttonContained];
-      btnDisabledStyle = [...btnDisabledStyle, buttonStyles.buttonContained];
-      break;
-    case ButtonDisplay.Full:
-      btnStyle = [...btnStyle, buttonStyles.buttonFull];
-      btnDisabledStyle = [...btnDisabledStyle, buttonStyles.buttonFull];
+      buttonStyle = buttonStyles.buttonFunction;
+      buttonDisabledStyle = buttonStyles.buttonFunctionDisabled;
+      textStyle = buttonStyles.buttonFunctionText;
+      textDisabledStyle = buttonStyles.buttonFunctionDisabledText;
+      shadowStyle = buttonStyles.shadowSuccess;
       break;
   }
 
@@ -231,29 +87,21 @@ const Button: FC<ButtonProps> = ({
     <WickedCreamyPressable
       onPress={onPress}
       disabled={disabled}
-      shadowStyle={[shadowStyle, shadowBorderRadiusStyle]}
-      size={shadowSize}>
-      <View style={[styles.btnBase, disabled ? btnDisabledStyle : btnStyle]}>
-        {Icon && !hideIcon && (
-          <SparrowIcon
-            Icon={Icon}
-            fill={disabled ? btnDisabledIconStyle : btnIconStyle}
-            style={{ marginLeft: -Spacings.sm }}
-          />
-        )}
-        <Text style={disabled ? btnDisabledTextStyle : btnTextStyle}>
+      shadowStyle={shadowStyle}
+      size={ShadowSize.Small}>
+      <View
+        style={[styles.btnBase, disabled ? buttonDisabledStyle : buttonStyle]}>
+        <Text
+          style={[
+            GlobalStyles.headingTextThree,
+            disabled ? textDisabledStyle : textStyle,
+          ]}>
           {text}
         </Text>
       </View>
     </WickedCreamyPressable>
   );
-};
-//#endregion
-
-// ! ||--------------------------------------------------------------------------------||
-// ! ||                                 Exported Enums                                 ||
-// ! ||--------------------------------------------------------------------------------||
-//#region Exported Enums
+}
 
 export enum ButtonType {
   PrimaryLight,
@@ -265,27 +113,15 @@ export enum ButtonType {
   Function,
 }
 
-export enum ButtonSize {
-  Large,
-  Medium,
-  Small,
-  ExtraSmall,
-}
-
-export enum ButtonDisplay {
-  Contained,
-  Full,
-  Flex,
-}
-//#endregion
-
 const styles = StyleSheet.create({
   btnBase: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacings.md,
+
+    borderWidth: 2,
+    borderRadius: borderRadius.md,
     columnGap: Spacings.sm,
-    zIndex: 1,
   },
 });
-
-export default Button;

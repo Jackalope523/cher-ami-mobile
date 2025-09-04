@@ -1,4 +1,4 @@
-import { globalStyles } from '@/constants/GlobalStyles';
+import { GlobalStyles } from '@/constants/GlobalStyles';
 import {
   Dimensions,
   Keyboard,
@@ -13,11 +13,7 @@ import {
 import PhoneNumberImage from '@/assets/illustrations/phone-number-illustration.png';
 import { useAPI } from '@/components/APIProvider';
 import { BannerMessageType } from '@/components/BannerMessage';
-import Button, {
-  ButtonDisplay,
-  ButtonSize,
-  ButtonType,
-} from '@/components/Button';
+import Button from '@/components/Button';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PhoneNumberInput from '@/components/PhoneNumberInput';
 import { Spacings } from '@/constants/Spacings';
@@ -35,7 +31,6 @@ export default function Login() {
 
   const mutation = useMutation({
     mutationFn: () => {
-      console.log(phoneNumber);
       return api.post('/account/login', { phoneNumber });
     },
     onSuccess: () => {
@@ -71,7 +66,7 @@ export default function Login() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Pressable
-        style={[styles.container, globalStyles.baseContainer]}
+        style={[styles.container, GlobalStyles.baseContainer]}
         onPress={Keyboard.dismiss}>
         <View style={styles.headerContainer}>
           <Image source={PhoneNumberImage} style={styles.header} />
@@ -84,16 +79,16 @@ export default function Login() {
             required
           />
           <View style={styles.buttonContainer}>
-            <Button
-              type={ButtonType.Success}
-              size={ButtonSize.Medium}
-              display={ButtonDisplay.Full}
-              text={'Log in'}
-              onPress={handleLogin}
-              disabled={!validPhoneNumber || mutation.isPending}
-            />
+            <View style={{ alignSelf: 'stretch' }}>
+              <Button
+                text={'Log in'}
+                onPress={handleLogin}
+                disabled={!validPhoneNumber || mutation.isPending}
+              />
+            </View>
+
             <TouchableOpacity onPress={handleHelp} style={styles.pressable}>
-              <Text style={globalStyles.textDark}>{"Can't log in?"}</Text>
+              <Text style={GlobalStyles.textDark}>{"Can't log in?"}</Text>
             </TouchableOpacity>
           </View>
         </View>

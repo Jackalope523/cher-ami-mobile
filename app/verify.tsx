@@ -1,19 +1,15 @@
 import VerificationImage from '@/assets/illustrations/verification-illustration-transparent.png';
 import { useAPI } from '@/components/APIProvider';
 import { BannerMessageType } from '@/components/BannerMessage';
-import Button, {
-  ButtonDisplay,
-  ButtonSize,
-  ButtonType,
-} from '@/components/Button';
+import Button, { ButtonType } from '@/components/Button';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import OTPInput from '@/components/OTPInput/OTPInput';
-import { globalStyles } from '@/constants/GlobalStyles';
+import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 import { useMutation } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
+import { setItemAsync } from 'expo-secure-store';
 import { useState } from 'react';
 import {
   Keyboard,
@@ -40,16 +36,10 @@ export default function Verify() {
   const [activeResendTimeout, setActiveResendTimeout] = useState(0);
 
   const verifyMutation = useMutation({
-    mutationFn: async () => {
-      const response = await api.post('/account/verify', { phoneNumber, code });
-      const { token } = response.data;
-
-      await SecureStore.setItemAsync('token', token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      return response.data;
-    },
-    onSuccess: () => {
+    mutationFn: async () =>
+      await api.post('/account/verify', { phoneNumber, code }),
+    onSuccess: async (response) => {
+      await setItemAsync('token', response.data);
       router.replace('/(tabs)/upload');
     },
     onError: (err) => {
@@ -86,17 +76,17 @@ export default function Verify() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Pressable
-        style={[styles.container, globalStyles.baseContainer]}
+        style={[styles.container, GlobalStyles.baseContainer]}
         onPress={Keyboard.dismiss}>
         <View style={styles.contentContainer}>
           <Image
             source={VerificationImage}
-            style={[globalStyles.illustrationLarge, styles.illustration]}
+            style={[GlobalStyles.illustrationLarge, styles.illustration]}
           />
           <Text
             style={[
-              globalStyles.bodyTextOne,
-              globalStyles.textDark,
+              GlobalStyles.bodyTextOne,
+              GlobalStyles.textDark,
               styles.text,
             ]}>
             Enter the {codeLength}-digit code we sent to your number ending in{' '}
@@ -111,17 +101,17 @@ export default function Verify() {
         </View>
 
         <View style={styles.buttonContainer}>
-          <Button
-            type={ButtonType.Success}
-            size={ButtonSize.Medium}
-            display={ButtonDisplay.Full}
-            text={'Verify & Continue'}
-            onPress={handleVerify}
-            disabled={!codeReady || verifyMutation.isPending}
-          />
+          <View style={{ alignSelf: 'stretch' }}>
+            <Button
+              type={ButtonType.Success}
+              text={'Verify & Continue'}
+              onPress={handleVerify}
+              disabled={!codeReady || verifyMutation.isPending}
+            />
+          </View>
 
           <TouchableOpacity onPress={handleResend} style={styles.pressable}>
-            <Text style={globalStyles.textDark}>
+            <Text style={GlobalStyles.textDark}>
               {activeResendTimeout <= 0
                 ? "I haven't received a code"
                 : `Resend again in ${activeResendTimeout} s`}

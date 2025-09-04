@@ -1,5 +1,5 @@
 import { Spacings } from '@/constants/Spacings';
-import React, { FC, ReactNode, useEffect } from 'react';
+import { FC, ReactNode, useEffect } from 'react';
 import { Text, TextProps, TextStyle, View } from 'react-native';
 import Animated, {
   interpolateColor,

@@ -1,4 +1,4 @@
-import { globalStyles } from '@/constants/GlobalStyles';
+import { GlobalStyles } from '@/constants/GlobalStyles';
 import { StyleSheet, Text, TextStyle } from 'react-native';
 
 type RequiredAsteriskProps = {
@@ -17,10 +17,10 @@ export default function RequiredAsterisk({
       {required ? (
         <Text
           style={[
-            globalStyles.labelTextTwoAsTyped,
-            globalStyles.textError,
+            GlobalStyles.labelTextTwoAsTyped,
+            GlobalStyles.textError,
             styles.labelRequired,
-            disabled && globalStyles.textDisabled,
+            disabled && GlobalStyles.textDisabled,
             style,
           ]}>
           {' '}

@@ -27,7 +27,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { Colors } from '@/constants/Colors';
-import { globalStyles } from '@/constants/GlobalStyles';
+import { GlobalStyles } from '@/constants/GlobalStyles';
 
 import RequiredAsterisk from './RequiredAsterisk';
 
@@ -189,6 +189,19 @@ function LizardTextInput(
         }
         break;
 
+      case InputType.CircleCode:
+        if (text.length === 0) {
+          currentError = "You did't provide a code.";
+        } else if (text.length > 100) {
+          currentError = 'Circle code is too long.';
+        } else if (!/^[A-Za-z]+$/.test(text)) {
+          currentError = 'Circle code can only contain letters';
+        } else {
+          currentValidity = true;
+        }
+        currentValidity = true;
+        break;
+
       case InputType.Title:
         currentValidity = true;
         break;
@@ -285,12 +298,12 @@ function LizardTextInput(
             {label && (
               <Text
                 style={[
-                  globalStyles.labelTextTwoAsTyped,
+                  GlobalStyles.labelTextTwoAsTyped,
                   disabled
-                    ? globalStyles.textDisabled
+                    ? GlobalStyles.textDisabled
                     : error
-                    ? globalStyles.textError
-                    : globalStyles.textDark,
+                    ? GlobalStyles.textError
+                    : GlobalStyles.textDark,
                 ]}>
                 {label}
               </Text>
@@ -301,14 +314,14 @@ function LizardTextInput(
             {recommended && (
               <Text
                 style={[
-                  globalStyles.labelTextTwoItalic,
-                  globalStyles.textDark,
+                  GlobalStyles.labelTextTwoItalic,
+                  GlobalStyles.textDark,
                   styles.labelRecommended,
                   disabled
-                    ? globalStyles.textDisabled
+                    ? GlobalStyles.textDisabled
                     : error
-                    ? globalStyles.textError
-                    : globalStyles.textDark,
+                    ? GlobalStyles.textError
+                    : GlobalStyles.textDark,
                 ]}>
                 {' '}
                 (recommended)
@@ -320,12 +333,12 @@ function LizardTextInput(
             <Text
               style={[
                 styles.counter,
-                globalStyles.labelTextTwoAsTyped,
+                GlobalStyles.labelTextTwoAsTyped,
                 disabled
-                  ? globalStyles.textDisabled
+                  ? GlobalStyles.textDisabled
                   : error
-                  ? globalStyles.textError
-                  : globalStyles.textDark,
+                  ? GlobalStyles.textError
+                  : GlobalStyles.textDark,
               ]}>
               {text.length}
               {'/'}
@@ -350,7 +363,7 @@ function LizardTextInput(
           layout={LinearTransition}>
           <TextInput
             ref={internalRef}
-            placeholderTextColor={error ? globalStyles.textError.color : 'grey'}
+            placeholderTextColor={error ? GlobalStyles.textError.color : 'grey'}
             value={text}
             onChangeText={handleChangeText}
             onFocus={(e) => {
@@ -363,12 +376,12 @@ function LizardTextInput(
             }}
             style={[
               styles.defaultStyle,
-              globalStyles.bodyTextOne,
+              GlobalStyles.bodyTextOne,
               disabled
-                ? globalStyles.textDisabled
+                ? GlobalStyles.textDisabled
                 : error
-                ? globalStyles.textError
-                : globalStyles.textDark,
+                ? GlobalStyles.textError
+                : GlobalStyles.textDark,
               {
                 width: '100%',
                 flexShrink: 1,
@@ -447,7 +460,7 @@ function LizardTextInput(
             style={styles.icon}
           />
           <Text
-            style={[globalStyles.bodyTextTwo, globalStyles.textErrorDarker]}>
+            style={[GlobalStyles.bodyTextTwo, GlobalStyles.textErrorDarker]}>
             {error}
           </Text>
         </View>
@@ -455,13 +468,13 @@ function LizardTextInput(
         description && (
           <Text
             style={[
-              globalStyles.bodyTextTwo,
+              GlobalStyles.bodyTextTwo,
               styles.description,
               disabled
-                ? globalStyles.textDisabled
+                ? GlobalStyles.textDisabled
                 : error
-                ? globalStyles.textError
-                : globalStyles.textDark,
+                ? GlobalStyles.textError
+                : GlobalStyles.textDark,
             ]}
             testID="error">
             {description}
@@ -576,6 +589,7 @@ export enum InputType {
 
   // Circle
   CircleTitle,
+  CircleCode,
 
   // User
   Title,

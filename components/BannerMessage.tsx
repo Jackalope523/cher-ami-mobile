@@ -1,7 +1,8 @@
 import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
-import { globalStyles } from '@/constants/GlobalStyles';
+import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
+import { FC } from 'react';
 import {
   ColorValue,
   Pressable,
@@ -29,7 +30,7 @@ type BannerMessageProps = {
   buttonStyle?: ViewStyle[];
   buttonTextStyle?: TextStyle[];
   iconColor?: ColorValue;
-  Icon?: React.FC<SvgProps> | string | any;
+  Icon?: FC<SvgProps> | string | any;
   showIcon?: boolean;
   type: BannerMessageType | null;
   size: BannerMessageSize | null;
@@ -178,14 +179,14 @@ const BannerMessage = ({
                   <SparrowIcon Icon={Icon} fill={iconColor} />
                 )}
                 <Text
-                  style={[globalStyles.labelTextOneUppercase, bannerTextStyle]}>
+                  style={[GlobalStyles.labelTextOneUppercase, bannerTextStyle]}>
                   {title}
                 </Text>
               </View>
             )}
             <Text
               style={[
-                globalStyles.bodyTextTwo,
+                GlobalStyles.bodyTextTwo,
                 styles.description,
                 bannerTextStyle,
               ]}>
@@ -197,7 +198,7 @@ const BannerMessage = ({
               <Pressable
                 style={[styles.textButton, buttonStyle]}
                 onPress={onButtonPress}>
-                <Text style={[globalStyles.buttonTextThree, buttonTextStyle]}>
+                <Text style={[GlobalStyles.buttonTextThree, buttonTextStyle]}>
                   {buttonText}
                 </Text>
               </Pressable>

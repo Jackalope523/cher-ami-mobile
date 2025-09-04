@@ -88,9 +88,9 @@ export default function ToastMessageProvider({
   ) {
     setToastSize(BannerMessageSize.Small);
     setToastMessage(message);
-    type && setToastType(type);
-    timeout && setCount(timeout);
-    title && setToastTitle(title);
+    type !== undefined && setToastType(type);
+    timeout !== undefined && setCount(timeout);
+    title !== undefined && setToastTitle(title);
   }
 
   return (

@@ -1,4 +1,10 @@
-import { useEffect, useState } from 'react';
+import {
+  Dispatch,
+  RefObject,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 import {
   NativeSyntheticEvent,
   Pressable,
@@ -12,7 +18,7 @@ import {
 import ErrorIcon from '@/assets/icons/error-fill.svg';
 import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
-import { globalStyles } from '@/constants/GlobalStyles';
+import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 import countryCodeOptions, { attachAction } from './CountryCodeOptions';
 import LizardTextInput, { InputType } from './LizardTextInput';
@@ -21,9 +27,9 @@ import SparrowIcon from './SparrowIcon';
 import { useBottomSheetModal } from './modals/BottomSheetModalProvider';
 
 interface PhoneNumberInputProps {
-  textRef?: React.RefObject<TextInput>;
-  setNumber: React.Dispatch<React.SetStateAction<string>>;
-  setValid: React.Dispatch<React.SetStateAction<boolean>>;
+  textRef?: RefObject<TextInput>;
+  setNumber: Dispatch<SetStateAction<string>>;
+  setValid: Dispatch<SetStateAction<boolean>>;
   disabled?: boolean;
   required?: boolean;
   description?: string;
@@ -88,13 +94,13 @@ function PhoneNumberInput({
       <View style={styles.labelContainer}>
         <Text
           style={[
-            globalStyles.labelTextTwoAsTyped,
-            globalStyles.textDark,
+            GlobalStyles.labelTextTwoAsTyped,
+            GlobalStyles.textDark,
             disabled
-              ? globalStyles.textDisabled
+              ? GlobalStyles.textDisabled
               : error
-              ? globalStyles.textError
-              : globalStyles.textDark,
+              ? GlobalStyles.textError
+              : GlobalStyles.textDark,
           ]}>
           Phone Number
         </Text>
@@ -141,15 +147,15 @@ function PhoneNumberInput({
             style={styles.icon}
           />
           <Text
-            style={[globalStyles.bodyTextTwo, globalStyles.textErrorDarker]}>
+            style={[GlobalStyles.bodyTextTwo, GlobalStyles.textErrorDarker]}>
             {error}
           </Text>
         </View>
       ) : disabled ? (
         <Text
           style={[
-            globalStyles.bodyTextTwo,
-            globalStyles.textDisabled,
+            GlobalStyles.bodyTextTwo,
+            GlobalStyles.textDisabled,
             styles.description,
           ]}>
           You cannot modify your phone number.
@@ -158,10 +164,10 @@ function PhoneNumberInput({
         description && (
           <Text
             style={[
-              globalStyles.bodyTextTwo,
-              globalStyles.textDark,
+              GlobalStyles.bodyTextTwo,
+              GlobalStyles.textDark,
               styles.description,
-              error ? globalStyles.textError : globalStyles.textDark,
+              error ? GlobalStyles.textError : GlobalStyles.textDark,
             ]}>
             {description}
           </Text>
