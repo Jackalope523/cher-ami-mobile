@@ -63,7 +63,7 @@ export default function Upload() {
     }
   }
 
-  if (circleQuery.isLoading) {
+  if (!circleQuery.isSuccess || !currentIssueQuery.isSuccess) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <Text style={GlobalStyles.bodyTextOne}>Loading...</Text>
@@ -71,7 +71,7 @@ export default function Upload() {
     );
   }
 
-  if (circleQuery.isError) {
+  if (circleQuery.isError || currentIssueQuery.isError) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <Text style={GlobalStyles.bodyTextOne}>Error</Text>
@@ -103,7 +103,9 @@ export default function Upload() {
 
   return (
     <SafeAreaView style={styles.uploadContainer}>
-      <Text style={GlobalStyles.headingTextThree}>Upload</Text>
+      <Text style={GlobalStyles.headingTextThree}>
+        Upload to {currentIssueQuery.data?.title}
+      </Text>
 
       <View style={styles.imageContainer}>
         <Image
@@ -130,8 +132,7 @@ export default function Upload() {
         <Button
           type={ButtonType.Warning}
           text={'Manage Circle'}
-          onPress={() => router.push('/circle/manage', {})}
-          disabled={uploadMutation.isPending || !selectedImage}
+          onPress={() => router.push('/circle/manage')}
         />
       </View>
     </SafeAreaView>

@@ -6,7 +6,7 @@ import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import OTPInput from '@/components/OTPInput/OTPInput';
 import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
-import { useMutation } from '@tanstack/react-query';
+import { useLoginMutation, useVerifyCodeMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { setItemAsync } from 'expo-secure-store';
@@ -35,40 +35,37 @@ export default function Verify() {
   const [codeReady, setCodeReady] = useState(false);
   const [activeResendTimeout, setActiveResendTimeout] = useState(0);
 
-  const verifyMutation = useMutation({
-    mutationFn: async () =>
-      await api.post('/account/verify', { phoneNumber, code }),
-    onSuccess: async (response) => {
-      await setItemAsync('token', response.data);
+  const verifyMutation = useVerifyCodeMutation(
+    async (response) => {
+      await setItemAsync('token', response.token);
       router.replace('/(tabs)/upload');
     },
-    onError: (err) => {
-      console.error('Login failed:', err);
+    (error) => {
+      console.error('Login failed:', error);
       showToastMessage('Login failed.', BannerMessageType.Error);
     },
-  });
+  );
 
-  const resendMutation = useMutation({
-    mutationFn: () => api.post('/account/login', { phoneNumber }),
-    onSuccess: () => {
+  const resendMutation = useLoginMutation(
+    () => {
       showToastMessage(
         `Verification code re-sent to ${phoneNumber}.`,
         BannerMessageType.Success,
       );
     },
-    onError: (err) => {
-      console.error('Resend failed:', err);
+    (error) => {
+      console.error('Resend failed:', error);
       showToastMessage('Resend failed.', BannerMessageType.Error);
     },
-  });
+  );
 
   function handleVerify() {
-    verifyMutation.mutate();
+    verifyMutation.mutate({ phoneNumber, code });
   }
 
   function handleResend() {
     if (activeResendTimeout === 0) {
-      resendMutation.mutate();
+      resendMutation.mutate({ phoneNumber });
       setActiveResendTimeout(resendTimeoutSeconds);
     }
   }

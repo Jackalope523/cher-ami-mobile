@@ -17,7 +17,7 @@ import Button from '@/components/Button';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PhoneNumberInput from '@/components/PhoneNumberInput';
 import { Spacings } from '@/constants/Spacings';
-import { useMutation } from '@tanstack/react-query';
+import { useLoginMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -29,21 +29,18 @@ export default function Login() {
   const [validPhoneNumber, setValidPhoneNumber] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
 
-  const mutation = useMutation({
-    mutationFn: () => {
-      return api.post('/account/login', { phoneNumber });
-    },
-    onSuccess: () => {
+  const mutation = useLoginMutation(
+    () => {
       router.push({
         pathname: '/verify',
         params: { phoneNumber },
       });
     },
-    onError: (err) => {
-      console.error('Login failed: ', err.message);
+    (error) => {
+      console.error('Login failed: ', error.message);
       showToastMessage('Login failed.', BannerMessageType.Error);
     },
-  });
+  );
 
   function handleLogin() {
     mutation.mutate();

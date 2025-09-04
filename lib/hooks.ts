@@ -1,5 +1,6 @@
 import { useAPI } from '@/components/APIProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
 
 export function useInterval(callback: () => {}, delay: number) {
@@ -34,11 +35,10 @@ export interface CircleDTO {
   schedule: IssueSchedule;
 }
 
-
 export function useUserCircleQuery() {
   const api = useAPI();
 
-  return useQuery<CircleDTO|null, Error>({
+  return useQuery<CircleDTO|null, AxiosError>({
     queryKey: ['UserCircle'],
     queryFn: async () => {
       const response = await api.get('/circle');
@@ -67,7 +67,7 @@ export interface IssueDTO {
 export function useCurrentIssueQuery(enabled: boolean) {
   const api = useAPI();
 
-  return useQuery<IssueDTO, Error>({
+  return useQuery<IssueDTO, AxiosError>({
     queryKey: ['CurrentIssue'],
     queryFn: async () => {
       const response = await api.get('/circle/issues/current')
@@ -84,10 +84,6 @@ export function useCurrentIssueQuery(enabled: boolean) {
   });
 }
 
-export interface MutationParams {
-  onSuccess?: (data: any) => void;
-  onError?: (error: any) => void;
-}
 
 export interface AddPostRequest {
   issueId: number;
@@ -97,11 +93,10 @@ export interface AddPostRequest {
   imageName: string;
 }
 
-
-export function useAddPostMutation(params: MutationParams) {
+export function useAddPostMutation(  onSuccess?: (data: any) => void,   onError?: (error: any) => void) {
   const api = useAPI();
 
-  return useMutation({
+  return useMutation<void, AxiosError, AddPostRequest>({
     mutationFn: async (request: AddPostRequest) => {
       const formData = new FormData();
 
@@ -114,7 +109,7 @@ export function useAddPostMutation(params: MutationParams) {
         name: request.imageName,
       } as any);
 
-      const response = await api.post(
+      await api.post(
         `/issues/${request.issueId}/posts`,
         formData,
         {
@@ -123,10 +118,46 @@ export function useAddPostMutation(params: MutationParams) {
           },
         },
       );
-
-      return response.data;
     },
-    onSuccess: params.onSuccess,
-    onError: params.onError,
+    onSuccess,
+    onError
   });
+}
+
+export interface LoginRequest {
+  phoneNumber: string;
+}
+
+export function useLoginMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError, LoginRequest>({
+    mutationFn: async (request: LoginRequest) => {
+      await api.post<void>('/account/login', request);
+    },
+    onSuccess,
+    onError,
+  });
+}
+
+export interface VerifyCodeRequest {
+  phoneNumber: string;
+  code: string;
+}
+
+export interface VerifyCodeResponse {
+  token: string;
+}
+
+export function useVerifyCodeMutation(onSuccess?:(data: VerifyCodeResponse) => void , onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<VerifyCodeResponse, AxiosError, VerifyCodeRequest>({
+      mutationFn: async (request: VerifyCodeRequest) =>{
+        const response = await api.post<VerifyCodeResponse>('/account/verify', request);
+        return response.data;
+      },
+      onSuccess: onSuccess,
+      onError: onError,
+    });
 }
