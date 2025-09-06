@@ -27,9 +27,26 @@ export const useAPI = () => {
 const api = axios.create({
   baseURL: 'http://10.0.2.2:5000',
   timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  transformResponse: [
+    ...(axios.defaults.transformResponse as any),
+    (data: any) => {
+      function reviveDates(obj: any): any {
+        if (obj === null || obj === undefined) return obj;
+        if (
+          typeof obj === 'string' &&
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(obj)
+        ) {
+          return new Date(obj);
+        }
+        if (Array.isArray(obj)) return obj.map(reviveDates);
+        if (typeof obj === 'object') {
+          for (const key in obj) obj[key] = reviveDates(obj[key]);
+        }
+        return obj;
+      }
+      return reviveDates(data);
+    },
+  ],
 });
 
 export default function APIProvider({ children }: APIProviderProps) {

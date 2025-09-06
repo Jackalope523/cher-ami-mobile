@@ -32,11 +32,7 @@ export function useUserCircleQuery() {
     queryKey: ['UserCircle'],
     queryFn: async () => {
       const response = await api.get('/circle');
-
-      return response.data !== null ? {
-        ...response.data,
-        dateCreated: new Date(response.data.dateCreated),
-      } : null;
+      return response.data;
     }
   });
 }
@@ -47,15 +43,8 @@ export function useCurrentIssueQuery(enabled: boolean) {
   return useQuery<IssueDTO, AxiosError>({
     queryKey: ['CurrentIssue'],
     queryFn: async () => {
-      const response = await api.get('/circle/issues/current')
-
-      const parsed: IssueDTO = {
-        ...response.data,
-        draftingStart: new Date(response.data.draftingStart),
-        draftingEnd: new Date(response.data.draftingEnd),
-      };
-
-      return parsed;
+      const response = await api.get('/circle/issues/current');
+      return response.data;
     },
     enabled: enabled,
   });
@@ -80,19 +69,9 @@ export function useAddPostMutation(onSuccess?: (data: PostDTO) => void,   onErro
       const response = await api.post(
         `/issues/${request.issueId}/posts`,
         formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
       );
 
-      const parsed: PostDTO = {
-        ...response.data,
-        timestamp: new Date(response.data.timestamp),
-      };
-
-      return parsed;
+      return response.data;
     },
     onSuccess,
     onError
@@ -139,18 +118,9 @@ export function useCreateCircleMutation(onSuccess?:(data: CircleDTO) => void , o
           name: request.imageName,
         } as any);
   
-        const response = await api.post('/circle', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        const response = await api.post('/circle', formData);
         
-        const parsed: CircleDTO = {
-          ...response.data,
-          dateCreated: new Date(response.data.dateCreated),
-        };
-        
-        return parsed;
+        return response.data;
       },
       onSuccess,
       onError,
