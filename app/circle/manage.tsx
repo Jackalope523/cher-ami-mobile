@@ -1,41 +1,17 @@
-import { useAPI } from '@/components/APIProvider';
-import { BannerMessageType } from '@/components/BannerMessage';
 import Button, { ButtonType } from '@/components/Button';
 import LizardTextInput, { InputType } from '@/components/LizardTextInput';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import { Spacings } from '@/constants/Spacings';
-import { useMutation } from '@tanstack/react-query';
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-interface JoinCircleRequest {
-  code: string;
-}
-
 export default function Manage() {
-  const api = useAPI();
   const showToastMessage = useToastMessage();
 
   const [code, setCode] = useState('');
   const [validCode, setValidCode] = useState(false);
 
-  const joinCircleMutation = useMutation({
-    mutationFn: async (request: JoinCircleRequest) =>
-      await api.post('/circles/join', { code: request.code }),
-    onSuccess: () => {
-      showToastMessage('Joined circle!', BannerMessageType.Success);
-      router.replace('/upload');
-    },
-    onError: (err) => {
-      console.error('Circle join failed: ', err);
-      showToastMessage('Failed to join circle.', BannerMessageType.Error);
-    },
-  });
-
-  function handleSubmit() {
-    joinCircleMutation.mutate({ code: code });
-  }
+  function handleSubmit() {}
 
   return (
     <View style={styles.container}>
@@ -55,7 +31,6 @@ export default function Manage() {
         text={'Join Circle'}
         onPress={handleSubmit}
         type={ButtonType.Success}
-        disabled={!validCode || joinCircleMutation.isPending}
       />
     </View>
   );

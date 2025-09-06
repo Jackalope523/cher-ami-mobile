@@ -1,5 +1,4 @@
 import PlaceholderImage from '@/assets/images/placeholder.jpg';
-import { useAPI } from '@/components/APIProvider';
 import { BannerMessageType } from '@/components/BannerMessage';
 import Button, { ButtonType } from '@/components/Button';
 import LizardTextInput, { InputType } from '@/components/LizardTextInput';
@@ -7,7 +6,8 @@ import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
 import { Spacings } from '@/constants/Spacings';
-import { useMutation } from '@tanstack/react-query';
+import { IssueSchedule } from '@/lib/enums';
+import { useCreateCircleMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -16,54 +16,23 @@ import { Dimensions, StyleSheet, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import { v4 } from 'uuid';
 
-enum IssueSchedule {
-  Monthly,
-}
-
-interface CreateCircleRequest {
-  title: string;
-  schedule: IssueSchedule;
-  imageUri: string;
-  imageName: string;
-}
-
 export default function Create() {
-  const api = useAPI();
   const showToastMessage = useToastMessage();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [validTitle, setValidTitle] = useState(false);
 
-  const createCircleMutation = useMutation({
-    mutationFn: async (request: CreateCircleRequest) => {
-      const formData = new FormData();
-
-      formData.append('Title', request.title);
-      formData.append('Schedule', request.schedule.toString());
-      formData.append('Image', {
-        uri: request.imageUri,
-        type: 'image/jpeg',
-        name: request.imageName,
-      } as any);
-
-      const response = await api.post('/circle', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      return response.data;
-    },
-    onSuccess: () => {
+  const createCircleMutation = useCreateCircleMutation(
+    () => {
       showToastMessage('Circle created!', BannerMessageType.Success);
       router.replace('/upload');
     },
-    onError: (err) => {
-      console.error('Circle creation failed: ', err);
+    (error) => {
+      console.error('Circle creation failed: ', error);
       showToastMessage('Circle creation failed.', BannerMessageType.Error);
     },
-  });
+  );
 
   async function pickImageAsync() {
     let result = await launchImageLibraryAsync({
