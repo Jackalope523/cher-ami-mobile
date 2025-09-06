@@ -5,15 +5,13 @@ import { useEffect, useRef } from 'react';
 import { AddPostRequest, CreateCircleRequest, JoinCircleRequest, LoginRequest, VerifyCodeRequest } from './requests';
 import { CircleDTO, IssueDTO, PostDTO, TokenDTO } from './responses';
 
-export function useInterval(callback: () => {}, delay: number) {
-  const savedCallback = useRef();
-
-  // Remember the latest callback.
+export function useInterval(callback: () => void, delay: number) {
+  const savedCallback = useRef(callback);
+  
   useEffect(() => {
     savedCallback.current = callback;
   }, [callback]);
 
-  // Set up the interval.
   useEffect(() => {
     function tick() {
       savedCallback.current();
