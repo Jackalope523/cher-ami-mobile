@@ -1,5 +1,5 @@
 import VerificationImage from '@/assets/illustrations/verification-illustration-transparent.png';
-import { useAPI } from '@/components/APIProvider';
+import { useAuth } from '@/components/AuthProvider';
 import { BannerMessageType } from '@/components/BannerMessage';
 import Button, { ButtonType } from '@/components/Button';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
@@ -9,7 +9,6 @@ import { Spacings } from '@/constants/Spacings';
 import { useLoginMutation, useVerifyCodeMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { setItemAsync } from 'expo-secure-store';
 import { useState } from 'react';
 import {
   Keyboard,
@@ -23,7 +22,7 @@ import { Pressable } from 'react-native-gesture-handler';
 
 export default function Verify() {
   const showToastMessage = useToastMessage();
-  const api = useAPI();
+  const { updateToken } = useAuth();
 
   const { phoneNumber } = useLocalSearchParams<{ phoneNumber: string }>();
   const shortNumber = phoneNumber.substring(phoneNumber.length - 4);
@@ -37,8 +36,8 @@ export default function Verify() {
 
   const verifyMutation = useVerifyCodeMutation(
     async (response) => {
-      await setItemAsync('token', response.token);
-      router.replace('/(tabs)/upload');
+      await updateToken(response.token);
+      router.replace('/feed');
     },
     (error) => {
       console.error('Login failed:', error);

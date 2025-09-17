@@ -27,3 +27,7 @@ export interface CreateCircleRequest {
 export interface JoinCircleRequest {
   code: string;
 }
+
+export interface AddRecipientRequest {
+  
+}

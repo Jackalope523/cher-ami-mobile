@@ -1,5 +1,12 @@
 import { IssueSchedule, IssueType } from "./enums";
 
+export interface UserDTO {
+  id: number;
+  firstName: string;
+  lastName: string;
+  avatarPath: string;
+}
+
 export interface CircleDTO {
   id: number;
   inviteCode: string;
@@ -27,4 +34,9 @@ export interface PostDTO {
 
 export interface TokenDTO {
   token: string;
+}
+
+export interface AddRecipientResponse {
+   subscriptionId: string;
+   clientSecret: string;
 }

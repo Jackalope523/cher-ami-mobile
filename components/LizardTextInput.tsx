@@ -206,6 +206,10 @@ function LizardTextInput(
         currentValidity = true;
         break;
 
+      case InputType.Caption:
+        currentValidity = true;
+        break;
+
       case InputType.GivenName:
         if (text.length === 0) {
           currentError = 'Given name cannot be empty.';
@@ -606,6 +610,8 @@ export enum InputType {
 
   // Chat
   Message,
+
+  Caption,
 }
 
 export default forwardRef(LizardTextInput);

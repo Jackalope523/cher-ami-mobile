@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 
 import PhoneNumberImage from '@/assets/illustrations/phone-number-illustration.png';
-import { useAPI } from '@/components/APIProvider';
 import { BannerMessageType } from '@/components/BannerMessage';
 import Button from '@/components/Button';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
@@ -23,7 +22,6 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 
 export default function Login() {
-  const api = useAPI();
   const showToastMessage = useToastMessage();
 
   const [validPhoneNumber, setValidPhoneNumber] = useState(false);
@@ -43,7 +41,7 @@ export default function Login() {
   );
 
   function handleLogin() {
-    mutation.mutate();
+    mutation.mutate({ phoneNumber });
   }
 
   function handleHelp() {

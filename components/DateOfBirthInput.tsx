@@ -119,7 +119,6 @@ export default function DateOfBirthInput({
     const isLeapYear = (year: number) =>
       (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 
-    console.log(`Checking ${day}/${month}/${new Date().getFullYear()}`);
     const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
     // Adjust for leap year in February

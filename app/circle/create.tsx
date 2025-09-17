@@ -14,6 +14,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
+import 'react-native-get-random-values';
 import { v4 } from 'uuid';
 
 export default function Create() {
@@ -26,7 +27,7 @@ export default function Create() {
   const createCircleMutation = useCreateCircleMutation(
     () => {
       showToastMessage('Circle created!', BannerMessageType.Success);
-      router.replace('/upload');
+      router.replace('/circle/create');
     },
     (error) => {
       console.error('Circle creation failed: ', error);

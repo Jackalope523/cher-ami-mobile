@@ -2,8 +2,8 @@ import { useAPI } from '@/components/APIProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
-import { AddPostRequest, CreateCircleRequest, JoinCircleRequest, LoginRequest, VerifyCodeRequest } from './requests';
-import { CircleDTO, IssueDTO, PostDTO, TokenDTO } from './responses';
+import { AddPostRequest, AddRecipientRequest, CreateCircleRequest, JoinCircleRequest, LoginRequest, VerifyCodeRequest } from './requests';
+import { AddRecipientResponse, CircleDTO, IssueDTO, PostDTO, TokenDTO, UserDTO } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
   const savedCallback = useRef(callback);
@@ -35,7 +35,31 @@ export function useUserCircleQuery() {
   });
 }
 
-export function useCurrentIssueQuery(enabled: boolean) {
+export function useContributorsQuery() {
+  const api = useAPI();
+
+  return useQuery<UserDTO[], AxiosError>({
+    queryKey: ['Contributors'],
+    queryFn: async () => {
+      const response = await api.get('/circle/contributors');
+      return response.data;
+    }
+  });
+}
+
+export function useRecipientsQuery() {
+  const api = useAPI();
+
+  return useQuery<UserDTO[], AxiosError>({
+    queryKey: ['Recipients'],
+    queryFn: async () => {
+      const response = await api.get('/circle/recipients');
+      return response.data;
+    }
+  });
+}
+
+export function useCurrentIssueQuery(enabled: boolean = true) {
   const api = useAPI();
 
   return useQuery<IssueDTO, AxiosError>({
@@ -67,6 +91,11 @@ export function useAddPostMutation(onSuccess?: (data: PostDTO) => void,   onErro
       const response = await api.post(
         `/issues/${request.issueId}/posts`,
         formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
       return response.data;
@@ -116,7 +145,15 @@ export function useCreateCircleMutation(onSuccess?:(data: CircleDTO) => void , o
           name: request.imageName,
         } as any);
   
-        const response = await api.post('/circle', formData);
+        const response = await api.post(
+          '/circle', 
+          formData, 
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
         
         return response.data;
       },
@@ -130,7 +167,21 @@ export function useJoinCircleMutation(onSuccess?:() => void , onError?: (error: 
 
   return useMutation<void, AxiosError, JoinCircleRequest>({
       mutationFn: async (request: JoinCircleRequest) => {
-        await api.post('/circles/join', { code: request.code })
+        await api.post('/circles/join', request)
+      },
+      onSuccess: onSuccess,
+      onError: onError,
+    });
+}
+
+
+export function useAddRecipientMutation(onSuccess?:(response: AddRecipientResponse) => void , onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<AddRecipientResponse, AxiosError, AddRecipientRequest>({
+      mutationFn: async (request) => {
+        const response = await api.post('/circle/recipients', request)
+        return response.data;
       },
       onSuccess: onSuccess,
       onError: onError,
