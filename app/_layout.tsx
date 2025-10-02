@@ -8,6 +8,7 @@ import { StripeProvider } from '@stripe/stripe-react-native';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,7 +27,15 @@ function RootNavigator() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShadowVisible: false,
+        headerTitleStyle: { fontWeight: 400, color: '#C15F3C', fontSize: 28 },
+        headerTitleAlign: 'center',
+        headerStyle: {
+          backgroundColor: '#FCFBF8',
+        },
+      }}>
       <Stack.Protected guard={!loggedIn}>
         <Stack.Screen name="index" />
         <Stack.Screen name="signup" />
@@ -34,12 +43,18 @@ function RootNavigator() {
         <Stack.Screen name="verify" />
       </Stack.Protected>
       <Stack.Protected guard={loggedIn}>
-        <Stack.Screen name="feed" />
+        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
         <Stack.Screen name="profile" />
         <Stack.Screen name="circle/create" />
-        <Stack.Screen name="post/create" />
+        <Stack.Screen
+          name="post/create"
+          options={{
+            title: 'New Post',
+            headerTintColor: '#C15F3C',
+          }}
+        />
         <Stack.Screen name="circle/join" />
-        <Stack.Screen name="circle/manage" />
+        {/* JACKALOPE: Get this from the key store. */}
         <StripeProvider
           publishableKey={
             'pk_test_51RxlM1ARYKi6NXMeRhx7XC2Rjjv7tbG84PRxlKpGX8JlRFtQKoTbVpUHXx9JLc784nyVEBu2lePJJdVJ68h2jGtn00jSaBvtFe'
@@ -54,19 +69,21 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <GestureHandlerRootView>
-      <ToastMessageProvider>
-        <BottomSheetModalProvider>
-          <DialogueModalProvider>
-            <DrawerModalProvider>
-              <AuthProvider>
-                <APIProvider>
-                  <RootNavigator />
-                </APIProvider>
-              </AuthProvider>
-            </DrawerModalProvider>
-          </DialogueModalProvider>
-        </BottomSheetModalProvider>
-      </ToastMessageProvider>
+      <SafeAreaProvider>
+        <ToastMessageProvider>
+          <BottomSheetModalProvider>
+            <DialogueModalProvider>
+              <DrawerModalProvider>
+                <AuthProvider>
+                  <APIProvider>
+                    <RootNavigator />
+                  </APIProvider>
+                </AuthProvider>
+              </DrawerModalProvider>
+            </DialogueModalProvider>
+          </BottomSheetModalProvider>
+        </ToastMessageProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

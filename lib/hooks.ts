@@ -24,13 +24,14 @@ export function useInterval(callback: () => void, delay: number) {
 }
 
 export function useUserCircleQuery() {
+  console.log("Fetching user circle...");
   const api = useAPI();
 
   return useQuery<CircleDTO|null, AxiosError>({
     queryKey: ['UserCircle'],
     queryFn: async () => {
       const response = await api.get('/circle');
-      return response.data;
+      return response.status === 204 ? null : response.data;
     }
   });
 }
@@ -59,12 +60,13 @@ export function useRecipientsQuery() {
   });
 }
 
-export function useCurrentIssueQuery(enabled: boolean = true) {
+export function useCurrentIssueQuery(enabled: boolean = false) {
   const api = useAPI();
 
   return useQuery<IssueDTO, AxiosError>({
     queryKey: ['CurrentIssue'],
     queryFn: async () => {
+      console.log("Fetching current issue..." + enabled);
       const response = await api.get('/circle/issues/current');
       return response.data;
     },

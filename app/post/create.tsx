@@ -1,9 +1,7 @@
-import PlaceholderImage from '@/assets/images/placeholder.jpg';
+import PlusIcon from '@/assets/icons/add-outline.svg';
 import { BannerMessageType } from '@/components/BannerMessage';
-import Button, { ButtonType } from '@/components/Button';
-import LizardTextInput, { InputType } from '@/components/LizardTextInput';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
-import { borderRadius } from '@/constants/Borders';
+import PostCounter from '@/components/PostCounter';
 import { Colors } from '@/constants/Colors';
 import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
@@ -12,6 +10,7 @@ import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
+import { TextInput } from 'react-native-gesture-handler';
 import 'react-native-get-random-values';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { v4 } from 'uuid';
@@ -78,52 +77,93 @@ export default function Create() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={GlobalStyles.headingTextThree}>
-        Upload to {currentIssueQuery.data?.title}
-      </Text>
+    <View style={styles.container}>
+      <PostCounter />
 
       <Pressable style={styles.imageContainer} onPress={pickImageAsync}>
-        <Image
-          source={selectedImage ?? PlaceholderImage}
-          style={styles.image}
-        />
+        {selectedImage ? (
+          <Image source={selectedImage} style={styles.image} />
+        ) : (
+          <View
+            style={{
+              backgroundColor: '#F4F1EA',
+              borderRadius: 32,
+              width: Dimensions.get('window').width - 40,
+              height: Dimensions.get('window').width - 40,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <PlusIcon height={96} width={96} />
+          </View>
+        )}
       </Pressable>
-      <LizardTextInput
-        type={InputType.Caption}
-        label="Caption"
-        valid={validCaption}
-        setValid={setValidCaption}
-        text={caption}
-        setText={setCaption}
-        inputMode="text"
-        maxLength={200}
-      />
-      <View style={styles.buttonsContainer}>
-        <Button
-          type={ButtonType.Success}
-          text={'Post'}
-          onPress={handlePost}
-          disabled={
-            uploadMutation.isPending ||
-            !selectedImage ||
-            !validCaption ||
-            !currentIssueQuery.isSuccess
-          }
-        />
+
+      <Text
+        style={{
+          color: '#868581',
+          fontSize: 14,
+          fontWeight: 500,
+          paddingLeft: 20,
+          paddingBottom: 32,
+        }}>
+        Photo taken on Jul 28th, 2024
+      </Text>
+
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          alignItems: 'center',
+        }}>
+        <Text style={{ fontSize: 16, fontWeight: 600, color: '#242832' }}>
+          Caption
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: 600, color: '#242832' }}>
+          {caption.length}/200
+        </Text>
       </View>
-    </SafeAreaView>
+
+      <TextInput
+        style={{
+          paddingHorizontal: 20,
+          color: '#242832',
+          fontSize: 16,
+          fontWeight: 400,
+          flex: 1,
+          textAlignVertical: 'top',
+        }}
+        placeholder="Give your post a caption..."
+        placeholderTextColor="#868581"
+        maxLength={200}
+        value={caption}
+        onChangeText={setCaption}
+        multiline
+      />
+
+      <Pressable
+        onPress={handlePost}
+        disabled={selectedImage === null}
+        style={[
+          styles.button,
+          selectedImage === null && { backgroundColor: '#ECEDEF' },
+        ]}>
+        <Text
+          style={[
+            { color: '#FFFFFF', fontWeight: 500, fontSize: 16 },
+            selectedImage === null && { color: '#A8ABB3' },
+          ]}>
+          Post
+        </Text>
+      </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.canarySand,
-    alignItems: 'center',
-    justifyContent: 'center',
-    rowGap: Spacings.sm,
-    paddingHorizontal: Spacings.lg,
+    backgroundColor: '#FCFBF8',
   },
 
   noCircleContainer: {
@@ -142,21 +182,25 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    width: Dimensions.get('window').width - Spacings.lg * 2,
-    height: Dimensions.get('window').width - Spacings.lg * 2,
-    borderRadius: borderRadius.lg,
+    width: Dimensions.get('window').width - 40,
+    height: Dimensions.get('window').width - 40,
+    borderRadius: 32,
   },
 
   imageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: Colors.canaryDark,
-    borderRadius: borderRadius.lg,
+    paddingBottom: Spacings.mdsm,
   },
 
-  buttonsContainer: {
-    rowGap: Spacings.sm,
-    alignSelf: 'stretch',
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#C15F3C',
+    paddingVertical: Spacings.md,
+    margin: 20,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#C15F3C',
   },
 });

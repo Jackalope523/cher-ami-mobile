@@ -191,4 +191,13 @@ export const Colors = {
   ashphalt700: '#484B50',
   ashphalt800: '#303235',
   ashphalt900: '#18191A',
+
+  // Background
+  background: '#FCFBF8',
+
+  // Terracotta
+  terracotta500: '#C15F3C',
+
+  // Charcoal
+  charcoal100: '#C4C6CC',
 };

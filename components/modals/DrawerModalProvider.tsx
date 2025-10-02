@@ -1,10 +1,4 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, ReactNode, useContext, useState } from 'react';
 import {
   Dimensions,
   Keyboard,
@@ -14,14 +8,14 @@ import {
 } from 'react-native';
 
 import { Colors } from '@/constants/Colors';
-import { Spacings } from '@/constants/Spacings';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
+  clamp,
   FadeIn,
   FadeOut,
   runOnJS,
-  SlideInRight,
-  SlideOutRight,
+  SlideInLeft,
+  SlideOutLeft,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -46,51 +40,29 @@ export default function DrawerProvider({ children }: DrawerModalProviderProps) {
   // Swipeable Modal
   //////////////////
 
-  const offset = useSharedValue(0);
-  const pullBack = useSharedValue(true);
-
-  useEffect(() => {
-    offset.value = 0;
-    pullBack.value = true;
-  }, [offset, pullBack]);
-
-  const maximumModalWidth = styles.container.width * 0.8;
-
+  const offset = useSharedValue<number>(0);
+  const minOffset = -Dimensions.get('window').width;
+  const dismissThreshold = -Dimensions.get('window').width * 0.25;
   const pan = Gesture.Pan()
+    .onBegin(() => {})
     .onChange((event) => {
-      const translationX = event.translationX;
-      const floor = -100;
-
-      if (translationX > 0) {
-        offset.value = translationX;
-      } else if (translationX > floor) {
-        const dampenedX =
-          -translationX + (1 / (4 * floor)) * Math.pow(translationX, 2);
-
-        offset.value = -dampenedX;
-      }
-
-      pullBack.value = event.velocityX <= 1000;
+      offset.value = clamp(event.translationX, minOffset, 0);
     })
     .onFinalize(() => {
-      offset.value = withTiming(pullBack.value ? 0 : 1000);
-      !pullBack.value && runOnJS(closeDrawer)();
+      if (offset.value < dismissThreshold) {
+        runOnJS(closeDrawer)();
+      } else {
+        offset.value = withTiming(0);
+      }
     });
 
-  const swipeable = useAnimatedStyle(() => {
-    const translateX = offset.value;
-    const excess = Math.max(0, translateX - Spacings.lg);
-    return {
-      paddingRight: Spacings.lg,
-      marginRight: -excess,
-      maxWidth: maximumModalWidth,
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: offset.value }],
+  }));
 
   function openDrawer(contents: React.ReactNode) {
     Keyboard.dismiss();
     offset.value = 0;
-    pullBack.value = true;
     setContents(contents);
     setOpen(true);
   }
@@ -102,23 +74,23 @@ export default function DrawerProvider({ children }: DrawerModalProviderProps) {
   return (
     <DrawerModalContext.Provider value={{ openDrawer, closeDrawer }}>
       {open && (
-        <View style={[styles.container, { zIndex: 5 }]}>
-          <Pressable style={styles.pressableBackdrop} onPress={closeDrawer}>
-            <Animated.View
-              style={styles.backdrop}
-              entering={FadeIn}
-              exiting={FadeOut}
-            />
-          </Pressable>
+        <View style={styles.container}>
+          <Animated.View
+            style={styles.background}
+            entering={FadeIn}
+            exiting={FadeOut}
+          />
 
           <GestureDetector gesture={pan}>
             <Animated.View
-              style={[styles.drawer, swipeable]}
-              entering={SlideInRight}
-              exiting={SlideOutRight}>
+              style={[styles.drawer, animatedStyle]}
+              entering={SlideInLeft}
+              exiting={SlideOutLeft}>
               {contents}
             </Animated.View>
           </GestureDetector>
+
+          <Pressable onPress={closeDrawer} style={styles.pressable} />
         </View>
       )}
       {children}
@@ -141,35 +113,37 @@ export function useDrawerModal() {
 
 const styles = StyleSheet.create({
   container: {
-    zIndex: 10,
+    zIndex: 1,
     position: 'absolute',
-    justifyContent: 'center',
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    top: 0,
     bottom: 0,
+    left: 0,
     right: 0,
   },
 
-  pressableBackdrop: {
-    flex: 1,
-    zIndex: 1,
+  background: {
     position: 'absolute',
-    left: 0,
-    right: 0,
     top: 0,
     bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
 
   drawer: {
-    zIndex: 1,
     position: 'absolute',
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-    paddingHorizontal: Spacings.lg,
-    borderLeftWidth: 2,
-    borderColor: Colors.brown800,
-    backgroundColor: Colors.canarySand,
+    top: 0,
     bottom: 0,
+    left: 0,
+    right: Dimensions.get('window').width / 4,
+    backgroundColor: '#FCFBF8',
+  },
+
+  pressable: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: Dimensions.get('window').width * 0.75,
     right: 0,
   },
 
@@ -183,14 +157,5 @@ const styles = StyleSheet.create({
     width: 4,
     borderRadius: 100,
     backgroundColor: Colors.brown800,
-  },
-
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: 'rgba(0, 0, 0, 75)',
   },
 });
