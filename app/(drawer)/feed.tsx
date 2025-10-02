@@ -1,5 +1,5 @@
-import PlusIcon from '@/assets/icons/add-outline.svg';
 import MenuIcon from '@/assets/icons/kebab-fill.svg';
+import PlusIcon from '@/assets/icons/plus-white.svg';
 import Button, { ButtonType } from '@/components/Button';
 import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
@@ -11,7 +11,7 @@ import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import 'react-native-get-random-values';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import VerificationImage from '@/assets/illustrations/verification-illustration-transparent.png';
+import CameraImage from '@/assets/images/camera.png';
 import PlaceholderImage from '@/assets/images/placeholder.jpg';
 import PostCounter from '@/components/PostCounter';
 import { router, useNavigation } from 'expo-router';
@@ -104,8 +104,8 @@ export default function Feed() {
               alignItems: 'center',
             }}>
             <Image
-              source={VerificationImage}
-              style={{ height: 48, width: 48 }}
+              source={PlaceholderImage}
+              style={{ height: 48, width: 48, borderRadius: 24 }}
             />
             <View>
               <Text style={{ color: '#242832', fontWeight: 600, fontSize: 16 }}>
@@ -121,21 +121,17 @@ export default function Feed() {
           </View>
         </View>
 
-        <View
+        <Image
+          source={PlaceholderImage}
           style={{
-            alignItems: 'center',
-            paddingHorizontal: 20,
-            paddingBottom: Spacings.lg,
-          }}>
-          <Image
-            source={PlaceholderImage}
-            style={{
-              height: Dimensions.get('window').width - 20,
-              width: Dimensions.get('window').width - 20,
-              borderRadius: 32,
-            }}
-          />
-        </View>
+            height: Dimensions.get('window').width - 40,
+            width: Dimensions.get('window').width - 40,
+            borderRadius: 32,
+            marginHorizontal: 20,
+            marginBottom: Spacings.lg,
+          }}
+        />
+
         <View style={{ paddingHorizontal: 20, marginBottom: Spacings.md }}>
           <Text style={{ color: '#242832', fontSize: 16, fontWeight: 400 }}>
             Went on a long hike with mike and Lauren to set up a tripod and
@@ -222,7 +218,7 @@ export default function Feed() {
             }}>
             {"Be the first to upload to this month's issue!"}
           </Text>
-          <Image source={VerificationImage} style={{ height: 64, width: 64 }} />
+          <Image source={CameraImage} style={{ height: 64, width: 64 }} />
         </View>
 
         {renderIssueHeader()}

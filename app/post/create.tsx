@@ -1,4 +1,4 @@
-import PlusIcon from '@/assets/icons/add-outline.svg';
+import PlusIcon from '@/assets/icons/plus-grey.svg';
 import { BannerMessageType } from '@/components/BannerMessage';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PostCounter from '@/components/PostCounter';
@@ -146,7 +146,10 @@ export default function Create() {
         disabled={selectedImage === null}
         style={[
           styles.button,
-          selectedImage === null && { backgroundColor: '#ECEDEF' },
+          selectedImage === null && {
+            backgroundColor: '#ECEDEF',
+            borderColor: '#ECEDEF',
+          },
         ]}>
         <Text
           style={[
@@ -190,7 +193,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: Spacings.mdsm,
+    paddingVertical: Spacings.mdsm,
   },
 
   button: {

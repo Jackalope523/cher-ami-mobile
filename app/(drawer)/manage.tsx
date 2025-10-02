@@ -1,12 +1,14 @@
+import UserIcon from '@/assets/icons/user-round.svg';
+import PlaceholderImage from '@/assets/images/placeholder.jpg';
 import { useAPI } from '@/components/APIProvider';
 import NetworkImage from '@/components/NetworkImage';
 import { borderRadius } from '@/constants/Borders';
 import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 import { useContributorsQuery, useRecipientsQuery } from '@/lib/hooks';
-import { router } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
+import { Image } from 'expo-image';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function Manage() {
   const api = useAPI();
@@ -59,39 +61,99 @@ export default function Manage() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.section}>
-        <Text style={GlobalStyles.headingTextTwo}>Contributors</Text>
+    <ScrollView>
+      <Image
+        source={PlaceholderImage}
+        style={{
+          height: 186,
+          width: Dimensions.get('window').width - 40,
+          borderRadius: 32,
+          marginHorizontal: 20,
+          marginVertical: Spacings.xl,
+        }}
+      />
+
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          marginHorizontal: 20,
+          alignItems: 'center',
+          marginBottom: Spacings.md,
+        }}>
+        <Text style={{ fontSize: 24, fontWeight: 500, color: '#242832' }}>
+          Members
+        </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            columnGap: Spacings.sm,
+            paddingVertical: Spacings.sm,
+            paddingHorizontal: Spacings.mdsm,
+          }}>
+          <UserIcon height={24} width={24} />
+          <Text>1</Text>
+        </View>
       </View>
-      {renderContributors()}
-      <View style={styles.section}>
-        <Text style={GlobalStyles.headingTextTwo}>Recipients</Text>
-        <Pressable onPress={() => router.push('/circle/recipients/add')}>
-          <Text style={GlobalStyles.bodyTextOne}>Add+</Text>
-        </Pressable>
+
+      <View
+        style={{
+          borderRadius: 12,
+          borderWidth: 2,
+          borderColor: '#B05637',
+          paddingVertical: Spacings.mdsm,
+          paddingRight: Dimensions.get('window').width / 3.5,
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          flexDirection: 'row',
+          columnGap: Spacings.sm,
+          marginHorizontal: 20,
+        }}>
+        <Text style={{ color: '#B05637', fontWeight: 500, fontSize: 16 }}>
+          Invite to Circle
+        </Text>
+        <UserIcon height={24} width={24} />
       </View>
-      {renderRecipients()}
-    </View>
+
+      <View
+        style={{
+          flexDirection: 'row',
+          marginHorizontal: 20,
+          paddingVertical: Spacings.sm,
+          alignItems: 'center',
+          marginBottom: Spacings.md,
+        }}>
+        <Text style={{ fontSize: 24, fontWeight: 500, color: '#242832' }}>
+          Recipients
+        </Text>
+      </View>
+
+      <View
+        style={{
+          borderRadius: 12,
+          borderWidth: 2,
+          borderColor: '#B05637',
+          paddingVertical: Spacings.mdsm,
+          paddingRight: Dimensions.get('window').width / 3.5,
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          flexDirection: 'row',
+          columnGap: Spacings.sm,
+          marginHorizontal: 20,
+        }}>
+        <Text style={{ color: '#B05637', fontWeight: 500, fontSize: 16 }}>
+          Add Recipient
+        </Text>
+        <UserIcon height={24} width={24} />
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: Spacings.lg,
-    rowGap: Spacings.lg,
-  },
-
   contributorContainer: {
     flexDirection: 'row',
     columnGap: Spacings.mdsm,
-    alignItems: 'center',
-  },
-
-  section: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
 

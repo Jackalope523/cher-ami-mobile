@@ -13,7 +13,6 @@ import {
   ViewStyle,
 } from 'react-native';
 import { SvgProps } from 'react-native-svg';
-import ActionIcon from '../assets/icons/arrow-up-outline-alt.svg';
 import {
   default as AlertIcon,
   default as ErrorIcon,
