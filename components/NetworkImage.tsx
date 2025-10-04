@@ -1,7 +1,7 @@
 import PlaceholderImage from '@/assets/images/placeholder.jpg';
 import { Image, ImageProps } from 'expo-image';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useAuth } from './AuthProvider';
 
 export default function NetworkImage({
@@ -20,23 +20,16 @@ export default function NetworkImage({
   }, [getToken]);
 
   return (
-    <View style={styles.container}>
-      <Image
-        {...props}
-        source={{
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }}
-        placeholder={placeholder}
-      />
-    </View>
+    <Image
+      {...props}
+      source={{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }}
+      placeholder={placeholder}
+    />
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+const styles = StyleSheet.create({});

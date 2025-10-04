@@ -194,7 +194,7 @@ export default function Feed() {
 
   return (
     <View style={styles.container}>
-      <ScrollView overScrollMode="never">
+      <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
         <PostCounter numberOfPosts={5} />
         <View
           style={{

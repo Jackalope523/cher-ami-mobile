@@ -17,7 +17,7 @@ import { Pressable } from 'react-native-gesture-handler';
 import 'react-native-get-random-values';
 import { v4 } from 'uuid';
 
-export default function Create() {
+export default function CreateCircle() {
   const showToastMessage = useToastMessage();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);

@@ -1,7 +1,7 @@
 import GalleryIcon from '@/assets/icons/gallery-vertical.svg';
 import LogoutIcon from '@/assets/icons/log-out.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
-import SettingsIcon from '@/assets/icons/settings-2.svg';
+import SettingsIcon from '@/assets/icons/settings-orange.svg';
 import PersonIcon from '@/assets/icons/users-round.svg';
 import PlaceholderImage from '@/assets/images/placeholder.jpg';
 import { Spacings } from '@/constants/Spacings';
@@ -25,7 +25,10 @@ export default function Layout() {
           justifyContent: 'space-between',
         }}>
         <View>
-          <View
+          <Pressable
+            onPress={() => {
+              router.navigate('/profile');
+            }}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -44,7 +47,7 @@ export default function Layout() {
             <Text style={{ color: '#242832', fontSize: 20, fontWeight: 500 }}>
               Jessica Williams
             </Text>
-          </View>
+          </Pressable>
           <Pressable
             onPress={() => {
               router.navigate('/feed');

@@ -1,53 +1,13 @@
-import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
 
-import { BannerMessageType } from '@/components/BannerMessage';
-import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import NetworkImage from '@/components/NetworkImage';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useAddRecipientMutation } from '@/lib/hooks';
-import { SetupParams, useStripe } from '@stripe/stripe-react-native';
 
-export default function AddRecipient() {
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
-  const showToastMessage = useToastMessage();
-
-  const addRecipientMutation = useAddRecipientMutation(
-    (_) => {
-      showToastMessage('Recipient added!', BannerMessageType.Success);
-    },
-    (error) => {
-      console.error('Failed to add recipient:', error);
-      showToastMessage('Failed to add recipient.', BannerMessageType.Error);
-    },
-  );
-
-  useEffect(() => {
-    const initializePaymentSheet = async () => {
-      const params: SetupParams = {
-        paymentIntentClientSecret: '',
-        returnURL: 'stripe-example://payment-sheet',
-        allowsDelayedPaymentMethods: true,
-        merchantDisplayName: 'Hollow Inc',
-      };
-
-      const { error } = await initPaymentSheet(params);
-      if (error) {
-        // Handle error
-      }
-    };
-
-    initializePaymentSheet();
-  }, [initPaymentSheet]);
-
-  function handleAdd() {
-    addRecipientMutation.mutate({});
-  }
-
+export default function EditRecipient() {
   return (
     <ScrollView
       style={styles.container}
@@ -115,7 +75,7 @@ export default function AddRecipient() {
             { color: '#FFFFFF', fontWeight: 500, fontSize: 16 },
             false && { color: '#A8ABB3' },
           ]}>
-          Add Recipient
+          Save Changes
         </Text>
       </Pressable>
     </ScrollView>
@@ -124,6 +84,7 @@ export default function AddRecipient() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     paddingHorizontal: 20,
     backgroundColor: '#FCFBF8',
   },

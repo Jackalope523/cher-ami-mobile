@@ -1,0 +1,48 @@
+import { Spacings } from '@/constants/Spacings';
+import { StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
+import NetworkImage from './NetworkImage';
+interface UserItemProps {
+  imageSource?: string;
+  text?: string;
+  onPress?: () => void;
+}
+
+export default function UserItem({
+  imageSource = '',
+  text = 'John Doe',
+  onPress = () => {},
+}: UserItemProps) {
+  return (
+    <Pressable style={styles.contributorContainer} onPress={onPress}>
+      <NetworkImage
+        source={imageSource}
+        style={styles.image}
+        onError={(error) => {
+          console.log('Failed to load image', error);
+        }}
+      />
+      <View style={{ columnGap: Spacings.sm, flexDirection: 'row' }}>
+        <Text style={{ fontSize: 16, color: '#242832', fontWeight: 600 }}>
+          {text}
+        </Text>
+        <Text style={{ fontSize: 16, color: '#868581', fontWeight: 600 }}>
+          (You)
+        </Text>
+      </View>
+    </Pressable>
+  );
+}
+const styles = StyleSheet.create({
+  contributorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  image: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: Spacings.md,
+  },
+});
