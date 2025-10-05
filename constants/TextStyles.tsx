@@ -44,6 +44,12 @@ export const textStyles = StyleSheet.create({
     color: '#B05637',
   },
 
+  buttonTextBlack: {
+    fontWeight: 400,
+    fontSize: 16,
+    color: '#242832',
+  },
+
   caption: {
     fontWeight: 400,
     fontSize: 14,

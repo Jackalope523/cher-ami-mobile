@@ -4,6 +4,7 @@ import MenuIcon from '@/assets/icons/menu.svg';
 import SettingsIcon from '@/assets/icons/settings-orange.svg';
 import PersonIcon from '@/assets/icons/users-round.svg';
 import PlaceholderImage from '@/assets/images/placeholder.jpg';
+import { useAuth } from '@/components/AuthProvider';
 import { Spacings } from '@/constants/Spacings';
 import {
   DrawerContentComponentProps,
@@ -17,6 +18,12 @@ import { Pressable } from 'react-native-gesture-handler';
 
 export default function Layout() {
   function CustomDrawerContent(props: DrawerContentComponentProps) {
+    const { deleteToken } = useAuth();
+
+    function handleLogout() {
+      deleteToken().then(() => router.replace('/'));
+    }
+
     return (
       <DrawerContentScrollView
         {...props}
@@ -98,7 +105,8 @@ export default function Layout() {
               Settings
             </Text>
           </View>
-          <View
+          <Pressable
+            onPress={handleLogout}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -110,7 +118,7 @@ export default function Layout() {
             <Text style={{ color: '#B05637', fontSize: 16, fontWeight: 500 }}>
               Log Out
             </Text>
-          </View>
+          </Pressable>
         </View>
       </DrawerContentScrollView>
     );

@@ -1,5 +1,11 @@
-import Button, { ButtonType } from '@/components/Button';
+import AmiIcon from '@/assets/icons/ami.svg';
+import AppleIcon from '@/assets/icons/apple-logo.svg';
+import CherIcon from '@/assets/icons/cher.svg';
+import GoogleIcon from '@/assets/icons/google-logo.svg';
+import Dot from '@/assets/icons/i-top.svg';
+import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
+import { textStyles } from '@/constants/TextStyles';
 import {
   AuthRequestConfig,
   DiscoveryDocument,
@@ -9,7 +15,9 @@ import {
 import { router } from 'expo-router';
 import { maybeCompleteAuthSession } from 'expo-web-browser';
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 maybeCompleteAuthSession();
 
@@ -47,25 +55,148 @@ export default function Index() {
   }
 
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
-        justifyContent: 'center',
-        paddingHorizontal: Spacings.lg,
-        rowGap: Spacings.xs,
+        padding: 20,
+        backgroundColor: '#FCFBF8',
       }}>
-      <Button
-        text={'Sign Up'}
-        onPress={handleSignup}
-        type={ButtonType.Success}
+      <View
+        style={{
+          flexDirection: 'row',
+          columnGap: 8.99,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: Spacings.lg,
+        }}>
+        <CherIcon />
+        <View>
+          <AmiIcon />
+          <View
+            style={{
+              position: 'absolute',
+              right: 4.65,
+              left: 114.74,
+              bottom: 33.71,
+              top: 17.79,
+            }}>
+            <Dot />
+          </View>
+        </View>
+      </View>
+
+      <View
+        style={{
+          alignSelf: 'center',
+          marginVertical: Spacings.xxxl,
+          height: 228,
+          width: 228,
+          backgroundColor: 'grey',
+        }}
       />
-      <Button text={'Login'} onPress={handleLogin} type={ButtonType.Function} />
-      <Button
-        text={'Google'}
+
+      <Pressable
         onPress={handleGoogle}
-        type={ButtonType.Warning}
-        disabled={!request}
-      />
-    </View>
+        style={{
+          flexDirection: 'row',
+          columnGap: 15,
+          paddingHorizontal: 56,
+          paddingVertical: 15,
+          borderRadius: 10,
+          backgroundColor: '#FFFFFF',
+          marginBottom: Spacings.md,
+
+          // iOS shadow
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 6,
+
+          // Android shadow
+          elevation: 8,
+        }}>
+        <GoogleIcon />
+        <Text style={{ fontWeight: 500, color: '#0000008A', fontSize: 20 }}>
+          Continue with Google
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={{
+          flexDirection: 'row',
+          columnGap: 15,
+          paddingHorizontal: 56,
+          paddingVertical: 15,
+          borderRadius: 10,
+          backgroundColor: '#000000',
+
+          // iOS shadow
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 6,
+
+          // Android shadow
+          elevation: 8,
+        }}>
+        <AppleIcon />
+        <Text style={{ fontWeight: 500, color: '#FFFFFF', fontSize: 20 }}>
+          Continue with Apple
+        </Text>
+      </Pressable>
+
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          columnGap: Spacings.mdsm,
+          marginVertical: Spacings.xl,
+        }}>
+        <View style={{ borderWidth: 1.5, borderColor: '#DEDBD5', flex: 1 }} />
+        <Text style={[textStyles.labelLarge, { color: '#868581' }]}>OR</Text>
+        <View style={{ borderWidth: 1.5, borderColor: '#DEDBD5', flex: 1 }} />
+      </View>
+
+      <TextInput placeholder="Your email" />
+
+      <Pressable
+        style={[
+          styles.button,
+          {
+            backgroundColor: '#ECEDEF',
+            borderColor: '#ECEDEF',
+          },
+        ]}>
+        <Text
+          style={[
+            { color: '#FFFFFF', fontWeight: 500, fontSize: 16 },
+            { color: '#A8ABB3' },
+          ]}>
+          Continue
+        </Text>
+      </Pressable>
+
+      <Text
+        style={[
+          textStyles.buttonTextBlack,
+          { textAlign: 'center', paddingHorizontal: Spacings.xl },
+        ]}>
+        By continuing, you agree to the Terms of Service and Privacy Policy.
+      </Text>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#C15F3C',
+    paddingVertical: Spacings.md,
+    marginVertical: Spacings.md,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#C15F3C',
+  },
+});

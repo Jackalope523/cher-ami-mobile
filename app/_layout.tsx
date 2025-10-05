@@ -43,7 +43,12 @@ function RootNavigator() {
         },
       }}>
       <Stack.Protected guard={!loggedIn}>
-        <Stack.Screen name="index" />
+        <Stack.Screen
+          name="index"
+          options={{
+            headerShown: false,
+          }}
+        />
         <Stack.Screen name="signup" />
         <Stack.Screen name="login" />
         <Stack.Screen name="verify" />
