@@ -28,6 +28,7 @@ export default function Feed() {
   function handleCreatePost() {
     router.push('/post/create');
   }
+
   useEffect(() => {
     if (circleQuery.data) {
       navigation.setOptions({

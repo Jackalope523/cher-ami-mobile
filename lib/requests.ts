@@ -8,12 +8,12 @@ export interface AddPostRequest {
   imageName: string;
 }
 
-export interface LoginRequest {
-  phoneNumber: string;
+export interface EmailAuthRequest {
+  email: string;
 }
 
 export interface VerifyCodeRequest {
-  phoneNumber: string;
+  email: string;
   code: string;
 }
 

@@ -9,14 +9,17 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.hollowinc.cherami",
+         "icon": "./assets/images/icon.png",
       "supportsTablet": true,
       "config": {
         "usesNonExemptEncryption": false
       }
     },
     "android": {
+      "package": "com.hollowinc.cherami",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
@@ -31,18 +34,18 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
       ],
       [
-      "expo-secure-store",
-      {
-        "configureAndroidBackup": true,
-        "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
-      }
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+        }
       ]
     ],
     "experiments": {

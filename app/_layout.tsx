@@ -51,7 +51,12 @@ function RootNavigator() {
         />
         <Stack.Screen name="signup" />
         <Stack.Screen name="login" />
-        <Stack.Screen name="verify" />
+        <Stack.Screen
+          name="verify"
+          options={{
+            title: '',
+          }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={loggedIn}>
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />

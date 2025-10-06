@@ -16,7 +16,7 @@ import Button from '@/components/Button';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PhoneNumberInput from '@/components/PhoneNumberInput';
 import { Spacings } from '@/constants/Spacings';
-import { useLoginMutation } from '@/lib/hooks';
+import { useEmailAuthMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -27,7 +27,7 @@ export default function Login() {
   const [validPhoneNumber, setValidPhoneNumber] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
 
-  const mutation = useLoginMutation(
+  const mutation = useEmailAuthMutation(
     () => {
       router.push({
         pathname: '/verify',

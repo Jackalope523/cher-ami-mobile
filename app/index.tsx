@@ -6,6 +6,7 @@ import Dot from '@/assets/icons/i-top.svg';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { useEmailAuthMutation } from '@/lib/hooks';
 import {
   AuthRequestConfig,
   DiscoveryDocument,
@@ -35,20 +36,20 @@ const config: AuthRequestConfig = {
 
 export default function Index() {
   const [request, response, promptAsync] = useAuthRequest(config, discovery);
+  const emailAuthMutation = useEmailAuthMutation(
+    () => {
+      router.push('/verify');
+    },
+    (error) => {
+      console.log(error);
+    },
+  );
 
   useEffect(() => {
     if (response?.type === 'success') {
       const { code } = response.params;
     }
   }, [response]);
-
-  function handleLogin() {
-    router.push('/login');
-  }
-
-  function handleSignup() {
-    router.push('/signup');
-  }
 
   function handleGoogle() {
     promptAsync();
@@ -161,6 +162,9 @@ export default function Index() {
       <TextInput placeholder="Your email" />
 
       <Pressable
+        onPress={() =>
+          emailAuthMutation.mutate({ email: 'ecote523@gmail.com' })
+        }
         style={[
           styles.button,
           {

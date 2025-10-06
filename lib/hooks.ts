@@ -2,7 +2,7 @@ import { useAPI } from '@/components/APIProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
-import { AddPostRequest, AddRecipientRequest, CreateCircleRequest, JoinCircleRequest, LoginRequest, VerifyCodeRequest } from './requests';
+import { AddPostRequest, AddRecipientRequest, CreateCircleRequest, EmailAuthRequest, JoinCircleRequest, VerifyCodeRequest } from './requests';
 import { AddRecipientResponse, CircleDTO, IssueDTO, PostDTO, TokenDTO, UserDTO } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
@@ -24,7 +24,6 @@ export function useInterval(callback: () => void, delay: number) {
 }
 
 export function useUserCircleQuery() {
-  console.log("Fetching user circle...");
   const api = useAPI();
 
   return useQuery<CircleDTO|null, AxiosError>({
@@ -66,7 +65,6 @@ export function useCurrentIssueQuery(enabled: boolean = false) {
   return useQuery<IssueDTO, AxiosError>({
     queryKey: ['CurrentIssue'],
     queryFn: async () => {
-      console.log("Fetching current issue..." + enabled);
       const response = await api.get('/circle/issues/current');
       return response.data;
     },
@@ -107,12 +105,12 @@ export function useAddPostMutation(onSuccess?: (data: PostDTO) => void,   onErro
   });
 }
 
-export function useLoginMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+export function useEmailAuthMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
   const api = useAPI();
 
-  return useMutation<void, AxiosError, LoginRequest>({
+  return useMutation<void, AxiosError, EmailAuthRequest>({
     mutationFn: async (request) => {
-      await api.post<void>('/account/login', request);
+      await api.post<void>('/auth/email', request);
     },
     onSuccess,
     onError,
@@ -124,7 +122,7 @@ export function useVerifyCodeMutation(onSuccess?:(data: TokenDTO) => void , onEr
 
   return useMutation<TokenDTO, AxiosError, VerifyCodeRequest>({
       mutationFn: async (request) =>{
-        const response = await api.post<TokenDTO>('/account/verify', request);
+        const response = await api.post<TokenDTO>('/auth/email/verify', request);
         return response.data;
       },
       onSuccess: onSuccess,
