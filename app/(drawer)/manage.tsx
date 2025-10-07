@@ -7,6 +7,7 @@ import { useAPI } from '@/components/APIProvider';
 import UserItem from '@/components/UserItem';
 import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
+import { textStyles } from '@/constants/TextStyles';
 import { useContributorsQuery, useRecipientsQuery } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -77,9 +78,7 @@ export default function Manage() {
             alignItems: 'center',
             marginBottom: Spacings.md,
           }}>
-          <Text style={{ fontSize: 24, fontWeight: 500, color: '#242832' }}>
-            Members
-          </Text>
+          <Text style={textStyles.heading3}>Members</Text>
           <View
             style={{
               flexDirection: 'row',
@@ -90,9 +89,7 @@ export default function Manage() {
               borderRadius: 10,
             }}>
             <UserIcon height={24} width={24} />
-            <Text style={{ color: '#868581', fontSize: 16, fontWeight: 600 }}>
-              1
-            </Text>
+            <Text style={textStyles.labelLargeGrey}>1</Text>
           </View>
         </View>
 
@@ -110,9 +107,7 @@ export default function Manage() {
             columnGap: Spacings.sm,
             marginHorizontal: 20,
           }}>
-          <Text style={{ color: '#B05637', fontWeight: 500, fontSize: 16 }}>
-            Invite to Circle
-          </Text>
+          <Text style={textStyles.buttonTextOrange}>Invite to Circle</Text>
           <PlusIcon height={24} width={24} />
         </Pressable>
 
@@ -139,9 +134,7 @@ export default function Manage() {
             alignItems: 'center',
             marginBottom: Spacings.md,
           }}>
-          <Text style={{ fontSize: 24, fontWeight: 500, color: '#242832' }}>
-            Recipients
-          </Text>
+          <Text style={textStyles.heading3}>Recipients</Text>
         </View>
 
         <Pressable
@@ -158,9 +151,7 @@ export default function Manage() {
             columnGap: Spacings.sm,
             marginHorizontal: 20,
           }}>
-          <Text style={{ color: '#B05637', fontWeight: 500, fontSize: 16 }}>
-            Add Recipient
-          </Text>
+          <Text style={textStyles.buttonTextOrange}>Add Recipient</Text>
           <PlusIcon height={24} width={24} />
         </Pressable>
 
@@ -200,9 +191,7 @@ export default function Manage() {
             columnGap: Spacings.sm,
           }}>
           <CreditCardIcon height={24} width={24} />
-          <Text style={{ color: '#FFFFFF', fontWeight: 500, fontSize: 16 }}>
-            Manage Billing
-          </Text>
+          <Text style={textStyles.buttonTextWhite}>Manage Billing</Text>
         </Pressable>
         <View
           style={{
@@ -216,9 +205,7 @@ export default function Manage() {
             columnGap: Spacings.sm,
           }}>
           <SettingsIcon height={24} width={24} />
-          <Text style={{ color: '#FFFFFF', fontWeight: 500, fontSize: 16 }}>
-            Circle Settings
-          </Text>
+          <Text style={textStyles.buttonTextWhite}>Circle Settings</Text>
         </View>
       </View>
     </View>

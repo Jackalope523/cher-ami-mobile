@@ -54,7 +54,7 @@ export default function AddRecipient() {
       overScrollMode="never"
       showsVerticalScrollIndicator={false}>
       <NetworkImage style={styles.avatar} />
-      <Text style={[textStyles.labelLarge, styles.changeAvatar]}>
+      <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
         Change avatar
       </Text>
       <Text style={[textStyles.heading3, styles.sectionHeader]}>
@@ -75,19 +75,19 @@ export default function AddRecipient() {
       <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
       <View style={styles.summaryItemList}>
         <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLarge}>Renewal</Text>
+          <Text style={textStyles.labelLargeBlack}>Renewal</Text>
           <Text style={textStyles.labelSmall}>Monthly</Text>
         </View>
         <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLarge}>1 Magazine</Text>
+          <Text style={textStyles.labelLargeBlack}>1 Magazine</Text>
           <Text style={textStyles.labelSmall}>Monthly</Text>
         </View>
         <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLarge}>Delivery</Text>
+          <Text style={textStyles.labelLargeBlack}>Delivery</Text>
           <Text style={textStyles.labelSmall}>FREE</Text>
         </View>
         <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLarge}>Estimated sales tax</Text>
+          <Text style={textStyles.labelLargeBlack}>Estimated sales tax</Text>
           <Text style={textStyles.labelSmall}>---</Text>
         </View>
         <View style={styles.divider} />
@@ -111,10 +111,7 @@ export default function AddRecipient() {
           },
         ]}>
         <Text
-          style={[
-            { color: '#FFFFFF', fontWeight: 500, fontSize: 16 },
-            false && { color: '#A8ABB3' },
-          ]}>
+          style={[textStyles.buttonTextWhite, false && { color: '#A8ABB3' }]}>
           Add Recipient
         </Text>
       </Pressable>

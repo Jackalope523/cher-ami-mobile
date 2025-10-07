@@ -43,7 +43,7 @@ export default function Feed() {
       <View>
         <View style={styles.issueStateContainer}>
           <View style={styles.issueStateInfo}>
-            <Text style={textStyles.labelLarge}>Issue 2</Text>
+            <Text style={textStyles.labelLargeBlack}>Issue 2</Text>
             <Text
               style={[
                 textStyles.captionMedium,
@@ -105,7 +105,7 @@ export default function Feed() {
               style={{ height: 48, width: 48, borderRadius: 24 }}
             />
             <View>
-              <Text style={textStyles.labelLarge}>Kimi Neumann</Text>
+              <Text style={textStyles.labelLargeBlack}>Kimi Neumann</Text>
               <Text style={textStyles.captionMedium}>
                 Photo taken on Aug 29th, 2025
               </Text>

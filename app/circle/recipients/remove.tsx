@@ -31,9 +31,7 @@ export default function RemoveRecipient() {
           onPress={() => {}}
           disabled={false}
           style={[styles.removeButton]}>
-          <Text style={[{ color: '#242832', fontWeight: 500, fontSize: 16 }]}>
-            Remove
-          </Text>
+          <Text style={textStyles.buttonTextBlack}>Remove</Text>
         </Pressable>
         <Pressable
           onPress={() => router.back()}
@@ -46,10 +44,7 @@ export default function RemoveRecipient() {
             },
           ]}>
           <Text
-            style={[
-              { color: '#FFFFFF', fontWeight: 500, fontSize: 16 },
-              false && { color: '#A8ABB3' },
-            ]}>
+            style={[textStyles.buttonTextWhite, false && { color: '#A8ABB3' }]}>
             Cancel
           </Text>
         </Pressable>

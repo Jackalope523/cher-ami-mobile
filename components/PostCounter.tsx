@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { Spacings } from '@/constants/Spacings';
+import { textStyles } from '@/constants/TextStyles';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   interpolateColor,
@@ -38,8 +39,8 @@ export default function PostCounter({
   return (
     <View style={styles.issueStateContainer}>
       <View style={styles.issueStateInfo}>
-        <Text style={styles.issueText}>{issueTitle}</Text>
-        <Text style={styles.issueText}>
+        <Text style={textStyles.labelLargeBlack}>{issueTitle}</Text>
+        <Text style={textStyles.labelLargeBlack}>
           {numberOfPosts}/{maxPosts} posts
         </Text>
       </View>
@@ -66,11 +67,5 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.charcoal100,
     height: Spacings.sm,
     borderRadius: Spacings.sm,
-  },
-
-  issueText: {
-    fontSize: 16,
-    color: '#242832',
-    fontWeight: 600,
   },
 });

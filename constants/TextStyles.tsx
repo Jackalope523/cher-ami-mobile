@@ -65,11 +65,18 @@ export const textStyles = StyleSheet.create({
     color: '#868581',
   },
 
-  labelLarge: {
+  labelLargeBlack: {
     fontFamily: 'Poppins',
     fontWeight: 600,
     fontSize: 16,
     color: '#242832',
+  },
+
+  labelLargeGrey: {
+    fontFamily: 'Poppins',
+    fontWeight: 600,
+    fontSize: 16,
+    color: '#868581',
   },
 
   buttonTextOrange: {
@@ -81,9 +88,16 @@ export const textStyles = StyleSheet.create({
 
   buttonTextBlack: {
     fontFamily: 'Poppins',
-    fontWeight: 400,
+    fontWeight: 500,
     fontSize: 16,
     color: '#242832',
+  },
+
+  buttonTextWhite: {
+    fontFamily: 'Poppins',
+    fontWeight: 500,
+    fontSize: 16,
+    color: '#FFFFFF',
   },
 
   caption: {

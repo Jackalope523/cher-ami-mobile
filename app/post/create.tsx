@@ -5,6 +5,7 @@ import PostCounter from '@/components/PostCounter';
 import { Colors } from '@/constants/Colors';
 import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
+import { textStyles } from '@/constants/TextStyles';
 import { useAddPostMutation, useCurrentIssueQuery } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
@@ -99,13 +100,13 @@ export default function Create() {
       </Pressable>
 
       <Text
-        style={{
-          color: '#868581',
-          fontSize: 14,
-          fontWeight: 500,
-          paddingLeft: 20,
-          paddingBottom: 32,
-        }}>
+        style={[
+          textStyles.captionMedium,
+          {
+            paddingLeft: 20,
+            paddingBottom: 32,
+          },
+        ]}>
         Photo taken on Jul 28th, 2024
       </Text>
 
@@ -116,23 +117,19 @@ export default function Create() {
           paddingHorizontal: 20,
           alignItems: 'center',
         }}>
-        <Text style={{ fontSize: 16, fontWeight: 600, color: '#242832' }}>
-          Caption
-        </Text>
-        <Text style={{ fontSize: 16, fontWeight: 600, color: '#242832' }}>
-          {caption.length}/200
-        </Text>
+        <Text style={textStyles.labelLargeBlack}>Caption</Text>
+        <Text style={textStyles.labelLargeBlack}>{caption.length}/200</Text>
       </View>
 
       <TextInput
-        style={{
-          paddingHorizontal: 20,
-          color: '#242832',
-          fontSize: 16,
-          fontWeight: 400,
-          flex: 1,
-          textAlignVertical: 'top',
-        }}
+        style={[
+          textStyles.body,
+          {
+            paddingHorizontal: 20,
+            flex: 1,
+            textAlignVertical: 'top',
+          },
+        ]}
         placeholder="Give your post a caption..."
         placeholderTextColor="#868581"
         maxLength={200}
@@ -153,7 +150,7 @@ export default function Create() {
         ]}>
         <Text
           style={[
-            { color: '#FFFFFF', fontWeight: 500, fontSize: 16 },
+            textStyles.buttonTextWhite,
             selectedImage === null && { color: '#A8ABB3' },
           ]}>
           Post

@@ -155,7 +155,9 @@ export default function Index() {
           marginVertical: Spacings.xl,
         }}>
         <View style={{ borderWidth: 1.5, borderColor: '#DEDBD5', flex: 1 }} />
-        <Text style={[textStyles.labelLarge, { color: '#868581' }]}>OR</Text>
+        <Text style={[textStyles.labelLargeBlack, { color: '#868581' }]}>
+          OR
+        </Text>
         <View style={{ borderWidth: 1.5, borderColor: '#DEDBD5', flex: 1 }} />
       </View>
 
@@ -172,13 +174,7 @@ export default function Index() {
             borderColor: '#ECEDEF',
           },
         ]}>
-        <Text
-          style={[
-            { color: '#FFFFFF', fontWeight: 500, fontSize: 16 },
-            { color: '#A8ABB3' },
-          ]}>
-          Continue
-        </Text>
+        <Text style={textStyles.buttonTextWhite}>Continue</Text>
       </Pressable>
 
       <Text

@@ -1,4 +1,5 @@
 import { Spacings } from '@/constants/Spacings';
+import { textStyles } from '@/constants/TextStyles';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import NetworkImage from './NetworkImage';
@@ -23,12 +24,8 @@ export default function UserItem({
         }}
       />
       <View style={{ columnGap: Spacings.sm, flexDirection: 'row' }}>
-        <Text style={{ fontSize: 16, color: '#242832', fontWeight: 600 }}>
-          {text}
-        </Text>
-        <Text style={{ fontSize: 16, color: '#868581', fontWeight: 600 }}>
-          (You)
-        </Text>
+        <Text style={textStyles.labelLargeBlack}>{text}</Text>
+        <Text style={textStyles.labelLargeGrey}>(You)</Text>
       </View>
     </Pressable>
   );

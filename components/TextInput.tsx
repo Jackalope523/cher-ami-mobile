@@ -20,7 +20,7 @@ export default function TextInput({
 }: TextInputProps) {
   return (
     <View style={styles.container}>
-      {title && <Text style={textStyles.labelLarge}>{title}</Text>}
+      {title && <Text style={textStyles.labelLargeBlack}>{title}</Text>}
       <View>
         <ReactNativeTextInput
           style={[textStyles.body, styles.textInput]}
