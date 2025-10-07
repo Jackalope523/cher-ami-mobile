@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 
 export const textStyles = StyleSheet.create({
   screenHeader: {
-    fontFamily: 'Damion',
+    fontFamily: 'Damion-Regular',
     fontWeight: 400,
     fontSize: 28,
     color: '#C15F3C',
@@ -37,6 +37,13 @@ export const textStyles = StyleSheet.create({
     color: '#242832',
   },
 
+  heading5: {
+    fontFamily: 'Poppins',
+    fontWeight: 500,
+    fontSize: 16,
+    color: '#242832',
+  },
+
   body: {
     fontFamily: 'Poppins',
     fontWeight: 400,
@@ -47,6 +54,13 @@ export const textStyles = StyleSheet.create({
   labelSmall: {
     fontFamily: 'Poppins',
     fontWeight: 600,
+    fontSize: 14,
+    color: '#868581',
+  },
+
+  captionMedium: {
+    fontFamily: 'Poppins',
+    fontWeight: 500,
     fontSize: 14,
     color: '#868581',
   },

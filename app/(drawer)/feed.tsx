@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CameraImage from '@/assets/images/camera.png';
 import PlaceholderImage from '@/assets/images/placeholder.jpg';
 import PostCounter from '@/components/PostCounter';
+import { textStyles } from '@/constants/TextStyles';
 import { router, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 import { Pressable } from 'react-native-gesture-handler';
@@ -33,11 +34,6 @@ export default function Feed() {
     if (circleQuery.data) {
       navigation.setOptions({
         title: circleQuery.data.title,
-        // headerLeft: () => (
-        //   <Pressable style={styles.menuIcon} onPress={handleOpenDrawer}>
-        //     <MenuIcon width={24} height={24} />
-        //   </Pressable>
-        // ),
       });
     }
   }, [circleQuery.data, navigation]);
@@ -47,14 +43,14 @@ export default function Feed() {
       <View>
         <View style={styles.issueStateContainer}>
           <View style={styles.issueStateInfo}>
-            <Text style={styles.issueText}>Issue 2</Text>
+            <Text style={textStyles.labelLarge}>Issue 2</Text>
             <Text
-              style={{
-                color: '#868581',
-                fontSize: 14,
-                fontWeight: 500,
-                textAlign: 'right',
-              }}>
+              style={[
+                textStyles.captionMedium,
+                {
+                  textAlign: 'right',
+                },
+              ]}>
               August 2025
             </Text>
           </View>
@@ -71,12 +67,12 @@ export default function Feed() {
                 backgroundColor: '#F4F1EA',
               }}>
               <Text
-                style={{
-                  color: '#868581',
-                  fontWeight: 600,
-                  fontSize: 14,
-                  textAlign: 'center',
-                }}>
+                style={[
+                  textStyles.labelSmall,
+                  {
+                    textAlign: 'center',
+                  },
+                ]}>
                 Last Month
               </Text>
             </View>
@@ -109,10 +105,8 @@ export default function Feed() {
               style={{ height: 48, width: 48, borderRadius: 24 }}
             />
             <View>
-              <Text style={{ color: '#242832', fontWeight: 600, fontSize: 16 }}>
-                Kimi Neumann
-              </Text>
-              <Text style={{ color: '#868581', fontWeight: 500, fontSize: 14 }}>
+              <Text style={textStyles.labelLarge}>Kimi Neumann</Text>
+              <Text style={textStyles.captionMedium}>
                 Photo taken on Aug 29th, 2025
               </Text>
             </View>
@@ -134,7 +128,7 @@ export default function Feed() {
         />
 
         <View style={{ paddingHorizontal: 20, marginBottom: Spacings.md }}>
-          <Text style={{ color: '#242832', fontSize: 16, fontWeight: 400 }}>
+          <Text style={textStyles.body}>
             Went on a long hike with mike and Lauren to set up a tripod and
             snapped this amazing pic by the lake.
           </Text>
@@ -211,12 +205,12 @@ export default function Feed() {
             alignItems: 'center',
           }}>
           <Text
-            style={{
-              flexShrink: 1,
-              fontSize: 16,
-              fontWeight: 600,
-              color: '#242832',
-            }}>
+            style={[
+              textStyles.heading5,
+              {
+                flexShrink: 1,
+              },
+            ]}>
             {"Be the first to upload to this month's issue!"}
           </Text>
           <Image source={CameraImage} style={{ height: 64, width: 64 }} />
@@ -305,18 +299,5 @@ const styles = StyleSheet.create({
   issueStateInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-
-  title: {
-    fontSize: 28,
-    color: '#C15F3C',
-    fontWeight: 400,
-    textAlign: 'center',
-  },
-
-  issueText: {
-    fontSize: 16,
-    color: '#242832',
-    fontWeight: 600,
   },
 });
