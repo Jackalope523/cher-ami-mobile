@@ -6,6 +6,7 @@ import DialogueModalProvider from '@/components/modals/DialogueModalProvider';
 import DrawerModalProvider from '@/components/modals/DrawerModalProvider';
 import ToastMessageProvider from '@/components/modals/ToastMessageProvider';
 import { Spacings } from '@/constants/Spacings';
+import { textStyles } from '@/constants/TextStyles';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { router, SplashScreen, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -35,7 +36,7 @@ function RootNavigator() {
     <Stack
       screenOptions={{
         headerShadowVisible: false,
-        headerTitleStyle: { fontWeight: 400, color: '#C15F3C', fontSize: 28 },
+        headerTitleStyle: textStyles.screenHeader,
         headerTitleAlign: 'center',
         headerTintColor: '#C15F3C',
         headerStyle: {

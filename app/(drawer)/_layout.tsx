@@ -6,6 +6,7 @@ import PersonIcon from '@/assets/icons/users-round.svg';
 import PlaceholderImage from '@/assets/images/placeholder.jpg';
 import { useAuth } from '@/components/AuthProvider';
 import { Spacings } from '@/constants/Spacings';
+import { textStyles } from '@/constants/TextStyles';
 import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
@@ -51,9 +52,7 @@ export default function Layout() {
                 borderRadius: 24,
               }}
             />
-            <Text style={{ color: '#242832', fontSize: 20, fontWeight: 500 }}>
-              Jessica Williams
-            </Text>
+            <Text style={textStyles.heading4}>Jessica Williams</Text>
           </Pressable>
           <Pressable
             onPress={() => {
@@ -68,9 +67,7 @@ export default function Layout() {
               paddingLeft: Spacings.lg,
             }}>
             <GalleryIcon height={24} width={24} />
-            <Text style={{ color: '#B05637', fontSize: 16, fontWeight: 500 }}>
-              Feed
-            </Text>
+            <Text style={textStyles.buttonTextOrange}>Feed</Text>
           </Pressable>
           <Pressable
             onPress={() => {
@@ -84,9 +81,7 @@ export default function Layout() {
               paddingLeft: Spacings.lg,
             }}>
             <PersonIcon height={24} width={24} />
-            <Text style={{ color: '#B05637', fontSize: 16, fontWeight: 500 }}>
-              Circle
-            </Text>
+            <Text style={textStyles.buttonTextOrange}>Circle</Text>
           </Pressable>
         </View>
 
@@ -101,9 +96,7 @@ export default function Layout() {
               paddingLeft: Spacings.lg,
             }}>
             <SettingsIcon height={24} width={24} />
-            <Text style={{ color: '#B05637', fontSize: 16, fontWeight: 500 }}>
-              Settings
-            </Text>
+            <Text style={textStyles.buttonTextOrange}>Settings</Text>
           </View>
           <Pressable
             onPress={handleLogout}
@@ -115,9 +108,7 @@ export default function Layout() {
               paddingLeft: Spacings.lg,
             }}>
             <LogoutIcon height={24} width={24} />
-            <Text style={{ color: '#B05637', fontSize: 16, fontWeight: 500 }}>
-              Log Out
-            </Text>
+            <Text style={textStyles.buttonTextOrange}>Log Out</Text>
           </Pressable>
         </View>
       </DrawerContentScrollView>
@@ -129,7 +120,7 @@ export default function Layout() {
       drawerContent={CustomDrawerContent}
       screenOptions={({ navigation }) => ({
         headerShadowVisible: false,
-        headerTitleStyle: { fontWeight: 400, color: '#C15F3C', fontSize: 28 },
+        headerTitleStyle: textStyles.screenHeader,
         headerTitleAlign: 'center',
         headerStyle: {
           backgroundColor: '#FCFBF8',
