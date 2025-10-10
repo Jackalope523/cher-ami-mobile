@@ -1,33 +1,36 @@
 import MenuIcon from '@/assets/icons/kebab-fill.svg';
 import PlusIcon from '@/assets/icons/plus-white.svg';
-import Button, { ButtonType } from '@/components/Button';
 import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
-import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
-import { useCurrentIssueQuery, useUserCircleQuery } from '@/lib/hooks';
+import { useFeedPostsInfiniteQuery, useGetCircleQuery } from '@/lib/hooks';
 import { Image } from 'expo-image';
-import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, SectionList, StyleSheet, Text, View } from 'react-native';
 import 'react-native-get-random-values';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import CameraImage from '@/assets/images/camera.png';
-import PlaceholderImage from '@/assets/images/placeholder.jpg';
+import NetworkImage from '@/components/NetworkImage';
 import PostCounter from '@/components/PostCounter';
 import { textStyles } from '@/constants/TextStyles';
+import { FeedPost } from '@/lib/responses';
 import { router, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 import { Pressable } from 'react-native-gesture-handler';
 
 export default function Feed() {
   const navigation = useNavigation();
-  const circleQuery = useUserCircleQuery();
-  const currentIssueQuery = useCurrentIssueQuery(
-    circleQuery.isSuccess && circleQuery.data !== null,
-  );
+  const circleQuery = useGetCircleQuery();
+
+  const { data, error, status, fetchNextPage } = useFeedPostsInfiniteQuery();
 
   function handleCreatePost() {
-    router.push('/post/create');
+    router.push({
+      pathname: '/post/create',
+      params: {
+        issueTitle: data?.pages[0].issueTitle,
+        postCount: data?.pages[0].posts.length,
+      },
+    });
   }
 
   useEffect(() => {
@@ -38,51 +41,54 @@ export default function Feed() {
     }
   }, [circleQuery.data, navigation]);
 
-  function renderIssueHeader() {
+  function renderIssueHeader(title: string | null, date: Date | null) {
+    if (title === null || date === null) return <View />;
+
     return (
-      <View>
-        <View style={styles.issueStateContainer}>
-          <View style={styles.issueStateInfo}>
-            <Text style={textStyles.labelLargeBlack}>Issue 2</Text>
-            <Text
-              style={[
-                textStyles.captionMedium,
-                {
-                  textAlign: 'right',
-                },
-              ]}>
-              August 2025
-            </Text>
-          </View>
+      <View style={styles.issueStateContainer}>
+        <View style={styles.issueStateInfo}>
+          <Text style={textStyles.labelLargeBlack}>{title}</Text>
+          <Text
+            style={[
+              textStyles.captionMedium,
+              {
+                textAlign: 'right',
+              },
+            ]}>
+            {date.toLocaleString('en-US', {
+              month: 'long',
+              year: 'numeric',
+            })}
+          </Text>
+        </View>
+        <View
+          style={{
+            paddingBottom: Spacings.md,
+            alignItems: 'center',
+          }}>
           <View
             style={{
-              paddingBottom: Spacings.md,
-              alignItems: 'center',
+              paddingHorizontal: Spacings.mdsm,
+              paddingVertical: Spacings.xs,
+              borderRadius: borderRadius.sm,
+              backgroundColor: '#F4F1EA',
             }}>
-            <View
-              style={{
-                paddingHorizontal: Spacings.mdsm,
-                paddingVertical: Spacings.xs,
-                borderRadius: borderRadius.sm,
-                backgroundColor: '#F4F1EA',
-              }}>
-              <Text
-                style={[
-                  textStyles.labelSmall,
-                  {
-                    textAlign: 'center',
-                  },
-                ]}>
-                Last Month
-              </Text>
-            </View>
+            <Text
+              style={[
+                textStyles.labelSmall,
+                {
+                  textAlign: 'center',
+                },
+              ]}>
+              Last Month
+            </Text>
           </View>
         </View>
       </View>
     );
   }
 
-  function renderPost() {
+  function renderPost(post: FeedPost) {
     return (
       <View>
         <View
@@ -100,14 +106,15 @@ export default function Feed() {
               columnGap: Spacings.md,
               alignItems: 'center',
             }}>
-            <Image
-              source={PlaceholderImage}
+            <NetworkImage
+              source={post.authorAvatarPath}
               style={{ height: 48, width: 48, borderRadius: 24 }}
             />
             <View>
-              <Text style={textStyles.labelLargeBlack}>Kimi Neumann</Text>
+              <Text style={textStyles.labelLargeBlack}>{post.authorName}</Text>
               <Text style={textStyles.captionMedium}>
-                Photo taken on Aug 29th, 2025
+                Photo taken on Aug {post.photoDate.getDate()},{' '}
+                {post.photoDate.getFullYear()}
               </Text>
             </View>
           </View>
@@ -116,8 +123,8 @@ export default function Feed() {
           </View>
         </View>
 
-        <Image
-          source={PlaceholderImage}
+        <NetworkImage
+          source={post.photoPath}
           style={{
             height: Dimensions.get('window').width - 40,
             width: Dimensions.get('window').width - 40,
@@ -128,10 +135,7 @@ export default function Feed() {
         />
 
         <View style={{ paddingHorizontal: 20, marginBottom: Spacings.md }}>
-          <Text style={textStyles.body}>
-            Went on a long hike with mike and Lauren to set up a tripod and
-            snapped this amazing pic by the lake.
-          </Text>
+          <Text style={textStyles.body}>{post.caption}</Text>
         </View>
         <View
           style={{
@@ -144,53 +148,13 @@ export default function Feed() {
     );
   }
 
-  if (circleQuery.isError || currentIssueQuery.isError) {
+  function renderListHeader() {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <Text style={GlobalStyles.bodyTextOne}>Error</Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (
-    !(
-      circleQuery.isSuccess &&
-      (currentIssueQuery.isSuccess || !currentIssueQuery.isEnabled)
-    )
-  ) {
-    return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <Text style={GlobalStyles.bodyTextOne}>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (circleQuery.data === null) {
-    return (
-      <SafeAreaView style={styles.noCircleContainer}>
-        <Text style={GlobalStyles.headingTextThree}>
-          Join or create a circle to start uploading!
-        </Text>
-        <View style={styles.buttonsContainer}>
-          <Button
-            type={ButtonType.Function}
-            text={'Create a Circle'}
-            onPress={() => router.push('/circle/create')}
-          />
-          <Button
-            type={ButtonType.Success}
-            text={'Join a Circle'}
-            onPress={() => router.push('/circle/join')}
-          />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
-        <PostCounter numberOfPosts={5} />
+      <View>
+        <PostCounter
+          numberOfPosts={data?.pages[0].posts.length}
+          issueTitle={data?.pages[0].issueTitle}
+        />
         <View
           style={{
             flexDirection: 'row',
@@ -215,18 +179,46 @@ export default function Feed() {
           </Text>
           <Image source={CameraImage} style={{ height: 64, width: 64 }} />
         </View>
+      </View>
+    );
+  }
 
-        {renderIssueHeader()}
-        {renderPost()}
-        {renderPost()}
-        {renderPost()}
-        {renderPost()}
-        {renderIssueHeader()}
-        {renderPost()}
-        {renderPost()}
-        {renderPost()}
-        {renderPost()}
-      </ScrollView>
+  function renderListFooter() {
+    return <View></View>;
+  }
+
+  function handleOnEndReached() {
+    fetchNextPage();
+  }
+
+  if (status === 'pending') {
+    return <Text>Loading</Text>;
+  }
+
+  return (
+    <View style={styles.container}>
+      <SectionList
+        overScrollMode="never"
+        sections={
+          data?.pages.map((page) => ({
+            title: page.issueTitle,
+            date: page.issueDate,
+            data: page.posts,
+          })) ?? []
+        }
+        renderItem={({ item }) => renderPost(item)}
+        renderSectionHeader={({ section }) =>
+          renderIssueHeader(section.title, section.date)
+        }
+        ListHeaderComponent={renderListHeader}
+        ListFooterComponent={renderListFooter}
+        onEndReached={handleOnEndReached}
+        ListEmptyComponent={() => (
+          <View style={{ padding: 20, alignItems: 'center' }}>
+            <Text>No posts available.</Text>
+          </View>
+        )}
+      />
 
       <Pressable
         onPress={handleCreatePost}

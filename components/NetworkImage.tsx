@@ -10,6 +10,7 @@ export default function NetworkImage({
 }: ImageProps) {
   const { getToken } = useAuth();
   const [token, setToken] = useState<string | null>(null);
+  const imagePath = props.source;
 
   useEffect(() => {
     async function loadToken() {
@@ -26,6 +27,7 @@ export default function NetworkImage({
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        uri: 'http://10.0.2.2:5000' + imagePath,
       }}
       placeholder={placeholder}
     />

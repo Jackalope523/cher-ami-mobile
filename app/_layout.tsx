@@ -115,12 +115,12 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView>
       <SafeAreaProvider>
-        <ToastMessageProvider>
-          <BottomSheetModalProvider>
-            <DialogueModalProvider>
-              <DrawerModalProvider>
-                <AuthProvider>
-                  <APIProvider>
+        <AuthProvider>
+          <APIProvider>
+            <ToastMessageProvider>
+              <BottomSheetModalProvider>
+                <DialogueModalProvider>
+                  <DrawerModalProvider>
                     {/* JACKALOPE: Get this from the key store. */}
                     <StripeProvider
                       publishableKey={
@@ -128,12 +128,12 @@ export default function RootLayout() {
                       }>
                       <RootNavigator />
                     </StripeProvider>
-                  </APIProvider>
-                </AuthProvider>
-              </DrawerModalProvider>
-            </DialogueModalProvider>
-          </BottomSheetModalProvider>
-        </ToastMessageProvider>
+                  </DrawerModalProvider>
+                </DialogueModalProvider>
+              </BottomSheetModalProvider>
+            </ToastMessageProvider>
+          </APIProvider>
+        </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

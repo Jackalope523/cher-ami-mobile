@@ -1,45 +1,46 @@
 import PlusIcon from '@/assets/icons/plus-grey.svg';
-import { BannerMessageType } from '@/components/BannerMessage';
-import { useToastMessage } from '@/components/modals/ToastMessageProvider';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import PostCounter from '@/components/PostCounter';
 import { Colors } from '@/constants/Colors';
-import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useAddPostMutation, useCurrentIssueQuery } from '@/lib/hooks';
+import { useAddPostMutation } from '@/lib/hooks';
+import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import 'react-native-get-random-values';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { v4 } from 'uuid';
 
 export default function Create() {
   const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
+  const { issueTitle, postCount } = useLocalSearchParams();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
-  const [validCaption, setValidCaption] = useState(true);
 
-  const currentIssueQuery = useCurrentIssueQuery();
   const uploadMutation = useAddPostMutation(
-    (_) => {
-      showToastMessage('Upload success!', BannerMessageType.Success);
-      setSelectedImage(null);
-      setCaption('');
+    () => {
+      showToastMessage('Upload success!', ToastMessageType.Success);
+      queryClient.invalidateQueries({ queryKey: ['FeedPages'] });
+      router.back();
     },
     (error) => {
       console.error('Upload failed:', error);
-      showToastMessage('Upload failed.', BannerMessageType.Error);
+      showToastMessage('Upload failed.', ToastMessageType.Error);
     },
   );
 
   function handlePost() {
-    if (selectedImage && currentIssueQuery.data) {
+    if (selectedImage) {
       uploadMutation.mutate({
-        issueId: currentIssueQuery.data.id,
         time: new Date().toISOString(),
         caption: caption,
         imageUri: selectedImage,
@@ -61,25 +62,12 @@ export default function Create() {
     }
   }
 
-  if (!currentIssueQuery.isSuccess) {
-    return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <Text style={GlobalStyles.bodyTextOne}>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (currentIssueQuery.isError) {
-    return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <Text style={GlobalStyles.bodyTextOne}>Error</Text>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <PostCounter />
+      <PostCounter
+        issueTitle={issueTitle}
+        numberOfPosts={parseInt(postCount, 10)}
+      />
 
       <Pressable style={styles.imageContainer} onPress={pickImageAsync}>
         {selectedImage ? (

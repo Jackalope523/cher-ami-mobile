@@ -1,45 +1,21 @@
-import { createContext, FC, ReactNode, useContext, useState } from 'react';
-import { Keyboard, StyleProp, ViewStyle } from 'react-native';
-import { SvgProps } from 'react-native-svg';
-import BottomSheetModalGeneric from './BottomSheetModalBase';
-import BottomSheetModalChildIllustrated, {
-  IllustrationOption,
-} from './BottomSheetModalChildIllustrated';
-import BottomSheetModalChildMultiOption from './BottomSheetModalChildMultiOption';
-
-export type ModalOption = {
-  label: string;
-  icon?: FC<SvgProps>;
-  onPress: () => void;
-  disabled?: boolean;
-};
-
-export type ReportOption<T> = {
-  option: T;
-} & ModalOption;
+import { borderRadius } from '@/constants/Borders';
+import { createContext, ReactNode, useContext, useState } from 'react';
+import { Dimensions, Keyboard, StyleSheet, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+  SlideOutDown,
+} from 'react-native-reanimated';
 
 interface BottomSheetModalProviderProps {
   children: ReactNode;
 }
 
 interface BottomSheetModalInterface {
-  dismissBottomSheets(): void;
-  displayOptionsBottomSheet(
-    options: ModalOption[],
-    title?: string,
-    description?: string,
-    iconStyle?: StyleProp<ViewStyle>,
-  ): void;
-  displayGenericBottomSheet(contents: ReactNode): void;
-  displayReportBottomSheet<T>(
-    options: ReportOption<T>[],
-    availableReportsSync: Promise<T[]>,
-  ): void;
-  displayIllustratedBottomSheet(
-    optionOne: IllustrationOption,
-    optionTwo: IllustrationOption,
-    description?: string,
-  ): void;
+  dismissBottomSheet(): void;
+  displayBottomSheet(contents: ReactNode): void;
 }
 
 const BottomSheetModalContext = createContext<BottomSheetModalInterface | null>(
@@ -56,117 +32,85 @@ export const useBottomSheetModal = () => {
   }
 
   return {
-    dismissBottomSheetModals: context.dismissBottomSheets,
-    displayOptionsBottomSheet: context.displayOptionsBottomSheet,
-    displayGenericBottomSheet: context.displayGenericBottomSheet,
-    displayReportBottomSheet: context.displayReportBottomSheet,
-    displayIllustratedBottomSheet: context.displayIllustratedBottomSheet,
+    dismissBottomSheetModal: context.dismissBottomSheet,
+    displayBottomSheet: context.displayBottomSheet,
   };
 };
 
 export default function BottomSheetModalProvider({
   children,
 }: BottomSheetModalProviderProps) {
-  const [openModals, setOpenModals] = useState<ReactNode[]>([]);
+  const [open, setOpen] = useState<ReactNode>();
 
-  function dismissBottomSheets() {
-    setOpenModals([]);
+  function dismissBottomSheet() {
+    setOpen(undefined);
   }
 
-  function displayGenericBottomSheet(contents: React.ReactNode) {
+  function displayBottomSheet(contents: ReactNode) {
     Keyboard.dismiss();
 
-    const key = openModals.length;
-
-    const nextModal = (
-      <BottomSheetModalGeneric
-        key={key}
-        index={key}
-        onHide={() => handleHideModal(key)}>
-        {contents}
-      </BottomSheetModalGeneric>
-    );
-
-    setOpenModals((prevModals) => [...prevModals, nextModal]);
-
-    return key;
-  }
-
-  function displayOptionsBottomSheet(
-    options: ModalOption[],
-    title?: string,
-    description?: string,
-    iconStyle?: StyleProp<ViewStyle>,
-  ) {
-    displayGenericBottomSheet(
-      <BottomSheetModalChildMultiOption
-        title={title}
-        description={description}
-        options={options}
-        iconStyle={iconStyle}
-      />,
-    );
-  }
-
-  function displayReportBottomSheet<T>(
-    options: ReportOption<T>[],
-    availableReportsSync: Promise<T[]>,
-  ) {
-    let title = 'Pick a reason for the report';
-    let description =
-      'Thank you for helping make CANARY a friendlier space. We will review your report and take action if necessary.';
-
-    // Disable all options pre-emptively
-    options.forEach((option) => (option.disabled = true));
-
-    let syncedOptions = availableReportsSync.then((available) => {
-      options.forEach((option) =>
-        available.includes(option.option)
-          ? (option.disabled = false)
-          : (option.disabled = true),
-      );
-      return options;
-    });
-
-    displayGenericBottomSheet(
-      <BottomSheetModalChildMultiOption
-        title={title}
-        description={description}
-        options={options}
-        syncedOptions={syncedOptions}
-      />,
-    );
-  }
-
-  function displayIllustratedBottomSheet(
-    optionOne: IllustrationOption,
-    optionTwo: IllustrationOption,
-    description?: string,
-  ) {
-    displayGenericBottomSheet(
-      <BottomSheetModalChildIllustrated
-        optionOne={optionOne}
-        optionTwo={optionTwo}
-        description={description}
-      />,
-    );
-  }
-
-  function handleHideModal(modalKey: number) {
-    setOpenModals((prevModals) => prevModals.filter((_, i) => i !== modalKey));
+    setOpen(contents);
   }
 
   return (
     <BottomSheetModalContext.Provider
       value={{
-        dismissBottomSheets,
-        displayGenericBottomSheet,
-        displayReportBottomSheet,
-        displayIllustratedBottomSheet,
-        displayOptionsBottomSheet,
+        dismissBottomSheet,
+        displayBottomSheet,
       }}>
+      {open && (
+        <View
+          style={{
+            position: 'absolute',
+            alignItems: 'center',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            zIndex: 10,
+          }}>
+          <Pressable
+            style={styles.pressableBackdrop}
+            onPress={dismissBottomSheet}>
+            <Animated.View
+              style={{
+                flex: 1,
+                backgroundColor: 'rgba(0, 0, 0, 0.4)',
+              }}
+              entering={FadeIn}
+              exiting={FadeOut}
+            />
+          </Pressable>
+
+          <Animated.View
+            style={{
+              zIndex: 1,
+              position: 'absolute',
+              width: Dimensions.get('window').width,
+              padding: 20,
+              borderTopLeftRadius: borderRadius.xl,
+              borderTopRightRadius: borderRadius.xl,
+              backgroundColor: '#FCFBF8',
+              bottom: 0,
+            }}
+            entering={SlideInDown}
+            exiting={SlideOutDown}>
+            {open}
+          </Animated.View>
+        </View>
+      )}
       {children}
-      {openModals}
     </BottomSheetModalContext.Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  pressableBackdrop: {
+    zIndex: 1,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+});

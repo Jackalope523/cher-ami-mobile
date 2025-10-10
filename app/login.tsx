@@ -11,9 +11,11 @@ import {
 } from 'react-native';
 
 import PhoneNumberImage from '@/assets/illustrations/phone-number-illustration.png';
-import { BannerMessageType } from '@/components/BannerMessage';
 import Button from '@/components/Button';
-import { useToastMessage } from '@/components/modals/ToastMessageProvider';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import PhoneNumberInput from '@/components/PhoneNumberInput';
 import { Spacings } from '@/constants/Spacings';
 import { useEmailAuthMutation } from '@/lib/hooks';
@@ -36,7 +38,7 @@ export default function Login() {
     },
     (error) => {
       console.error('Login failed: ', error.message);
-      showToastMessage('Login failed.', BannerMessageType.Error);
+      showToastMessage('Login failed.', ToastMessageType.Error);
     },
   );
 
@@ -48,12 +50,12 @@ export default function Login() {
     if (validPhoneNumber) {
       showToastMessage(
         'If this account has an email address attached, a recovery link will be sent.',
-        BannerMessageType.Success,
+        ToastMessageType.Success,
       );
     } else {
       showToastMessage(
         'Please enter a valid phone number.',
-        BannerMessageType.Alert,
+        ToastMessageType.Alert,
       );
     }
   }

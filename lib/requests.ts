@@ -1,7 +1,6 @@
 import { IssueSchedule } from "./enums";
 
 export interface AddPostRequest {
-  issueId: number;
   time: string;
   caption: string;
   imageUri: string;
@@ -28,6 +27,20 @@ export interface JoinCircleRequest {
   code: string;
 }
 
-export interface AddRecipientRequest {
-  
+export interface IdRequest {
+  Id: number;
+}
+
+export interface RecipientRequest {
+  avatarUri: string;
+  avatarName: string;
+  title: string;
+  firstName: string;
+  lastName: string;
+  unitNumber: string;
+  street: string;
+  city: string;
+  provinceOrState: string;
+  postalCode: string;
+  country: string;
 }

@@ -1,7 +1,15 @@
-import { IssueSchedule, IssueType } from "./enums";
+import { IssueSchedule } from "./enums";
 
-export interface UserDTO {
+export interface UserItem {
   id: number;
+  firstName: string;
+  lastName: string;
+  avatarPath: string;
+}
+
+export interface RecipientItem {
+  id: number;
+  managerId: number;
   firstName: string;
   lastName: string;
   avatarPath: string;
@@ -10,33 +18,34 @@ export interface UserDTO {
 export interface CircleDTO {
   id: number;
   inviteCode: string;
+  headerPath: string;
   title: string;
   dateCreated: Date;
   schedule: IssueSchedule;
+  contributors: UserItem[];
+  recipients: RecipientItem[];
 }
 
-export interface IssueDTO {
+export interface FeedPost {
   id: number;
-  circleId: number;
-  type: IssueType;
-  title: string;
-  draftingStart: Date;
-  draftingEnd: Date;
-}
-
-export interface PostDTO {
-  id: number;
-  issueId: number;
-  userId: number;
-  timestamp: Date;
+  authorAvatarPath: string;
+  authorName: string;
+  photoDate: Date;
+  photoPath: string;
   caption: string;
+}
+
+export interface FeedPageResponse {
+  issueTitle: string | null;
+  issueDate: Date | null;
+  posts: FeedPost[]
+  nextPage: number | null;
 }
 
 export interface TokenDTO {
   token: string;
 }
 
-export interface AddRecipientResponse {
-   subscriptionId: string;
-   clientSecret: string;
+export interface CodeResponse {
+  code: string;
 }

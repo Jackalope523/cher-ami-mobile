@@ -17,7 +17,7 @@ export const borderRadius = {
   lg: 16,
 
   // Extra large
-  xl: 24,
+  xl: 32,
 };
 
 export const borderStyles = StyleSheet.create({});

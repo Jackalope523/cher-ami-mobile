@@ -1,8 +1,10 @@
 import PlaceholderImage from '@/assets/images/placeholder.jpg';
-import { BannerMessageType } from '@/components/BannerMessage';
 import Button, { ButtonType } from '@/components/Button';
 import LizardTextInput, { InputType } from '@/components/LizardTextInput';
-import { useToastMessage } from '@/components/modals/ToastMessageProvider';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
 import { Spacings } from '@/constants/Spacings';
@@ -26,12 +28,12 @@ export default function CreateCircle() {
 
   const createCircleMutation = useCreateCircleMutation(
     () => {
-      showToastMessage('Circle created!', BannerMessageType.Success);
+      showToastMessage('Circle created!', ToastMessageType.Success);
       router.replace('/circle/create');
     },
     (error) => {
       console.error('Circle creation failed: ', error);
-      showToastMessage('Circle creation failed.', BannerMessageType.Error);
+      showToastMessage('Circle creation failed.', ToastMessageType.Error);
     },
   );
 

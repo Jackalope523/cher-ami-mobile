@@ -24,9 +24,11 @@ maybeCompleteAuthSession();
 
 // Endpoint
 const discovery: DiscoveryDocument = {
-  authorizationEndpoint: 'https://github.com/login/oauth/authorize',
+  authorizationEndpoint: 'http://10.0.2.2:5000/auth/google',
+  tokenEndpoint: 'http://10.0.2.2:5000/auth/google/token',
 };
 
+// JACKALOPE: Set up auth.
 const config: AuthRequestConfig = {
   clientId: 'CLIENT_ID',
   redirectUri: makeRedirectUri({
@@ -68,7 +70,6 @@ export default function Index() {
           columnGap: 8.99,
           alignItems: 'center',
           justifyContent: 'center',
-          marginTop: Spacings.lg,
         }}>
         <CherIcon />
         <View>

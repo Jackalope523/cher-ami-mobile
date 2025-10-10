@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 type PostCounterProps = {
-  issueTitle?: string;
+  issueTitle?: string | null | undefined;
   numberOfPosts?: number;
   maxPosts?: number;
 };

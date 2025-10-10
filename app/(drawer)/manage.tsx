@@ -1,66 +1,60 @@
 import CreditCardIcon from '@/assets/icons/credit-card-white.svg';
 import PlusIcon from '@/assets/icons/plus-orange.svg';
+
 import SettingsIcon from '@/assets/icons/settings-white.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
-import PlaceholderImage from '@/assets/images/placeholder.jpg';
-import { useAPI } from '@/components/APIProvider';
+import Placeholder from '@/assets/images/placeholder.jpg';
+import InviteModalContents from '@/components/InviteModalContents';
+import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
+import NetworkImage from '@/components/NetworkImage';
 import UserItem from '@/components/UserItem';
 import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useContributorsQuery, useRecipientsQuery } from '@/lib/hooks';
-import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { useGetCircleQuery } from '@/lib/hooks';
+import { router, useNavigation } from 'expo-router';
+import { useEffect } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
 
 export default function Manage() {
-  const api = useAPI();
-  const contributorsQuery = useContributorsQuery();
-  const recipientsQuery = useRecipientsQuery();
+  const navigation = useNavigation();
+  const circleQuery = useGetCircleQuery();
+  const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
 
-  function renderContributors() {
-    if (recipientsQuery.isLoading) {
-      return <Text style={GlobalStyles.bodyTextOne}>Loading...</Text>;
+  useEffect(() => {
+    if (circleQuery.data) {
+      navigation.setOptions({
+        title: circleQuery.data.title,
+      });
     }
-    if (recipientsQuery.isError) {
-      return <Text style={GlobalStyles.bodyTextOne}>Error</Text>;
-    }
-    if (recipientsQuery.isSuccess) {
-      return contributorsQuery.data?.map((x) => (
-        <UserItem
-          key={x.id}
-          text={x.firstName}
-          imageSource="`${api.defaults.baseURL}${x.avatarPath}`"
-        />
-      ));
-    }
+  }, [circleQuery.data, navigation]);
+
+  if (circleQuery.isLoading) {
+    return <Text style={GlobalStyles.bodyTextOne}>Loading...</Text>;
+  }
+  if (circleQuery.isError) {
+    return <Text style={GlobalStyles.bodyTextOne}>Error</Text>;
   }
 
-  function renderRecipients() {
-    if (recipientsQuery.isLoading) {
-      return <Text style={GlobalStyles.bodyTextOne}>Loading...</Text>;
-    }
-    if (recipientsQuery.isError) {
-      return <Text style={GlobalStyles.bodyTextOne}>Error</Text>;
-    }
-    if (recipientsQuery.isSuccess) {
-      return contributorsQuery.data?.map((x) => (
-        <UserItem
-          key={x.id}
-          text={x.firstName}
-          imageSource="`${api.defaults.baseURL}${x.avatarPath}`"
-          onPress={() => router.push('/circle/recipients/edit')}
-        />
-      ));
-    }
+  function handleInvite() {
+    displayBottomSheet(
+      <InviteModalContents
+        initialCode={circleQuery.data?.inviteCode}
+        dismissModal={dismissBottomSheetModal}
+      />,
+    );
   }
 
   return (
-    <View>
-      <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
-        <Image
-          source={PlaceholderImage}
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        overScrollMode="never"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}>
+        <NetworkImage
+          source={circleQuery.data?.headerPath}
+          placeholder={Placeholder}
           style={{
             height: 186,
             width: Dimensions.get('window').width - 40,
@@ -89,12 +83,14 @@ export default function Manage() {
               borderRadius: 10,
             }}>
             <UserIcon height={24} width={24} />
-            <Text style={textStyles.labelLargeGrey}>1</Text>
+            <Text style={textStyles.labelLargeGrey}>
+              {circleQuery.data?.contributors.length}
+            </Text>
           </View>
         </View>
 
         <Pressable
-          onPress={() => {}}
+          onPress={handleInvite}
           style={{
             borderRadius: 12,
             borderWidth: 2,
@@ -117,13 +113,13 @@ export default function Manage() {
             marginVertical: Spacings.lg,
             marginHorizontal: 20,
           }}>
-          {renderContributors()}
-          {renderContributors()}
-          {renderContributors()}
-          {renderContributors()}
-          {renderContributors()}
-          {renderContributors()}
-          {renderContributors()}
+          {circleQuery.data?.contributors.map((x) => (
+            <UserItem
+              key={x.id}
+              text={x.firstName}
+              imageSource={x.avatarPath}
+            />
+          ))}
         </View>
 
         <View
@@ -161,11 +157,14 @@ export default function Manage() {
             marginVertical: Spacings.lg,
             marginHorizontal: 20,
           }}>
-          {renderRecipients()}
-          {renderRecipients()}
-          {renderRecipients()}
-          {renderRecipients()}
-          {renderRecipients()}
+          {circleQuery.data?.recipients.map((x) => (
+            <UserItem
+              key={x.id}
+              text={x.firstName}
+              imageSource={x.avatarPath}
+              onPress={() => router.push('/circle/recipients/edit')}
+            />
+          ))}
         </View>
       </ScrollView>
       <View

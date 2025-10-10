@@ -1,7 +1,9 @@
-import { BannerMessageType } from '@/components/BannerMessage';
 import Button, { ButtonType } from '@/components/Button';
 import LizardTextInput, { InputType } from '@/components/LizardTextInput';
-import { useToastMessage } from '@/components/modals/ToastMessageProvider';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import { Spacings } from '@/constants/Spacings';
 import { useJoinCircleMutation } from '@/lib/hooks';
 import { router } from 'expo-router';
@@ -16,12 +18,12 @@ export default function JoinCircle() {
 
   const joinCircleMutation = useJoinCircleMutation(
     () => {
-      showToastMessage('Joined circle!', BannerMessageType.Success);
+      showToastMessage('Joined circle!', ToastMessageType.Success);
       router.replace('/upload');
     },
     (error) => {
       console.error('Circle join failed: ', error);
-      showToastMessage('Failed to join circle.', BannerMessageType.Error);
+      showToastMessage('Failed to join circle.', ToastMessageType.Error);
     },
   );
 

@@ -1,28 +1,48 @@
-import { useEffect } from 'react';
+import PlusIcon from '@/assets/icons/plus-grey.svg';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
 
-import { BannerMessageType } from '@/components/BannerMessage';
-import { useToastMessage } from '@/components/modals/ToastMessageProvider';
-import NetworkImage from '@/components/NetworkImage';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useAddRecipientMutation } from '@/lib/hooks';
 import { SetupParams, useStripe } from '@stripe/stripe-react-native';
+import { useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
+import { launchImageLibraryAsync } from 'expo-image-picker';
+import { router } from 'expo-router';
 
 export default function AddRecipient() {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
+
+  const [avatar, setAvatar] = useState('');
+  const [title, setTitle] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [unitNumber, setUnitNumber] = useState('');
+  const [street, setStreet] = useState('');
+  const [city, setCity] = useState('');
+  const [provinceOrState, setProvinceOrState] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [country, setCountry] = useState('');
 
   const addRecipientMutation = useAddRecipientMutation(
-    (_) => {
-      showToastMessage('Recipient added!', BannerMessageType.Success);
+    () => {
+      showToastMessage('Recipient added!', ToastMessageType.Success);
+      queryClient.invalidateQueries({ queryKey: ['Circle'] });
+      router.back();
     },
     (error) => {
       console.error('Failed to add recipient:', error);
-      showToastMessage('Failed to add recipient.', BannerMessageType.Error);
+      showToastMessage('Failed to add recipient.', ToastMessageType.Error);
     },
   );
 
@@ -44,8 +64,47 @@ export default function AddRecipient() {
     initializePaymentSheet();
   }, [initPaymentSheet]);
 
+  function buttonDisabled() {
+    return (
+      avatar === '' ||
+      firstName === '' ||
+      lastName === '' ||
+      street === '' ||
+      city === '' ||
+      provinceOrState === '' ||
+      postalCode === '' ||
+      country === '' ||
+      addRecipientMutation.isPending
+    );
+  }
+
+  async function pickImageAsync() {
+    let result = await launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setAvatar(result.assets[0].uri);
+    }
+  }
+
   function handleAdd() {
-    addRecipientMutation.mutate({});
+    addRecipientMutation.mutate({
+      avatarUri: avatar,
+      avatarName: 'avatar.jpg',
+      title: title,
+      firstName: firstName,
+      lastName: lastName,
+      unitNumber: unitNumber,
+      street: street,
+      city: city,
+      provinceOrState: provinceOrState,
+      postalCode: postalCode,
+      country: country,
+    });
   }
 
   return (
@@ -53,7 +112,16 @@ export default function AddRecipient() {
       style={styles.container}
       overScrollMode="never"
       showsVerticalScrollIndicator={false}>
-      <NetworkImage style={styles.avatar} />
+      <Pressable onPress={pickImageAsync}>
+        {avatar ? (
+          <Image source={avatar} style={styles.avatar} />
+        ) : (
+          <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
+            <PlusIcon height={48} width={48} />
+          </View>
+        )}
+      </Pressable>
+
       <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
         Change avatar
       </Text>
@@ -61,16 +129,62 @@ export default function AddRecipient() {
         Mailing address
       </Text>
       <View style={styles.textInputs}>
-        <TextInput title={'First name'} />
-        <TextInput title={'Last name'} />
-        <TextInput title={'Address line 1'} />
-        <TextInput title={'Address line 2'} />
-        <TextInput title={'City'} />
+        <TextInput
+          title={'Title'}
+          maxLength={25}
+          value={title}
+          onChangeText={setTitle}
+        />
+        <TextInput
+          title={'First name'}
+          maxLength={100}
+          value={firstName}
+          onChangeText={setFirstName}
+        />
+        <TextInput
+          title={'Last name'}
+          maxLength={100}
+          value={lastName}
+          onChangeText={setLastName}
+        />
+        <TextInput
+          title={'Street address'}
+          maxLength={150}
+          value={street}
+          onChangeText={setStreet}
+        />
+        <TextInput
+          title={'Unit number'}
+          maxLength={15}
+          value={unitNumber}
+          onChangeText={setUnitNumber}
+        />
+        <TextInput
+          title={'City'}
+          maxLength={50}
+          value={city}
+          onChangeText={setCity}
+        />
         <View style={{ flexDirection: 'row', columnGap: 20 }}>
-          <TextInput title={'State'} />
-          <TextInput title={'ZIP code'} />
+          <TextInput
+            title={'State'}
+            maxLength={50}
+            value={provinceOrState}
+            onChangeText={setProvinceOrState}
+          />
+          <TextInput
+            title={'ZIP code'}
+            maxLength={20}
+            value={postalCode}
+            onChangeText={setPostalCode}
+          />
         </View>
-        <TextInput title={'Country'} />
+        <TextInput
+          title={'Country'}
+          maxLength={56}
+          value={country}
+          onChangeText={setCountry}
+        />
       </View>
       <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
       <View style={styles.summaryItemList}>
@@ -101,17 +215,20 @@ export default function AddRecipient() {
         </Text>
       </View>
       <Pressable
-        onPress={() => {}}
-        disabled={false}
+        onPress={handleAdd}
+        disabled={buttonDisabled()}
         style={[
           styles.button,
-          false && {
+          buttonDisabled() && {
             backgroundColor: '#ECEDEF',
             borderColor: '#ECEDEF',
           },
         ]}>
         <Text
-          style={[textStyles.buttonTextWhite, false && { color: '#A8ABB3' }]}>
+          style={[
+            textStyles.buttonTextWhite,
+            buttonDisabled() && { color: '#A8ABB3' },
+          ]}>
           Add Recipient
         </Text>
       </Pressable>
@@ -130,6 +247,8 @@ const styles = StyleSheet.create({
     width: 96,
     borderRadius: 48,
     alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: Spacings.sm,
     marginTop: Spacings.xxl,
   },
