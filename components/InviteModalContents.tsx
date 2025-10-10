@@ -7,7 +7,8 @@ import { textStyles } from '@/constants/TextStyles';
 import { useGetCircleCodeQuery, useRerollCodeMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { setStringAsync } from 'expo-clipboard';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -57,6 +58,10 @@ export default function InviteModalContents({
   }
 
   const copyToClipboard = async () => {
+    scale.value = withTiming(1.03, { duration: 150 }, () => {
+      scale.value = withTiming(1, { duration: 150 });
+    });
+
     await setStringAsync(data?.code ?? '');
     showToastMessage('Invitation code copied to clipboard');
   };
@@ -92,14 +97,7 @@ export default function InviteModalContents({
         style={[textStyles.labelLargeBlack, { marginBottom: Spacings.smxs }]}>
         Invitation code
       </Text>
-      <Pressable
-        onPress={copyToClipboard}
-        onPressIn={() => {
-          scale.value = withTiming(1.03);
-        }}
-        onPressOut={() => {
-          scale.value = withTiming(1);
-        }}>
+      <Pressable onPress={copyToClipboard}>
         <Animated.View
           style={[
             pop,
