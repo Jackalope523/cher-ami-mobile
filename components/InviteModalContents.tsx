@@ -4,11 +4,10 @@ import RefreshIcon from '@/assets/icons/refresh.svg';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useRerollCodeMutation } from '@/lib/hooks';
+import { useGetCircleCodeQuery, useRerollCodeMutation } from '@/lib/hooks';
+import { useQueryClient } from '@tanstack/react-query';
 import { setStringAsync } from 'expo-clipboard';
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -20,18 +19,19 @@ import {
 } from './modals/ToastMessageProvider';
 
 interface InviteModalContentsProps {
-  initialCode?: string;
   dismissModal?: () => void;
 }
 
 export default function InviteModalContents({
-  initialCode = '',
   dismissModal = () => {},
 }: InviteModalContentsProps) {
   const showToastMessage = useToastMessage();
-  const [code, setCode] = useState(initialCode);
+  const queryClient = useQueryClient();
+  const { data } = useGetCircleCodeQuery();
   const mutation = useRerollCodeMutation(
-    (response) => setCode(response.code),
+    (_) => {
+      queryClient.invalidateQueries({ queryKey: ['CircleCode'] });
+    },
     (_) => showToastMessage('Failed to reroll code', ToastMessageType.Error),
   );
 
@@ -57,11 +57,7 @@ export default function InviteModalContents({
   }
 
   const copyToClipboard = async () => {
-    scale.value = withTiming(1.03, { duration: 150 }, () => {
-      scale.value = withTiming(1, { duration: 150 });
-    });
-
-    await setStringAsync(code);
+    await setStringAsync(data?.code ?? '');
     showToastMessage('Invitation code copied to clipboard');
   };
 
@@ -96,7 +92,14 @@ export default function InviteModalContents({
         style={[textStyles.labelLargeBlack, { marginBottom: Spacings.smxs }]}>
         Invitation code
       </Text>
-      <Pressable onPress={copyToClipboard}>
+      <Pressable
+        onPress={copyToClipboard}
+        onPressIn={() => {
+          scale.value = withTiming(1.03);
+        }}
+        onPressOut={() => {
+          scale.value = withTiming(1);
+        }}>
         <Animated.View
           style={[
             pop,
@@ -111,7 +114,7 @@ export default function InviteModalContents({
               marginBottom: Spacings.mdsm,
             },
           ]}>
-          <Text style={textStyles.buttonTextOrange}>{code}</Text>
+          <Text style={textStyles.buttonTextOrange}>{data?.code}</Text>
 
           <CopyIcon height={24} width={24} />
         </Animated.View>

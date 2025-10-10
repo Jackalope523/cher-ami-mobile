@@ -35,6 +35,18 @@ export function useGetCircleQuery() {
   });
 }
 
+export function useGetCircleCodeQuery() {
+  const api = useAPI();
+
+  return useQuery<CodeResponse, AxiosError>({
+    queryKey: ['CircleCode'],
+    queryFn: async () => {
+      const response = await api.get('/circle/code');
+      return response.data;
+    }
+  });
+}
+
 export function useFeedPostsInfiniteQuery() {
   const api = useAPI();
 

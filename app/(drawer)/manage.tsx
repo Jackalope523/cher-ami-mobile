@@ -1,6 +1,5 @@
 import CreditCardIcon from '@/assets/icons/credit-card-white.svg';
 import PlusIcon from '@/assets/icons/plus-orange.svg';
-
 import SettingsIcon from '@/assets/icons/settings-white.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
 import Placeholder from '@/assets/images/placeholder.jpg';
@@ -39,10 +38,7 @@ export default function Manage() {
 
   function handleInvite() {
     displayBottomSheet(
-      <InviteModalContents
-        initialCode={circleQuery.data?.inviteCode}
-        dismissModal={dismissBottomSheetModal}
-      />,
+      <InviteModalContents dismissModal={dismissBottomSheetModal} />,
     );
   }
 
