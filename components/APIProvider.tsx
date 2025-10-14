@@ -32,18 +32,30 @@ const api = axios.create({
     (data: any) => {
       function reviveDates(obj: any): any {
         if (obj === null || obj === undefined) return obj;
-        if (
-          typeof obj === 'string' &&
-          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(obj)
-        ) {
-          return new Date(obj);
+
+        if (typeof obj === 'string') {
+          const dateRegex =
+            /^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
+
+          if (dateRegex.test(obj)) {
+            const d = new Date(obj);
+            if (!isNaN(d.getTime())) return d;
+          }
         }
+
         if (Array.isArray(obj)) return obj.map(reviveDates);
+
         if (typeof obj === 'object') {
-          for (const key in obj) obj[key] = reviveDates(obj[key]);
+          for (const key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+              obj[key] = reviveDates(obj[key]);
+            }
+          }
         }
+
         return obj;
       }
+
       return reviveDates(data);
     },
   ],

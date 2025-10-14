@@ -25,6 +25,17 @@ export interface CircleDTO {
   recipients: RecipientItem[];
 }
 
+export interface UserDTO {
+  id: number;
+  avatarPath: string;
+  title: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+  joinDate: Date;
+  recipients: RecipientItem[];
+}
+
 export interface FeedPost {
   id: number;
   authorAvatarPath: string;

@@ -8,12 +8,16 @@ import NetworkImage from './NetworkImage';
 interface UserItemProps {
   imageSource?: string;
   text?: string;
+  tag?: string;
+  showTag?: boolean;
   onPress?: () => void;
 }
 
 export default function UserItem({
   imageSource = '',
   text = 'John Doe',
+  tag = '(You)',
+  showTag = false,
   onPress = () => {},
 }: UserItemProps) {
   return (
@@ -22,13 +26,10 @@ export default function UserItem({
         source={imageSource}
         placeholder={Placeholder}
         style={styles.image}
-        onError={(error) => {
-          console.log('Failed to load image', error);
-        }}
       />
       <View style={{ columnGap: Spacings.sm, flexDirection: 'row' }}>
         <Text style={textStyles.labelLargeBlack}>{text}</Text>
-        <Text style={textStyles.labelLargeGrey}>(You)</Text>
+        {showTag && <Text style={textStyles.labelLargeGrey}>{tag}</Text>}
       </View>
     </Pressable>
   );

@@ -2,10 +2,17 @@ import CreditCardIcon from '@/assets/icons/credit-card-orange.svg';
 import UserItem from '@/components/UserItem';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { useGetUserQuery } from '@/lib/hooks';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
 
 export default function ManageBilling() {
+  const { data } = useGetUserQuery();
+
+  if (!data) {
+    return <Text>Loading...</Text>;
+  }
+
   return (
     <ScrollView
       style={styles.container}
@@ -18,15 +25,22 @@ export default function ManageBilling() {
         {"You're currently paying for the following recipients."}
       </Text>
       <View style={styles.userList}>
-        <UserItem />
-        <UserItem />
-        <UserItem />
-        <UserItem />
+        {data.recipients.map((x) => (
+          <UserItem
+            key={x.id}
+            text={`${x.firstName} ${x.lastName}`}
+            imageSource={x.avatarPath}
+            tag={'(Yours)'}
+            showTag
+          />
+        ))}
       </View>
       <View style={styles.divider} />
       <View style={styles.priceTotal}>
         <Text style={textStyles.labelSmall}>Total</Text>
-        <Text style={textStyles.labelSmall}>$36.00</Text>
+        <Text style={textStyles.labelSmall}>
+          ${data?.recipients.length * 12}.00
+        </Text>
       </View>
       <Text style={textStyles.heading3}>Billing details</Text>
       <Pressable onPress={() => {}} style={styles.button}>

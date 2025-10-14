@@ -3,7 +3,7 @@ import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
 import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, JoinCircleRequest, RecipientRequest, VerifyCodeRequest } from './requests';
-import { CircleDTO, CodeResponse, FeedPageResponse, TokenDTO } from './responses';
+import { CircleDTO, CodeResponse, FeedPageResponse, TokenDTO, UserDTO } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
   const savedCallback = useRef(callback);
@@ -26,14 +26,27 @@ export function useInterval(callback: () => void, delay: number) {
 export function useGetCircleQuery() {
   const api = useAPI();
 
-  return useQuery<CircleDTO|null, AxiosError>({
+  return useQuery<CircleDTO, AxiosError>({
     queryKey: ['Circle'],
     queryFn: async () => {
-      const response = await api.get('/circle');
+      const response = await api.get<CircleDTO>('/circle');
       return response.data;
     }
   });
 }
+
+export function useGetUserQuery() {
+  const api = useAPI();
+
+  return useQuery<UserDTO, AxiosError>({
+    queryKey: ['User'],
+    queryFn: async () => {
+      const response = await api.get<UserDTO>('/user');
+      return response.data;
+    }
+  });
+}
+
 
 export function useGetCircleCodeQuery() {
   const api = useAPI();
@@ -41,7 +54,7 @@ export function useGetCircleCodeQuery() {
   return useQuery<CodeResponse, AxiosError>({
     queryKey: ['CircleCode'],
     queryFn: async () => {
-      const response = await api.get('/circle/code');
+      const response = await api.get<CodeResponse>('/circle/code');
       return response.data;
     }
   });

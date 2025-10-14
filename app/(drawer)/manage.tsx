@@ -4,13 +4,15 @@ import SettingsIcon from '@/assets/icons/settings-white.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
 import Placeholder from '@/assets/images/placeholder.jpg';
 import InviteModalContents from '@/components/InviteModalContents';
+import LeaveCircleContents from '@/components/LeaveCircleContents';
 import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
+import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
 import NetworkImage from '@/components/NetworkImage';
 import UserItem from '@/components/UserItem';
 import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetCircleQuery } from '@/lib/hooks';
+import { useGetCircleQuery, useGetUserQuery } from '@/lib/hooks';
 import { router, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
@@ -18,8 +20,10 @@ import { Pressable, ScrollView } from 'react-native-gesture-handler';
 
 export default function Manage() {
   const navigation = useNavigation();
+  const userQuery = useGetUserQuery();
   const circleQuery = useGetCircleQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
+  const { displayDialogue, dismissDialogue } = useDialogueModal();
 
   useEffect(() => {
     if (circleQuery.data) {
@@ -37,9 +41,15 @@ export default function Manage() {
   }
 
   function handleInvite() {
-    displayBottomSheet(
-      <InviteModalContents dismissModal={dismissBottomSheetModal} />,
-    );
+    displayBottomSheet(<InviteModalContents dismissModal={dismissDialogue} />);
+  }
+
+  function handleCircleSettings() {
+    displayDialogue(<LeaveCircleContents dismissModal={dismissDialogue} />);
+  }
+
+  if (!circleQuery.data || !userQuery.data) {
+    return <Text>Loading...</Text>;
   }
 
   return (
@@ -49,7 +59,7 @@ export default function Manage() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}>
         <NetworkImage
-          source={circleQuery.data?.headerPath}
+          source={circleQuery.data.headerPath}
           placeholder={Placeholder}
           style={{
             height: 186,
@@ -80,7 +90,7 @@ export default function Manage() {
             }}>
             <UserIcon height={24} width={24} />
             <Text style={textStyles.labelLargeGrey}>
-              {circleQuery.data?.contributors.length}
+              {circleQuery.data.contributors.length}
             </Text>
           </View>
         </View>
@@ -109,11 +119,13 @@ export default function Manage() {
             marginVertical: Spacings.lg,
             marginHorizontal: 20,
           }}>
-          {circleQuery.data?.contributors.map((x) => (
+          {circleQuery.data.contributors.map((x) => (
             <UserItem
               key={x.id}
               text={x.firstName}
               imageSource={x.avatarPath}
+              tag={'(You)'}
+              showTag={x.id === userQuery.data.id}
             />
           ))}
         </View>
@@ -153,12 +165,14 @@ export default function Manage() {
             marginVertical: Spacings.lg,
             marginHorizontal: 20,
           }}>
-          {circleQuery.data?.recipients.map((x) => (
+          {circleQuery.data.recipients.map((x) => (
             <UserItem
               key={x.id}
               text={x.firstName}
               imageSource={x.avatarPath}
               onPress={() => router.push('/circle/recipients/edit')}
+              tag={'(Yours)'}
+              showTag={x.managerId === userQuery.data.id}
             />
           ))}
         </View>
@@ -188,7 +202,8 @@ export default function Manage() {
           <CreditCardIcon height={24} width={24} />
           <Text style={textStyles.buttonTextWhite}>Manage Billing</Text>
         </Pressable>
-        <View
+        <Pressable
+          onPress={handleCircleSettings}
           style={{
             flexDirection: 'row',
             backgroundColor: '#B05637',
@@ -201,7 +216,7 @@ export default function Manage() {
           }}>
           <SettingsIcon height={24} width={24} />
           <Text style={textStyles.buttonTextWhite}>Circle Settings</Text>
-        </View>
+        </Pressable>
       </View>
     </View>
   );

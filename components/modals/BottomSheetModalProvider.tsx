@@ -48,7 +48,6 @@ export default function BottomSheetModalProvider({
 
   function displayBottomSheet(contents: ReactNode) {
     Keyboard.dismiss();
-
     setOpen(contents);
   }
 

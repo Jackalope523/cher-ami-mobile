@@ -3,15 +3,15 @@ import LogoutIcon from '@/assets/icons/log-out.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
 import SettingsIcon from '@/assets/icons/settings-orange.svg';
 import PersonIcon from '@/assets/icons/users-round.svg';
-import PlaceholderImage from '@/assets/images/placeholder.jpg';
 import { useAuth } from '@/components/AuthProvider';
+import NetworkImage from '@/components/NetworkImage';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { useGetUserQuery } from '@/lib/hooks';
 import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { Dimensions, Text, View } from 'react-native';
@@ -20,9 +20,14 @@ import { Pressable } from 'react-native-gesture-handler';
 export default function Layout() {
   function CustomDrawerContent(props: DrawerContentComponentProps) {
     const { deleteToken } = useAuth();
+    const { data } = useGetUserQuery();
 
     function handleLogout() {
       deleteToken().then(() => router.replace('/'));
+    }
+
+    if (!data) {
+      return <Text>Loading...</Text>;
     }
 
     return (
@@ -44,15 +49,18 @@ export default function Layout() {
               paddingLeft: Spacings.lg,
               marginBottom: Spacings.xl,
             }}>
-            <Image
-              source={PlaceholderImage}
+            <NetworkImage
+              source={data.avatarPath}
               style={{
                 height: 48,
                 width: 48,
                 borderRadius: 24,
               }}
             />
-            <Text style={textStyles.heading4}>Jessica Williams</Text>
+            <Text
+              style={
+                textStyles.heading4
+              }>{`${data.firstName} ${data.lastName}`}</Text>
           </Pressable>
           <Pressable
             onPress={() => {
