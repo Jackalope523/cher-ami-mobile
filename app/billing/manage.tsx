@@ -29,7 +29,7 @@ export default function ManageBilling() {
           <UserItem
             key={x.id}
             text={`${x.firstName} ${x.lastName}`}
-            imageSource={x.avatarPath}
+            imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
             tag={'(Yours)'}
             showTag
           />

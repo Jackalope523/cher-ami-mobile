@@ -7,6 +7,11 @@ export interface AddPostRequest {
   imageName: string;
 }
 
+export interface ImageRequest {
+  imageUri: string;
+  imageName: string;
+}
+
 export interface EmailAuthRequest {
   email: string;
 }

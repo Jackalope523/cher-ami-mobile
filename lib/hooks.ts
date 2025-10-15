@@ -2,7 +2,7 @@ import { useAPI } from '@/components/APIProvider';
 import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
-import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, JoinCircleRequest, RecipientRequest, VerifyCodeRequest } from './requests';
+import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, ImageRequest, JoinCircleRequest, RecipientRequest, VerifyCodeRequest } from './requests';
 import { CircleDTO, CodeResponse, FeedPageResponse, TokenDTO, UserDTO } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
@@ -91,6 +91,62 @@ export function useAddPostMutation(onSuccess?: () => void,   onError?: (error: A
 
       await api.post(
         `/issue/posts`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    },
+    onSuccess,
+    onError
+  });
+}
+
+export function useUpdateHeaderMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError, ImageRequest>({
+    mutationFn: async (request) => {
+      const formData = new FormData();
+
+      formData.append('Image', {
+        uri: request.imageUri,
+        type: 'image/jpeg',
+        name: request.imageName,
+      } as any);
+
+      await api.post(
+        `/circle/header`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    },
+    onSuccess,
+    onError
+  });
+}
+
+export function useUpdateAvatarMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError, ImageRequest>({
+    mutationFn: async (request) => {
+      const formData = new FormData();
+
+      formData.append('Image', {
+        uri: request.imageUri,
+        type: 'image/jpeg',
+        name: request.imageName,
+      } as any);
+
+      await api.post(
+        `/user/avatar`,
         formData,
         {
           headers: {

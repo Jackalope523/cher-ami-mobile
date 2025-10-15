@@ -2,7 +2,6 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
-import { useToastMessage } from './modals/ToastMessageProvider';
 
 interface LeaveCircleContentsProps {
   dismissModal?: () => void;
@@ -11,8 +10,6 @@ interface LeaveCircleContentsProps {
 export default function LeaveCircleContents({
   dismissModal = () => {},
 }: LeaveCircleContentsProps) {
-  const showToastMessage = useToastMessage();
-
   function handleDelete() {
     dismissModal();
   }

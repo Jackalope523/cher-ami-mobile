@@ -1,27 +1,26 @@
-import MenuIcon from '@/assets/icons/kebab-fill.svg';
+import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
 import PlusIcon from '@/assets/icons/plus-white.svg';
-import { borderRadius } from '@/constants/Borders';
-import { Colors } from '@/constants/Colors';
-import { Spacings } from '@/constants/Spacings';
-import { useFeedPostsInfiniteQuery, useGetCircleQuery } from '@/lib/hooks';
-import { Image } from 'expo-image';
-import { Dimensions, SectionList, StyleSheet, Text, View } from 'react-native';
-import 'react-native-get-random-values';
-
 import CameraImage from '@/assets/images/camera.png';
+import MailboxImage from '@/assets/images/mailbox.png';
 import NetworkImage from '@/components/NetworkImage';
 import PostCounter from '@/components/PostCounter';
+import { borderRadius } from '@/constants/Borders';
+import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { useFeedPostsInfiniteQuery, useGetCircleQuery } from '@/lib/hooks';
 import { FeedPost } from '@/lib/responses';
+import { Image } from 'expo-image';
 import { router, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
+import { Dimensions, SectionList, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
+import 'react-native-get-random-values';
 
 export default function Feed() {
   const navigation = useNavigation();
   const circleQuery = useGetCircleQuery();
 
-  const { data, error, status, fetchNextPage } = useFeedPostsInfiniteQuery();
+  const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
 
   function handleCreatePost() {
     router.push({
@@ -41,8 +40,12 @@ export default function Feed() {
     }
   }, [circleQuery.data, navigation]);
 
-  function renderIssueHeader(title: string | null, date: Date | null) {
-    if (title === null || date === null) return <View />;
+  function renderIssueHeader(
+    id: number | null,
+    title: string | null,
+    date: Date | null,
+  ) {
+    if (!title || !date || data?.pages[0].id === id) return <View />;
 
     return (
       <View style={styles.issueStateContainer}>
@@ -107,7 +110,10 @@ export default function Feed() {
               alignItems: 'center',
             }}>
             <NetworkImage
-              source={post.authorAvatarPath}
+              source={
+                post.authorAvatarPath +
+                `?timestamp=${post.authorAvatarTimestamp}`
+              }
               style={{ height: 48, width: 48, borderRadius: 24 }}
             />
             <View>
@@ -123,20 +129,24 @@ export default function Feed() {
           </View>
         </View>
 
-        <NetworkImage
-          source={post.photoPath}
-          style={{
-            height: Dimensions.get('window').width - 40,
-            width: Dimensions.get('window').width - 40,
-            borderRadius: 32,
-            marginHorizontal: 20,
-            marginBottom: Spacings.lg,
-          }}
-        />
+        <View style={{ marginBottom: Spacings.md }}>
+          <NetworkImage
+            source={post.photoPath}
+            style={{
+              height: Dimensions.get('window').width - 40,
+              width: Dimensions.get('window').width - 40,
+              borderRadius: 32,
+              marginHorizontal: 20,
+            }}
+          />
 
-        <View style={{ paddingHorizontal: 20, marginBottom: Spacings.md }}>
-          <Text style={textStyles.body}>{post.caption}</Text>
+          {post.caption && (
+            <View style={{ paddingHorizontal: 20, marginTop: Spacings.lg }}>
+              <Text style={textStyles.body}>{post.caption}</Text>
+            </View>
+          )}
         </View>
+
         <View
           style={{
             borderWidth: 1.5 / 2,
@@ -155,30 +165,34 @@ export default function Feed() {
           numberOfPosts={data?.pages[0].posts.length}
           issueTitle={data?.pages[0].issueTitle}
         />
-        <View
-          style={{
-            flexDirection: 'row',
-            backgroundColor: '#9AD47C',
-            borderRadius: borderRadius.lg,
-            marginHorizontal: 20,
-            marginBottom: Spacings.md,
-            justifyContent: 'space-between',
-            paddingHorizontal: 20,
-            paddingVertical: Spacings.sm,
-            columnGap: Spacings.mdsm,
-            alignItems: 'center',
-          }}>
-          <Text
-            style={[
-              textStyles.heading5,
-              {
-                flexShrink: 1,
-              },
-            ]}>
-            {"Be the first to upload to this month's issue!"}
-          </Text>
-          <Image source={CameraImage} style={{ height: 64, width: 64 }} />
-        </View>
+        {data?.pages[0].posts.length === 0 && (
+          <View style={styles.toast}>
+            <Text
+              style={[
+                textStyles.heading5,
+                {
+                  flexShrink: 1,
+                },
+              ]}>
+              {"Be the first to upload to this month's issue!"}
+            </Text>
+            <Image source={CameraImage} style={{ height: 64, width: 64 }} />
+          </View>
+        )}
+        {data?.pages[0].posts.length === 20 && (
+          <View style={styles.toast}>
+            <Text
+              style={[
+                textStyles.heading5,
+                {
+                  flexShrink: 1,
+                },
+              ]}>
+              {"This month's issue is full!"}
+            </Text>
+            <Image source={MailboxImage} style={{ height: 64, width: 64 }} />
+          </View>
+        )}
       </View>
     );
   }
@@ -201,6 +215,7 @@ export default function Feed() {
         overScrollMode="never"
         sections={
           data?.pages.map((page) => ({
+            id: page.id,
             title: page.issueTitle,
             date: page.issueDate,
             data: page.posts,
@@ -208,7 +223,7 @@ export default function Feed() {
         }
         renderItem={({ item }) => renderPost(item)}
         renderSectionHeader={({ section }) =>
-          renderIssueHeader(section.title, section.date)
+          renderIssueHeader(section.id, section.title, section.date)
         }
         ListHeaderComponent={renderListHeader}
         ListFooterComponent={renderListFooter}
@@ -222,6 +237,7 @@ export default function Feed() {
 
       <Pressable
         onPress={handleCreatePost}
+        disabled={data?.pages[0].posts.length === 20}
         style={{
           position: 'absolute',
           bottom: 20,
@@ -246,41 +262,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#FCFBF8',
   },
 
-  noCircleContainer: {
-    flex: 1,
-    backgroundColor: Colors.canarySand,
-    alignItems: 'center',
-    justifyContent: 'center',
-    rowGap: Spacings.sm,
-  },
-
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: Colors.canarySand,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  buttonsContainer: {
-    rowGap: Spacings.sm,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacings.lg,
-  },
-
-  headerContainer: {
+  toast: {
     flexDirection: 'row',
+    backgroundColor: '#9AD47C',
+    borderRadius: borderRadius.lg,
+    marginHorizontal: 20,
+    marginBottom: Spacings.md,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: Spacings.sm,
+    columnGap: Spacings.mdsm,
     alignItems: 'center',
-    justifyContent: 'center',
-    columnGap: Spacings.md,
-  },
-
-  menuIcon: {
-    padding: Spacings.md,
-  },
-
-  circleTitle: {
-    alignItems: 'center',
-    paddingVertical: Spacings.md,
   },
 
   issueStateContainer: {

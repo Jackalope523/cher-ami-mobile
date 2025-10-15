@@ -1,12 +1,49 @@
 import BirthdayIcon from '@/assets/icons/cake.svg';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import NetworkImage from '@/components/NetworkImage';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetUserQuery } from '@/lib/hooks';
+import { useGetUserQuery, useUpdateAvatarMutation } from '@/lib/hooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { launchImageLibraryAsync } from 'expo-image-picker';
 import { StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
+import { v4 } from 'uuid';
 
 export default function Profile() {
+  const showToastMessage = useToastMessage();
   const { data } = useGetUserQuery();
+  const queryClient = useQueryClient();
+  const uploadMutation = useUpdateAvatarMutation(
+    () => {
+      showToastMessage('Upload success!', ToastMessageType.Success);
+      queryClient.invalidateQueries({ queryKey: ['User'] });
+      queryClient.invalidateQueries({ queryKey: ['FeedPages'] });
+    },
+    (error) => {
+      console.error('Upload failed:', error);
+      showToastMessage('Upload failed.', ToastMessageType.Error);
+    },
+  );
+
+  async function pickImageAsync() {
+    let result = await launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      uploadMutation.mutate({
+        imageUri: result.assets[0].uri,
+        imageName: `${v4()}.jpg`,
+      });
+    }
+  }
 
   if (!data) {
     return <Text>Loading...</Text>;
@@ -14,7 +51,12 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      <NetworkImage style={styles.avatar} source={data.avatarPath} />
+      <Pressable onPress={pickImageAsync}>
+        <NetworkImage
+          style={styles.avatar}
+          source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
+        />
+      </Pressable>
       <Text style={[textStyles.heading2, styles.name]}>
         {`${data.firstName} ${data.lastName}`}
       </Text>

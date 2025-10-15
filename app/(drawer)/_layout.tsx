@@ -50,7 +50,7 @@ export default function Layout() {
               marginBottom: Spacings.xl,
             }}>
             <NetworkImage
-              source={data.avatarPath}
+              source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
               style={{
                 height: 48,
                 width: 48,

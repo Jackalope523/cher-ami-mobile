@@ -7,23 +7,47 @@ import InviteModalContents from '@/components/InviteModalContents';
 import LeaveCircleContents from '@/components/LeaveCircleContents';
 import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
 import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import NetworkImage from '@/components/NetworkImage';
 import UserItem from '@/components/UserItem';
 import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetCircleQuery, useGetUserQuery } from '@/lib/hooks';
+import {
+  useGetCircleQuery,
+  useGetUserQuery,
+  useUpdateHeaderMutation,
+} from '@/lib/hooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
+import { v4 } from 'uuid';
 
 export default function Manage() {
+  const showToastMessage = useToastMessage();
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
   const userQuery = useGetUserQuery();
   const circleQuery = useGetCircleQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
   const { displayDialogue, dismissDialogue } = useDialogueModal();
+
+  const uploadMutation = useUpdateHeaderMutation(
+    () => {
+      showToastMessage('Upload success!', ToastMessageType.Success);
+      queryClient.invalidateQueries({ queryKey: ['Circle'] });
+    },
+    (error) => {
+      console.error('Upload failed:', error);
+      showToastMessage('Upload failed.', ToastMessageType.Error);
+    },
+  );
 
   useEffect(() => {
     if (circleQuery.data) {
@@ -41,11 +65,29 @@ export default function Manage() {
   }
 
   function handleInvite() {
-    displayBottomSheet(<InviteModalContents dismissModal={dismissDialogue} />);
+    displayBottomSheet(
+      <InviteModalContents dismissModal={dismissBottomSheetModal} />,
+    );
   }
 
   function handleCircleSettings() {
     displayDialogue(<LeaveCircleContents dismissModal={dismissDialogue} />);
+  }
+
+  async function pickImageAsync() {
+    let result = await launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [Dimensions.get('window').width - 40, 186],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      uploadMutation.mutate({
+        imageUri: result.assets[0].uri,
+        imageName: `${v4()}.jpg`,
+      });
+    }
   }
 
   if (!circleQuery.data || !userQuery.data) {
@@ -58,17 +100,22 @@ export default function Manage() {
         overScrollMode="never"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}>
-        <NetworkImage
-          source={circleQuery.data.headerPath}
-          placeholder={Placeholder}
-          style={{
-            height: 186,
-            width: Dimensions.get('window').width - 40,
-            borderRadius: 32,
-            marginHorizontal: 20,
-            marginVertical: Spacings.xl,
-          }}
-        />
+        <Pressable onPress={pickImageAsync}>
+          <NetworkImage
+            source={
+              circleQuery.data.headerPath +
+              `?timestamp=${circleQuery.data.headerTimestamp}`
+            }
+            placeholder={Placeholder}
+            style={{
+              height: 186,
+              width: Dimensions.get('window').width - 40,
+              borderRadius: 32,
+              marginHorizontal: 20,
+              marginVertical: Spacings.xl,
+            }}
+          />
+        </Pressable>
 
         <View
           style={{
@@ -123,7 +170,7 @@ export default function Manage() {
             <UserItem
               key={x.id}
               text={x.firstName}
-              imageSource={x.avatarPath}
+              imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
               tag={'(You)'}
               showTag={x.id === userQuery.data.id}
             />
@@ -169,7 +216,7 @@ export default function Manage() {
             <UserItem
               key={x.id}
               text={x.firstName}
-              imageSource={x.avatarPath}
+              imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
               onPress={() => router.push('/circle/recipients/edit')}
               tag={'(Yours)'}
               showTag={x.managerId === userQuery.data.id}
