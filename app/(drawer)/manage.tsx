@@ -18,7 +18,7 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
   useGetCircleQuery,
-  useGetUserQuery,
+  useGetSelfQuery,
   useUpdateHeaderMutation,
 } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
@@ -33,7 +33,7 @@ export default function Manage() {
   const showToastMessage = useToastMessage();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
-  const userQuery = useGetUserQuery();
+  const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
   const { displayDialogue, dismissDialogue } = useDialogueModal();
@@ -173,6 +173,12 @@ export default function Manage() {
               imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
               tag={'(You)'}
               showTag={x.id === userQuery.data.id}
+              onPress={() =>
+                router.push({
+                  pathname: '/profile/[id]',
+                  params: { id: x.id },
+                })
+              }
             />
           ))}
         </View>
@@ -217,8 +223,11 @@ export default function Manage() {
               key={x.id}
               text={x.firstName}
               imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
-              onPress={() => router.push('/circle/recipients/edit')}
-              tag={'(Yours)'}
+              onPress={() => {
+                if (x.managerId === userQuery.data.id)
+                  router.push('/circle/recipients/edit');
+              }}
+              tag={'(Edit)'}
               showTag={x.managerId === userQuery.data.id}
             />
           ))}

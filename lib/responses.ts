@@ -58,8 +58,9 @@ export interface FeedPageResponse {
   nextPage: number | null;
 }
 
-export interface TokenDTO {
+export interface LoginResponse {
   token: string;
+  isNewUser: boolean;
 }
 
 export interface CodeResponse {

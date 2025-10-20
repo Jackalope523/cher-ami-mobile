@@ -2,8 +2,8 @@ import { useAPI } from '@/components/APIProvider';
 import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
-import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, ImageRequest, JoinCircleRequest, RecipientRequest, VerifyCodeRequest } from './requests';
-import { CircleDTO, CodeResponse, FeedPageResponse, TokenDTO, UserDTO } from './responses';
+import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, GoogleTokenRequest, ImageRequest, JoinCircleRequest, RecipientRequest, VerifyCodeRequest } from './requests';
+import { CircleDTO, CodeResponse, FeedPageResponse, LoginResponse, UserDTO } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
   const savedCallback = useRef(callback);
@@ -35,15 +35,27 @@ export function useGetCircleQuery() {
   });
 }
 
-export function useGetUserQuery() {
+export function useGetSelfQuery() {
   const api = useAPI();
-
+ 
   return useQuery<UserDTO, AxiosError>({
-    queryKey: ['User'],
+    queryKey: ['User', 'Self'],
     queryFn: async () => {
       const response = await api.get<UserDTO>('/user');
       return response.data;
     }
+  });
+}
+
+export function useGetUserQuery(id: number) {
+  const api = useAPI();
+
+  return useQuery<UserDTO, AxiosError>({
+    queryKey: ['User', id],
+    queryFn: async () => {
+      const response = await api.get<UserDTO>(`/users/${id}`);
+      return response.data;
+    },
   });
 }
 
@@ -172,12 +184,12 @@ export function useEmailAuthMutation(onSuccess?:() => void , onError?: (error: A
   });
 }
 
-export function useVerifyCodeMutation(onSuccess?:(data: TokenDTO) => void , onError?: (error: AxiosError) => void) {
+export function useVerifyCodeMutation(onSuccess?:(data: LoginResponse) => void , onError?: (error: AxiosError) => void) {
   const api = useAPI();
 
-  return useMutation<TokenDTO, AxiosError, VerifyCodeRequest>({
+  return useMutation<LoginResponse, AxiosError, VerifyCodeRequest>({
       mutationFn: async (request) =>{
-        const response = await api.post<TokenDTO>('/auth/email/verify', request);
+        const response = await api.post<LoginResponse>('/auth/email/verify', request);
         return response.data;
       },
       onSuccess: onSuccess,
@@ -237,6 +249,19 @@ export function useJoinCircleMutation(onSuccess?:() => void , onError?: (error: 
   return useMutation<void, AxiosError, JoinCircleRequest>({
       mutationFn: async (request: JoinCircleRequest) => {
         await api.post('/circles/join', request)
+      },
+      onSuccess: onSuccess,
+      onError: onError,
+    });
+}
+
+export function useExchangeGoogleTokenMutation(onSuccess?:(response: LoginResponse) => void , onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<LoginResponse, AxiosError, GoogleTokenRequest>({
+      mutationFn: async (request: GoogleTokenRequest) => {
+        const response = await api.post<LoginResponse>('/auth/google/token', request)
+        return response.data;
       },
       onSuccess: onSuccess,
       onError: onError,

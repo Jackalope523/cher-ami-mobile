@@ -25,7 +25,7 @@ export const useAPI = () => {
 };
 
 const api = axios.create({
-  baseURL: 'http://10.0.2.2:5000',
+  baseURL: 'https://app-cherami-prod.azurewebsites.net',
   timeout: 3000,
   transformResponse: [
     ...(axios.defaults.transformResponse as any),

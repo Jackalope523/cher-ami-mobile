@@ -9,6 +9,8 @@ interface AuthInterface {
   getToken: () => Promise<string | null>;
   updateToken: (freshToken: string) => Promise<void>;
   deleteToken: () => Promise<void>;
+  getIsNewUser: () => Promise<boolean | null>;
+  updateIsNewUser: (isNewUser: boolean) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthInterface | null>(null);
@@ -24,11 +26,14 @@ export const useAuth = () => {
     getToken: context.getToken,
     updateToken: context.updateToken,
     deleteToken: context.deleteToken,
+    getIsNewUser: context.getIsNewUser,
+    updateIsNewUser: context.updateIsNewUser,
   };
 };
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [token, setToken] = useState<string | null>(null);
+  const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
 
   async function getToken() {
     if (token === null) {
@@ -49,8 +54,29 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     await deleteItemAsync('token');
   }
 
+  async function getIsNewUser() {
+    if (isNewUser === null) {
+      let freshValue = (await getItemAsync('isNewUser')) === 'true';
+      setIsNewUser(freshValue);
+      return freshValue;
+    }
+    return isNewUser;
+  }
+
+  async function updateIsNewUser(value: boolean) {
+    setIsNewUser(value);
+    await setItemAsync('isNewUser', value.toString());
+  }
+
   return (
-    <AuthContext.Provider value={{ getToken, updateToken, deleteToken }}>
+    <AuthContext.Provider
+      value={{
+        getToken,
+        updateToken,
+        deleteToken,
+        getIsNewUser,
+        updateIsNewUser,
+      }}>
       {children}
     </AuthContext.Provider>
   );

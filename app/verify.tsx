@@ -7,8 +7,8 @@ import { StyleSheet, View } from 'react-native';
 export default function Verify() {
   const { updateToken } = useAuth();
   const mutation = useVerifyCodeMutation(
-    (reponse) => {
-      updateToken(reponse.token);
+    (response) => {
+      updateToken(response.token);
       router.replace('/feed');
     },
     () => {

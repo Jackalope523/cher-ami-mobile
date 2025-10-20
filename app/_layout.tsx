@@ -19,16 +19,20 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  const { getToken } = useAuth();
+  const { getToken, getIsNewUser } = useAuth();
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
+  const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
 
   useEffect(() => {
-    getToken()
-      .then((token) => setLoggedIn(token !== null))
+    getIsNewUser()
+      .then((isNewUser) => {
+        setIsNewUser(isNewUser);
+        getToken().then((token) => setLoggedIn(token !== null && !isNewUser));
+      })
       .finally(() => SplashScreen.hide());
-  }, [getToken]);
+  }, [getIsNewUser, getToken, isNewUser, loggedIn]);
 
-  if (loggedIn === null) {
+  if (loggedIn === null || isNewUser === null) {
     return null;
   }
 
@@ -60,52 +64,62 @@ function RootNavigator() {
         />
       </Stack.Protected>
       <Stack.Protected guard={loggedIn}>
-        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="profile"
-          options={{
-            title: 'Profile',
-          }}
-        />
-        <Stack.Screen name="circle/create" />
-        <Stack.Screen name="circle/join" />
-        <Stack.Screen
-          name="post/create"
-          options={{
-            title: 'New Post',
-          }}
-        />
-        <Stack.Screen
-          name="billing/manage"
-          options={{
-            title: 'Manage Billing',
-          }}
-        />
-        <Stack.Screen
-          name="circle/recipients/add"
-          options={{
-            title: 'Add Recipient',
-          }}
-        />
-        <Stack.Screen
-          name="circle/recipients/edit"
-          options={{
-            title: 'Edit Recipient',
-            headerRight: () => (
-              <Pressable
-                onPress={() => router.push('/circle/recipients/remove')}
-                style={{ paddingHorizontal: Spacings.md }}>
-                <TrashIcon height={24} width={24} />
-              </Pressable>
-            ),
-          }}
-        />
-        <Stack.Screen
-          name="circle/recipients/remove"
-          options={{
-            headerShown: false,
-          }}
-        />
+        <Stack.Protected guard={isNewUser}>
+          <Stack.Screen
+            name="onboarding/firstName"
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack.Protected>
+        <Stack.Protected guard={!isNewUser}>
+          <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="profile/[id]"
+            options={{
+              title: 'Profile',
+            }}
+          />
+          <Stack.Screen name="circle/create" />
+          <Stack.Screen name="circle/join" />
+          <Stack.Screen
+            name="post/create"
+            options={{
+              title: 'New Post',
+            }}
+          />
+          <Stack.Screen
+            name="billing/manage"
+            options={{
+              title: 'Manage Billing',
+            }}
+          />
+          <Stack.Screen
+            name="circle/recipients/add"
+            options={{
+              title: 'Add Recipient',
+            }}
+          />
+          <Stack.Screen
+            name="circle/recipients/edit"
+            options={{
+              title: 'Edit Recipient',
+              headerRight: () => (
+                <Pressable
+                  onPress={() => router.push('/circle/recipients/remove')}
+                  style={{ paddingHorizontal: Spacings.md }}>
+                  <TrashIcon height={24} width={24} />
+                </Pressable>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="circle/recipients/remove"
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack.Protected>
       </Stack.Protected>
     </Stack>
   );

@@ -3,10 +3,15 @@ import AppleIcon from '@/assets/icons/apple-logo.svg';
 import CherIcon from '@/assets/icons/cher.svg';
 import GoogleIcon from '@/assets/icons/google-logo.svg';
 import Dot from '@/assets/icons/i-top.svg';
+import { useAuth } from '@/components/AuthProvider';
+import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useEmailAuthMutation } from '@/lib/hooks';
+import {
+  useEmailAuthMutation,
+  useExchangeGoogleTokenMutation,
+} from '@/lib/hooks';
 import {
   AuthRequestConfig,
   DiscoveryDocument,
@@ -24,20 +29,36 @@ maybeCompleteAuthSession();
 
 // Endpoint
 const discovery: DiscoveryDocument = {
-  authorizationEndpoint: 'http://10.0.2.2:5000/auth/google',
-  tokenEndpoint: 'http://10.0.2.2:5000/auth/google/token',
+  authorizationEndpoint:
+    'https://app-cherami-prod.azurewebsites.net/auth/google',
+  tokenEndpoint: 'https://app-cherami-prod.azurewebsites.net/auth/google/token',
 };
 
 // JACKALOPE: Set up auth.
 const config: AuthRequestConfig = {
-  clientId: 'CLIENT_ID',
+  clientId: 'google',
   redirectUri: makeRedirectUri({
     scheme: 'cherami',
   }),
 };
 
 export default function Index() {
+  const { updateToken, updateIsNewUser } = useAuth();
   const [request, response, promptAsync] = useAuthRequest(config, discovery);
+  const showToast = useToastMessage();
+  const exchangeGoogleTokenMutation = useExchangeGoogleTokenMutation(
+    (response) => {
+      updateToken(response.token);
+      updateIsNewUser(response.isNewUser);
+
+      if (response.isNewUser) {
+        router.push('/onboarding/firstName');
+      } else {
+        router.push('/feed');
+      }
+    },
+    () => {},
+  );
   const emailAuthMutation = useEmailAuthMutation(
     () => {
       router.push('/verify');
@@ -50,6 +71,7 @@ export default function Index() {
   useEffect(() => {
     if (response?.type === 'success') {
       const { code } = response.params;
+      exchangeGoogleTokenMutation.mutate({ authorizationCode: code });
     }
   }, [response]);
 

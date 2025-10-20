@@ -2,12 +2,12 @@ import CreditCardIcon from '@/assets/icons/credit-card-orange.svg';
 import UserItem from '@/components/UserItem';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetUserQuery } from '@/lib/hooks';
+import { useGetSelfQuery } from '@/lib/hooks';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
 
 export default function ManageBilling() {
-  const { data } = useGetUserQuery();
+  const { data } = useGetSelfQuery();
 
   if (!data) {
     return <Text>Loading...</Text>;

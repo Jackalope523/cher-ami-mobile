@@ -32,6 +32,10 @@ export interface JoinCircleRequest {
   code: string;
 }
 
+export interface GoogleTokenRequest {
+  authorizationCode: string;
+}
+
 export interface IdRequest {
   Id: number;
 }

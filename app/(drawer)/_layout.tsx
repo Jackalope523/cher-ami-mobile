@@ -7,7 +7,7 @@ import { useAuth } from '@/components/AuthProvider';
 import NetworkImage from '@/components/NetworkImage';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetUserQuery } from '@/lib/hooks';
+import { useGetSelfQuery } from '@/lib/hooks';
 import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
@@ -20,7 +20,7 @@ import { Pressable } from 'react-native-gesture-handler';
 export default function Layout() {
   function CustomDrawerContent(props: DrawerContentComponentProps) {
     const { deleteToken } = useAuth();
-    const { data } = useGetUserQuery();
+    const { data } = useGetSelfQuery();
 
     function handleLogout() {
       deleteToken().then(() => router.replace('/'));
@@ -40,7 +40,10 @@ export default function Layout() {
         <View>
           <Pressable
             onPress={() => {
-              router.navigate('/profile');
+              router.navigate({
+                pathname: '/profile/[id]',
+                params: { id: data.id },
+              });
             }}
             style={{
               flexDirection: 'row',

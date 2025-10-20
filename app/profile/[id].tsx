@@ -7,20 +7,27 @@ import NetworkImage from '@/components/NetworkImage';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetUserQuery, useUpdateAvatarMutation } from '@/lib/hooks';
+import { UserDTO } from '@/lib/responses';
 import { useQueryClient } from '@tanstack/react-query';
 import { launchImageLibraryAsync } from 'expo-image-picker';
+import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import { v4 } from 'uuid';
 
 export default function Profile() {
-  const showToastMessage = useToastMessage();
-  const { data } = useGetUserQuery();
+  const { id } = useLocalSearchParams();
   const queryClient = useQueryClient();
+  const isSelf =
+    queryClient.getQueryData<UserDTO>(['User', 'Self'])?.id === Number(id);
+  const { data } = useGetUserQuery(Number(id));
+  const showToastMessage = useToastMessage();
+
   const uploadMutation = useUpdateAvatarMutation(
     () => {
       showToastMessage('Upload success!', ToastMessageType.Success);
-      queryClient.invalidateQueries({ queryKey: ['User'] });
+      queryClient.invalidateQueries({ queryKey: ['User', 'Self'] });
+      queryClient.invalidateQueries({ queryKey: ['User', Number(id)] });
       queryClient.invalidateQueries({ queryKey: ['FeedPages'] });
     },
     (error) => {
@@ -30,18 +37,20 @@ export default function Profile() {
   );
 
   async function pickImageAsync() {
-    let result = await launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      uploadMutation.mutate({
-        imageUri: result.assets[0].uri,
-        imageName: `${v4()}.jpg`,
+    if (isSelf) {
+      let result = await launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
       });
+
+      if (!result.canceled) {
+        uploadMutation.mutate({
+          imageUri: result.assets[0].uri,
+          imageName: `${v4()}.jpg`,
+        });
+      }
     }
   }
 
