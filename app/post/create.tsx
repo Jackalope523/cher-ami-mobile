@@ -53,7 +53,7 @@ export default function Create() {
     let result = await launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [1, 1],
+      aspect: [Dimensions.get('window').width - 40, 259],
       quality: 1,
     });
 
@@ -78,7 +78,7 @@ export default function Create() {
               backgroundColor: '#F4F1EA',
               borderRadius: 32,
               width: Dimensions.get('window').width - 40,
-              height: Dimensions.get('window').width - 40,
+              height: 259,
               alignItems: 'center',
               justifyContent: 'center',
             }}>
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
 
   image: {
     width: Dimensions.get('window').width - 40,
-    height: Dimensions.get('window').width - 40,
+    height: 259,
     borderRadius: 32,
   },
 

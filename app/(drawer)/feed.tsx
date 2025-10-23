@@ -1,5 +1,7 @@
 import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
 import PlusIcon from '@/assets/icons/plus-white.svg';
+import HedgeHog from '@/assets/illustrations/hedgehog-ballooning.svg';
+import MouseHole from '@/assets/illustrations/mouse-hole.svg';
 import CameraImage from '@/assets/images/camera.png';
 import MailboxImage from '@/assets/images/mailbox.png';
 import NetworkImage from '@/components/NetworkImage';
@@ -97,46 +99,93 @@ export default function Feed() {
     title: string | null,
     date: Date | null,
   ) {
-    if (!title || !date || data?.pages[0].id === id) return <View />;
+    if (!title || !date) return <View />;
+
+    if (data?.pages[0].id === id) {
+      if (data?.pages[0].posts.length === 0) {
+        return (
+          <View
+            style={{
+              rowGap: Spacings.md,
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 120,
+            }}>
+            <HedgeHog height={223} width={160} />
+            <Text
+              style={[textStyles.fancyText, { marginBottom: Spacings.xxl }]}>
+              {'Nothing to see here :('}
+            </Text>
+            <View
+              style={{
+                alignSelf: 'flex-end',
+                paddingHorizontal: Spacings.lgmd,
+              }}>
+              <MouseHole height={73} width={71} />
+            </View>
+          </View>
+        );
+      } else {
+        return <View />;
+      }
+    }
 
     return (
-      <View style={styles.issueStateContainer}>
-        <View style={styles.issueStateInfo}>
-          <Text style={textStyles.labelLargeBlack}>{title}</Text>
-          <Text
-            style={[
-              textStyles.captionMedium,
-              {
-                textAlign: 'right',
-              },
-            ]}>
-            {date.toLocaleString('en-US', {
-              month: 'long',
-              year: 'numeric',
-            })}
-          </Text>
+      <View>
+        <View style={styles.issueStateContainer}>
+          <View style={styles.issueStateInfo}>
+            <Text style={textStyles.labelLargeBlack}>{title}</Text>
+            <Text
+              style={[
+                textStyles.captionMedium,
+                {
+                  textAlign: 'right',
+                },
+              ]}>
+              {date.toLocaleString('en-US', {
+                month: 'long',
+                year: 'numeric',
+              })}
+            </Text>
+          </View>
+          <View
+            style={{
+              paddingBottom: Spacings.md,
+              alignItems: 'center',
+            }}>
+            <View
+              style={{
+                paddingHorizontal: Spacings.mdsm,
+                paddingVertical: Spacings.xs,
+                borderRadius: borderRadius.sm,
+                backgroundColor: '#F4F1EA',
+              }}>
+              <Text
+                style={[
+                  textStyles.labelSmall,
+                  {
+                    textAlign: 'center',
+                  },
+                ]}>
+                {mapDateToText(date)}
+              </Text>
+            </View>
+          </View>
         </View>
         <View
           style={{
-            paddingBottom: Spacings.md,
+            rowGap: Spacings.md,
             alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 100,
           }}>
+          <HedgeHog height={223} width={160} />
+          <Text style={[textStyles.fancyText, { marginBottom: Spacings.xxl }]}>
+            {'Nothing to see here :('}
+          </Text>
           <View
-            style={{
-              paddingHorizontal: Spacings.mdsm,
-              paddingVertical: Spacings.xs,
-              borderRadius: borderRadius.sm,
-              backgroundColor: '#F4F1EA',
-            }}>
-            <Text
-              style={[
-                textStyles.labelSmall,
-                {
-                  textAlign: 'center',
-                },
-              ]}>
-              {mapDateToText(date)}
-            </Text>
+            style={{ alignSelf: 'flex-end', paddingHorizontal: Spacings.lgmd }}>
+            <MouseHole height={73} width={71} />
           </View>
         </View>
       </View>
@@ -185,7 +234,7 @@ export default function Feed() {
           <NetworkImage
             source={post.photoPath}
             style={{
-              height: Dimensions.get('window').width - 40,
+              height: 259,
               width: Dimensions.get('window').width - 40,
               borderRadius: 32,
               marginHorizontal: 20,
@@ -249,10 +298,6 @@ export default function Feed() {
     );
   }
 
-  function renderListFooter() {
-    return <View></View>;
-  }
-
   function handleOnEndReached() {
     fetchNextPage();
   }
@@ -278,13 +323,7 @@ export default function Feed() {
           renderIssueHeader(section.id, section.title, section.date)
         }
         ListHeaderComponent={renderListHeader}
-        ListFooterComponent={renderListFooter}
         onEndReached={handleOnEndReached}
-        ListEmptyComponent={() => (
-          <View style={{ padding: 20, alignItems: 'center' }}>
-            <Text>No posts available.</Text>
-          </View>
-        )}
       />
 
       <Pressable

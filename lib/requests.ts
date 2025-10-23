@@ -1,4 +1,3 @@
-import { IssueSchedule } from "./enums";
 
 export interface AddPostRequest {
   time: string;
@@ -21,11 +20,18 @@ export interface VerifyCodeRequest {
   code: string;
 }
 
+export interface UpdateUserRequest {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+  avatarPath: string;
+  inviteCode: string;
+}
+
+
 export interface CreateCircleRequest {
   title: string;
-  schedule: IssueSchedule;
   imageUri: string;
-  imageName: string;
 }
 
 export interface JoinCircleRequest {

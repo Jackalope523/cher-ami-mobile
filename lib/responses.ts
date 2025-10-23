@@ -22,6 +22,7 @@ export interface CircleDTO {
   headerPath: string;
   headerTimestamp: Date; 
   title: string;
+  inviteCode: string;
   dateCreated: Date;
   schedule: IssueSchedule;
   contributors: UserItem[];
@@ -60,7 +61,7 @@ export interface FeedPageResponse {
 
 export interface LoginResponse {
   token: string;
-  isNewUser: boolean;
+  onboarded: boolean;
 }
 
 export interface CodeResponse {

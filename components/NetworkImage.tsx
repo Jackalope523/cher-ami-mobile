@@ -27,7 +27,7 @@ export default function NetworkImage({
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        uri: 'http://10.0.2.2:5000' + imagePath,
+        uri: 'https://app-cherami-prod.azurewebsites.net' + imagePath,
       }}
       placeholder={placeholder}
     />

@@ -4,7 +4,10 @@ import CherIcon from '@/assets/icons/cher.svg';
 import GoogleIcon from '@/assets/icons/google-logo.svg';
 import Dot from '@/assets/icons/i-top.svg';
 import { useAuth } from '@/components/AuthProvider';
-import { useToastMessage } from '@/components/modals/ToastMessageProvider';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
@@ -43,21 +46,24 @@ const config: AuthRequestConfig = {
 };
 
 export default function Index() {
-  const { updateToken, updateIsNewUser } = useAuth();
+  const { updateToken, updateOnboarded } = useAuth();
   const [request, response, promptAsync] = useAuthRequest(config, discovery);
   const showToast = useToastMessage();
   const exchangeGoogleTokenMutation = useExchangeGoogleTokenMutation(
     (response) => {
+      showToast('Successfully logged in!');
       updateToken(response.token);
-      updateIsNewUser(response.isNewUser);
+      updateOnboarded(response.onboarded);
 
-      if (response.isNewUser) {
+      if (!response.onboarded) {
         router.push('/onboarding/firstName');
       } else {
         router.push('/feed');
       }
     },
-    () => {},
+    () => {
+      showToast('Failed to log in. Try again.', ToastMessageType.Error);
+    },
   );
   const emailAuthMutation = useEmailAuthMutation(
     () => {

@@ -8,6 +8,13 @@ export const textStyles = StyleSheet.create({
     color: '#C15F3C',
   },
 
+  fancyText: {
+    fontFamily: 'Damion-Regular',
+    fontWeight: 400,
+    fontSize: 28,
+    color: '#242832',
+  },
+
   heading1: {
     fontFamily: 'Poppins',
     fontWeight: 500,

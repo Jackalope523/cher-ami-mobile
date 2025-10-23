@@ -1,13 +1,14 @@
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 
-export default function FirstName() {
-  const [firstName, setFirstName] = useState('');
+export default function CircleName() {
+  const { firstName, lastName, birthday, avatar } = useLocalSearchParams();
+  const [circleName, setCircleName] = useState('');
 
   return (
     <View style={styles.container}>
@@ -19,26 +20,26 @@ export default function FirstName() {
               marginBottom: Spacings.md,
             },
           ]}>
-          What’s your first name?
+          Name your circle.
         </Text>
         <TextInput
-          placeholder="Your first name"
+          placeholder="Circle name"
           maxLength={100}
-          value={firstName}
-          onChangeText={setFirstName}
+          value={circleName}
+          onChangeText={setCircleName}
         />
       </View>
       <Pressable
         onPress={() => {
           router.push({
-            pathname: '/onboarding/lastName',
-            params: { firstName },
+            pathname: '/onboarding/circleHeader',
+            params: { firstName, lastName, birthday, avatar, circleName },
           });
         }}
-        disabled={!firstName}
+        disabled={!circleName}
         style={[
           styles.button,
-          !firstName && {
+          !circleName && {
             backgroundColor: '#ECEDEF',
             borderColor: '#ECEDEF',
           },
@@ -46,7 +47,7 @@ export default function FirstName() {
         <Text
           style={[
             textStyles.buttonTextWhite,
-            !firstName && { color: '#A8ABB3' },
+            !circleName && { color: '#A8ABB3' },
           ]}>
           Continue
         </Text>

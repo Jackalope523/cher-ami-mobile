@@ -19,20 +19,25 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  const { getToken, getIsNewUser } = useAuth();
+  const { getToken, getOnboarded } = useAuth();
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
-  const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
+  const [onboarded, setOnboarded] = useState<boolean | null>(null);
 
   useEffect(() => {
-    getIsNewUser()
-      .then((isNewUser) => {
-        setIsNewUser(isNewUser);
-        getToken().then((token) => setLoggedIn(token !== null && !isNewUser));
+    getOnboarded()
+      .then(async (onboarded) => {
+        setOnboarded(onboarded);
+
+        if (!onboarded) {
+          setLoggedIn(false);
+        } else {
+          getToken().then((token) => setLoggedIn(token !== null));
+        }
       })
       .finally(() => SplashScreen.hide());
-  }, [getIsNewUser, getToken, isNewUser, loggedIn]);
+  }, [getOnboarded, getToken, onboarded, loggedIn]);
 
-  if (loggedIn === null || isNewUser === null) {
+  if (loggedIn === null || onboarded === null) {
     return null;
   }
 
@@ -64,15 +69,26 @@ function RootNavigator() {
         />
       </Stack.Protected>
       <Stack.Protected guard={loggedIn}>
-        <Stack.Protected guard={isNewUser}>
+        <Stack.Protected guard={!onboarded}>
+          <Stack.Screen name="onboarding/firstName" options={{ title: '' }} />
+          <Stack.Screen name="onboarding/lastName" options={{ title: '' }} />
+          <Stack.Screen name="onboarding/birthday" options={{ title: '' }} />
+          <Stack.Screen name="onboarding/avatar" options={{ title: '' }} />
           <Stack.Screen
-            name="onboarding/firstName"
-            options={{
-              headerShown: false,
-            }}
+            name="onboarding/joinOrCreateCircle"
+            options={{ title: '' }}
+          />
+          <Stack.Screen name="onboarding/circleName" options={{ title: '' }} />
+          <Stack.Screen
+            name="onboarding/circleHeader"
+            options={{ title: '' }}
+          />
+          <Stack.Screen
+            name="onboarding/circleCode"
+            options={{ headerShown: false }}
           />
         </Stack.Protected>
-        <Stack.Protected guard={!isNewUser}>
+        <Stack.Protected guard={onboarded}>
           <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
           <Stack.Screen
             name="profile/[id]"

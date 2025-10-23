@@ -50,7 +50,8 @@
     "react-native-uuid": "^2.0.3",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "expo-clipboard": "~7.1.5"
+    "expo-clipboard": "~7.1.5",
+    "@react-native-community/datetimepicker": "8.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

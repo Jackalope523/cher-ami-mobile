@@ -9,8 +9,8 @@ interface AuthInterface {
   getToken: () => Promise<string | null>;
   updateToken: (freshToken: string) => Promise<void>;
   deleteToken: () => Promise<void>;
-  getIsNewUser: () => Promise<boolean | null>;
-  updateIsNewUser: (isNewUser: boolean) => Promise<void>;
+  getOnboarded: () => Promise<boolean | null>;
+  updateOnboarded: (onboarded: boolean) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthInterface | null>(null);
@@ -26,14 +26,14 @@ export const useAuth = () => {
     getToken: context.getToken,
     updateToken: context.updateToken,
     deleteToken: context.deleteToken,
-    getIsNewUser: context.getIsNewUser,
-    updateIsNewUser: context.updateIsNewUser,
+    getOnboarded: context.getOnboarded,
+    updateOnboarded: context.updateOnboarded,
   };
 };
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [token, setToken] = useState<string | null>(null);
-  const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
+  const [onboarded, setOnboarded] = useState<boolean | null>(null);
 
   async function getToken() {
     if (token === null) {
@@ -54,18 +54,18 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     await deleteItemAsync('token');
   }
 
-  async function getIsNewUser() {
-    if (isNewUser === null) {
-      let freshValue = (await getItemAsync('isNewUser')) === 'true';
-      setIsNewUser(freshValue);
+  async function getOnboarded() {
+    if (onboarded === null) {
+      let freshValue = (await getItemAsync('Onboarded')) === 'true';
+      setOnboarded(freshValue);
       return freshValue;
     }
-    return isNewUser;
+    return onboarded;
   }
 
-  async function updateIsNewUser(value: boolean) {
-    setIsNewUser(value);
-    await setItemAsync('isNewUser', value.toString());
+  async function updateOnboarded(value: boolean) {
+    setOnboarded(value);
+    await setItemAsync('Onboarded', value.toString());
   }
 
   return (
@@ -74,8 +74,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         getToken,
         updateToken,
         deleteToken,
-        getIsNewUser,
-        updateIsNewUser,
+        getOnboarded,
+        updateOnboarded,
       }}>
       {children}
     </AuthContext.Provider>

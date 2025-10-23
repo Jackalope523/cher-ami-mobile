@@ -2,7 +2,7 @@ import { useAPI } from '@/components/APIProvider';
 import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
-import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, GoogleTokenRequest, ImageRequest, JoinCircleRequest, RecipientRequest, VerifyCodeRequest } from './requests';
+import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, GoogleTokenRequest, ImageRequest, JoinCircleRequest, RecipientRequest, UpdateUserRequest, VerifyCodeRequest } from './requests';
 import { CircleDTO, CodeResponse, FeedPageResponse, LoginResponse, UserDTO } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
@@ -210,6 +210,38 @@ export function useRerollCodeMutation(onSuccess?:(data: CodeResponse) => void , 
     });
 }
 
+export function useUpdateUserMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError, UpdateUserRequest>({
+      mutationFn: async (request) => {
+        const formData = new FormData();
+  
+        formData.append('FirstName', request.firstName);
+        formData.append('LastName', request.lastName);
+        formData.append('InviteCode', request.inviteCode);
+        formData.append('Avatar', {
+          uri: request.avatarPath,
+          type: 'image/jpeg',
+          name: 'avatar.jpg',
+        } as any);
+  
+        const response = await api.put(
+          '/user', 
+          formData, 
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        
+        return response.data;
+      },
+      onSuccess,
+      onError,
+    });
+}
 
 export function useCreateCircleMutation(onSuccess?:(data: CircleDTO) => void , onError?: (error: AxiosError) => void) {
   const api = useAPI();
@@ -219,11 +251,10 @@ export function useCreateCircleMutation(onSuccess?:(data: CircleDTO) => void , o
         const formData = new FormData();
   
         formData.append('Title', request.title);
-        formData.append('Schedule', request.schedule.toString());
         formData.append('Image', {
           uri: request.imageUri,
           type: 'image/jpeg',
-          name: request.imageName,
+          name: 'header.jpg',
         } as any);
   
         const response = await api.post(
