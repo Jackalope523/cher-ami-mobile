@@ -47,6 +47,7 @@ function RootNavigator() {
         headerShadowVisible: false,
         headerTitleStyle: textStyles.screenHeader,
         headerTitleAlign: 'center',
+        headerBackButtonDisplayMode: 'minimal',
         headerTintColor: '#C15F3C',
         headerStyle: {
           backgroundColor: '#FCFBF8',

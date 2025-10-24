@@ -50,11 +50,9 @@ export default function Manage() {
   );
 
   useEffect(() => {
-    if (circleQuery.data) {
-      navigation.setOptions({
-        title: circleQuery.data.title,
-      });
-    }
+    navigation.setOptions({
+      title: circleQuery.data?.title ?? '',
+    });
   }, [circleQuery.data, navigation]);
 
   if (circleQuery.isLoading) {

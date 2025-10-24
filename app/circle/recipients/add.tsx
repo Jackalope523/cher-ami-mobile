@@ -1,6 +1,6 @@
 import PlusIcon from '@/assets/icons/plus-grey.svg';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native';
 
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
 
@@ -108,131 +108,130 @@ export default function AddRecipient() {
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      overScrollMode="never"
-      showsVerticalScrollIndicator={false}>
-      <Pressable onPress={pickImageAsync}>
-        {avatar ? (
-          <Image source={avatar} style={styles.avatar} />
-        ) : (
-          <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
-            <PlusIcon height={48} width={48} />
-          </View>
-        )}
-      </Pressable>
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
+        <Pressable onPress={pickImageAsync}>
+          {avatar ? (
+            <Image source={avatar} style={styles.avatar} />
+          ) : (
+            <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
+              <PlusIcon height={48} width={48} />
+            </View>
+          )}
+        </Pressable>
 
-      <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
-        Change avatar
-      </Text>
-      <Text style={[textStyles.heading3, styles.sectionHeader]}>
-        Mailing address
-      </Text>
-      <View style={styles.textInputs}>
-        <TextInput
-          title={'Title'}
-          maxLength={25}
-          value={title}
-          onChangeText={setTitle}
-        />
-        <TextInput
-          title={'First name'}
-          maxLength={100}
-          value={firstName}
-          onChangeText={setFirstName}
-        />
-        <TextInput
-          title={'Last name'}
-          maxLength={100}
-          value={lastName}
-          onChangeText={setLastName}
-        />
-        <TextInput
-          title={'Street address'}
-          maxLength={150}
-          value={street}
-          onChangeText={setStreet}
-        />
-        <TextInput
-          title={'Unit number'}
-          maxLength={15}
-          value={unitNumber}
-          onChangeText={setUnitNumber}
-        />
-        <TextInput
-          title={'City'}
-          maxLength={50}
-          value={city}
-          onChangeText={setCity}
-        />
-        <View style={{ flexDirection: 'row', columnGap: 20 }}>
+        <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
+          Change avatar
+        </Text>
+        <Text style={[textStyles.heading3, styles.sectionHeader]}>
+          Mailing address
+        </Text>
+        <View style={styles.textInputs}>
           <TextInput
-            title={'State'}
+            title={'Title'}
+            maxLength={25}
+            value={title}
+            onChangeText={setTitle}
+          />
+          <TextInput
+            title={'First name'}
+            maxLength={100}
+            value={firstName}
+            onChangeText={setFirstName}
+          />
+          <TextInput
+            title={'Last name'}
+            maxLength={100}
+            value={lastName}
+            onChangeText={setLastName}
+          />
+          <TextInput
+            title={'Street address'}
+            maxLength={150}
+            value={street}
+            onChangeText={setStreet}
+          />
+          <TextInput
+            title={'Unit number'}
+            maxLength={15}
+            value={unitNumber}
+            onChangeText={setUnitNumber}
+          />
+          <TextInput
+            title={'City'}
             maxLength={50}
-            value={provinceOrState}
-            onChangeText={setProvinceOrState}
+            value={city}
+            onChangeText={setCity}
           />
+          <View style={{ flexDirection: 'row', columnGap: 20 }}>
+            <TextInput
+              title={'State'}
+              maxLength={50}
+              value={provinceOrState}
+              onChangeText={setProvinceOrState}
+            />
+            <TextInput
+              title={'ZIP code'}
+              maxLength={20}
+              value={postalCode}
+              onChangeText={setPostalCode}
+            />
+          </View>
           <TextInput
-            title={'ZIP code'}
-            maxLength={20}
-            value={postalCode}
-            onChangeText={setPostalCode}
+            title={'Country'}
+            maxLength={56}
+            value={country}
+            onChangeText={setCountry}
           />
         </View>
-        <TextInput
-          title={'Country'}
-          maxLength={56}
-          value={country}
-          onChangeText={setCountry}
-        />
-      </View>
-      <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
-      <View style={styles.summaryItemList}>
-        <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLargeBlack}>Renewal</Text>
-          <Text style={textStyles.labelSmall}>Monthly</Text>
+        <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
+        <View style={styles.summaryItemList}>
+          <View style={styles.summaryItem}>
+            <Text style={textStyles.labelLargeBlack}>Renewal</Text>
+            <Text style={textStyles.labelSmall}>Monthly</Text>
+          </View>
+          <View style={styles.summaryItem}>
+            <Text style={textStyles.labelLargeBlack}>1 Magazine</Text>
+            <Text style={textStyles.labelSmall}>Monthly</Text>
+          </View>
+          <View style={styles.summaryItem}>
+            <Text style={textStyles.labelLargeBlack}>Delivery</Text>
+            <Text style={textStyles.labelSmall}>FREE</Text>
+          </View>
+          <View style={styles.summaryItem}>
+            <Text style={textStyles.labelLargeBlack}>Estimated sales tax</Text>
+            <Text style={textStyles.labelSmall}>---</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.summaryItem}>
+            <Text style={textStyles.labelSmall}>Total</Text>
+            <Text style={textStyles.labelSmall}>$12,00</Text>
+          </View>
+          <Text style={[textStyles.caption, styles.disclaimer]}>
+            *Monthly subscription that charges you every month, starting October
+            1.
+          </Text>
         </View>
-        <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLargeBlack}>1 Magazine</Text>
-          <Text style={textStyles.labelSmall}>Monthly</Text>
-        </View>
-        <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLargeBlack}>Delivery</Text>
-          <Text style={textStyles.labelSmall}>FREE</Text>
-        </View>
-        <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLargeBlack}>Estimated sales tax</Text>
-          <Text style={textStyles.labelSmall}>---</Text>
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.summaryItem}>
-          <Text style={textStyles.labelSmall}>Total</Text>
-          <Text style={textStyles.labelSmall}>$12,00</Text>
-        </View>
-        <Text style={[textStyles.caption, styles.disclaimer]}>
-          *Monthly subscription that charges you every month, starting October
-          1.
-        </Text>
-      </View>
-      <Pressable
-        onPress={handleAdd}
-        disabled={buttonDisabled()}
-        style={[
-          styles.button,
-          buttonDisabled() && {
-            backgroundColor: '#ECEDEF',
-            borderColor: '#ECEDEF',
-          },
-        ]}>
-        <Text
+        <Pressable
+          onPress={handleAdd}
+          disabled={buttonDisabled()}
           style={[
-            textStyles.buttonTextWhite,
-            buttonDisabled() && { color: '#A8ABB3' },
+            styles.button,
+            buttonDisabled() && {
+              backgroundColor: '#ECEDEF',
+              borderColor: '#ECEDEF',
+            },
           ]}>
-          Add Recipient
-        </Text>
-      </Pressable>
-    </ScrollView>
+          <Text
+            style={[
+              textStyles.buttonTextWhite,
+              buttonDisabled() && { color: '#A8ABB3' },
+            ]}>
+            Add Recipient
+          </Text>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

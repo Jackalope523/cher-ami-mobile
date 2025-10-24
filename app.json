@@ -50,7 +50,9 @@
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/Damion-Regular.ttf"],
+          "fonts": [
+            "./assets/fonts/Damion-Regular.ttf"
+          ],
           "android": {
             "fonts": [
               {
@@ -84,7 +86,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5bdc80eb-f8d9-4f7a-a8e0-0c523d26c8dd"
+      }
+    },
+    "owner": "jackalope"
   }
 }
-

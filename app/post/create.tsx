@@ -8,12 +8,21 @@ import { Colors } from '@/constants/Colors';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useAddPostMutation } from '@/lib/hooks';
+import { formatPhotoDate } from '@/lib/utility';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Dimensions,
+  Keyboard,
+  KeyboardAvoidingView,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import 'react-native-get-random-values';
 import { v4 } from 'uuid';
@@ -62,89 +71,94 @@ export default function Create() {
     }
   }
 
+  function buttonDisabled() {
+    return selectedImage === null || uploadMutation.isPending;
+  }
+
   return (
-    <View style={styles.container}>
-      <PostCounter
-        issueTitle={issueTitle}
-        numberOfPosts={parseInt(postCount, 10)}
-      />
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <Pressable style={{ flex: 1 }} onPress={() => Keyboard.dismiss()}>
+        <PostCounter
+          issueTitle={issueTitle as string}
+          numberOfPosts={parseInt(postCount as string, 10)}
+        />
+        <Pressable style={styles.imageContainer} onPress={pickImageAsync}>
+          {selectedImage ? (
+            <Image source={selectedImage} style={styles.image} />
+          ) : (
+            <View
+              style={{
+                backgroundColor: '#F4F1EA',
+                borderRadius: 32,
+                width: Dimensions.get('window').width - 40,
+                height: 259,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <PlusIcon height={96} width={96} />
+            </View>
+          )}
+        </Pressable>
 
-      <Pressable style={styles.imageContainer} onPress={pickImageAsync}>
-        {selectedImage ? (
-          <Image source={selectedImage} style={styles.image} />
-        ) : (
-          <View
-            style={{
-              backgroundColor: '#F4F1EA',
-              borderRadius: 32,
-              width: Dimensions.get('window').width - 40,
-              height: 259,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <PlusIcon height={96} width={96} />
-          </View>
-        )}
-      </Pressable>
-
-      <Text
-        style={[
-          textStyles.captionMedium,
-          {
-            paddingLeft: 20,
-            paddingBottom: 32,
-          },
-        ]}>
-        Photo taken on Jul 28th, 2024
-      </Text>
-
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: 20,
-          alignItems: 'center',
-        }}>
-        <Text style={textStyles.labelLargeBlack}>Caption</Text>
-        <Text style={textStyles.labelLargeBlack}>{caption.length}/200</Text>
-      </View>
-
-      <TextInput
-        style={[
-          textStyles.body,
-          {
-            paddingHorizontal: 20,
-            flex: 1,
-            textAlignVertical: 'top',
-          },
-        ]}
-        placeholder="Give your post a caption..."
-        placeholderTextColor="#868581"
-        maxLength={200}
-        value={caption}
-        onChangeText={setCaption}
-        multiline
-      />
-
-      <Pressable
-        onPress={handlePost}
-        disabled={selectedImage === null}
-        style={[
-          styles.button,
-          selectedImage === null && {
-            backgroundColor: '#ECEDEF',
-            borderColor: '#ECEDEF',
-          },
-        ]}>
         <Text
           style={[
-            textStyles.buttonTextWhite,
-            selectedImage === null && { color: '#A8ABB3' },
+            textStyles.captionMedium,
+            {
+              paddingLeft: 20,
+              paddingBottom: 32,
+            },
           ]}>
-          Post
+          {formatPhotoDate(new Date())}
         </Text>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingHorizontal: 20,
+            alignItems: 'center',
+          }}>
+          <Text style={textStyles.labelLargeBlack}>Caption</Text>
+          <Text style={textStyles.labelLargeBlack}>{caption.length}/200</Text>
+        </View>
+
+        <TextInput
+          style={[
+            textStyles.body,
+            {
+              paddingHorizontal: 20,
+              flex: 1,
+              textAlignVertical: 'top',
+            },
+          ]}
+          placeholder="Give your post a caption..."
+          placeholderTextColor="#868581"
+          maxLength={200}
+          value={caption}
+          onChangeText={setCaption}
+          multiline
+        />
+
+        <Pressable
+          onPress={handlePost}
+          disabled={buttonDisabled()}
+          style={[
+            styles.button,
+            buttonDisabled() && {
+              backgroundColor: '#ECEDEF',
+              borderColor: '#ECEDEF',
+            },
+          ]}>
+          <Text
+            style={[
+              textStyles.buttonTextWhite,
+              buttonDisabled() && { color: '#A8ABB3' },
+            ]}>
+            Post
+          </Text>
+        </Pressable>
       </Pressable>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

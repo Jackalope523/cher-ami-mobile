@@ -11,6 +11,7 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useFeedPostsInfiniteQuery, useGetCircleQuery } from '@/lib/hooks';
 import { FeedPost } from '@/lib/responses';
+import { formatPhotoDate } from '@/lib/utility';
 import { Image } from 'expo-image';
 import { router, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
@@ -44,11 +45,9 @@ export default function Feed() {
   }, [data, fetchNextPage]);
 
   useEffect(() => {
-    if (circleQuery.data) {
-      navigation.setOptions({
-        title: circleQuery.data.title,
-      });
-    }
+    navigation.setOptions({
+      title: circleQuery.data?.title ?? '',
+    });
   }, [circleQuery.data, navigation]);
 
   function mapDateToText(date: Date): string {
@@ -220,8 +219,7 @@ export default function Feed() {
             <View>
               <Text style={textStyles.labelLargeBlack}>{post.authorName}</Text>
               <Text style={textStyles.captionMedium}>
-                Photo taken on Aug {post.photoDate.getDate()},{' '}
-                {post.photoDate.getFullYear()}
+                {formatPhotoDate(post.photoDate)}
               </Text>
             </View>
           </View>
