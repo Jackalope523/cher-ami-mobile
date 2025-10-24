@@ -1,10 +1,11 @@
 import CreditCardIcon from '@/assets/icons/credit-card-orange.svg';
+import PopPressable from '@/components/PopPressable';
 import UserItem from '@/components/UserItem';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetSelfQuery } from '@/lib/hooks';
 import { StyleSheet, Text, View } from 'react-native';
-import { Pressable, ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function ManageBilling() {
   const { data } = useGetSelfQuery();
@@ -43,10 +44,10 @@ export default function ManageBilling() {
         </Text>
       </View>
       <Text style={textStyles.heading3}>Billing details</Text>
-      <Pressable onPress={() => {}} style={styles.button}>
+      <PopPressable onPress={() => {}} style={styles.button}>
         <Text style={textStyles.buttonTextOrange}>Configure Billing</Text>
         <CreditCardIcon height={24} width={24} />
-      </Pressable>
+      </PopPressable>
     </ScrollView>
   );
 }

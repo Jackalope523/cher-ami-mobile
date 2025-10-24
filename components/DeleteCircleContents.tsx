@@ -2,8 +2,8 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
 import { useToastMessage } from './modals/ToastMessageProvider';
+import PopPressable from './PopPressable';
 import TextInput from './TextInput';
 
 interface DeleteCircleContentsProps {
@@ -43,7 +43,7 @@ export default function DeleteCircleContents({
         value={text}
         onChangeText={setText}
       />
-      <Pressable
+      <PopPressable
         onPress={handleDelete}
         disabled={text !== 'DELETE'}
         style={{
@@ -58,8 +58,8 @@ export default function DeleteCircleContents({
           marginBottom: Spacings.mdsm,
         }}>
         <Text style={textStyles.buttonTextBlack}>Delete</Text>
-      </Pressable>
-      <Pressable
+      </PopPressable>
+      <PopPressable
         onPress={dismissModal}
         style={{
           paddingVertical: Spacings.md,
@@ -70,7 +70,7 @@ export default function DeleteCircleContents({
           borderColor: '#242832',
         }}>
         <Text style={textStyles.buttonTextBlack}>Cancel</Text>
-      </Pressable>
+      </PopPressable>
     </View>
   );
 }

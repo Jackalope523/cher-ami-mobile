@@ -3,6 +3,7 @@ import {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
+import PopPressable from '@/components/PopPressable';
 import PostCounter from '@/components/PostCounter';
 import { Colors } from '@/constants/Colors';
 import { Spacings } from '@/constants/Spacings';
@@ -39,7 +40,6 @@ export default function Create() {
     () => {
       showToastMessage('Upload success!', ToastMessageType.Success);
       queryClient.invalidateQueries({ queryKey: ['FeedPages'] });
-      router.back();
     },
     (error) => {
       console.error('Upload failed:', error);
@@ -55,6 +55,7 @@ export default function Create() {
         imageUri: selectedImage,
         imageName: `${v4()}.jpg`,
       });
+      router.back();
     }
   }
 
@@ -82,7 +83,7 @@ export default function Create() {
           issueTitle={issueTitle as string}
           numberOfPosts={parseInt(postCount as string, 10)}
         />
-        <Pressable style={styles.imageContainer} onPress={pickImageAsync}>
+        <PopPressable style={styles.imageContainer} onPress={pickImageAsync}>
           {selectedImage ? (
             <Image source={selectedImage} style={styles.image} />
           ) : (
@@ -98,7 +99,7 @@ export default function Create() {
               <PlusIcon height={96} width={96} />
             </View>
           )}
-        </Pressable>
+        </PopPressable>
 
         <Text
           style={[

@@ -18,6 +18,7 @@ import {
   ToastMessageType,
   useToastMessage,
 } from './modals/ToastMessageProvider';
+import PopPressable from './PopPressable';
 
 interface InviteModalContentsProps {
   dismissModal?: () => void;
@@ -37,17 +38,12 @@ export default function InviteModalContents({
   );
 
   const rotation = useSharedValue(0);
-  const scale = useSharedValue(1);
 
   const rotate = useAnimatedStyle(() => {
     return {
       transform: [{ rotate: `${rotation.value}deg` }],
     };
   });
-
-  const pop = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
 
   function handleReroll() {
     mutation.mutate();
@@ -58,10 +54,6 @@ export default function InviteModalContents({
   }
 
   const copyToClipboard = async () => {
-    scale.value = withTiming(1.03, { duration: 150 }, () => {
-      scale.value = withTiming(1, { duration: 150 });
-    });
-
     await setStringAsync(data?.inviteCode ?? '');
     showToastMessage('Invitation code copied to clipboard');
   };
@@ -73,9 +65,9 @@ export default function InviteModalContents({
           style={[textStyles.labelLargeBlack, { marginBottom: Spacings.smxs }]}>
           Invite to circle
         </Text>
-        <Pressable onPress={dismissModal}>
+        <PopPressable onPress={dismissModal}>
           <XIcon height={24} width={24} />
-        </Pressable>
+        </PopPressable>
       </View>
 
       <Text
@@ -97,26 +89,21 @@ export default function InviteModalContents({
         style={[textStyles.labelLargeBlack, { marginBottom: Spacings.smxs }]}>
         Invitation code
       </Text>
-      <Pressable onPress={copyToClipboard}>
-        <Animated.View
-          style={[
-            pop,
-            {
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              borderWidth: 2,
-              borderColor: '#C15F3C',
-              paddingVertical: Spacings.mdsm,
-              paddingHorizontal: Spacings.md,
-              borderRadius: borderRadius.mdsm,
-              marginBottom: Spacings.mdsm,
-            },
-          ]}>
-          <Text style={textStyles.buttonTextOrange}>{data?.inviteCode}</Text>
-
-          <CopyIcon height={24} width={24} />
-        </Animated.View>
-      </Pressable>
+      <PopPressable
+        onPress={copyToClipboard}
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          borderWidth: 2,
+          borderColor: '#C15F3C',
+          paddingVertical: Spacings.mdsm,
+          paddingHorizontal: Spacings.md,
+          borderRadius: borderRadius.mdsm,
+          marginBottom: Spacings.mdsm,
+        }}>
+        <Text style={textStyles.buttonTextOrange}>{data?.inviteCode}</Text>
+        <CopyIcon height={24} width={24} />
+      </PopPressable>
       <Pressable
         onPress={handleReroll}
         style={{

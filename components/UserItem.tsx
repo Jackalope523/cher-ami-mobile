@@ -2,8 +2,8 @@ import Placeholder from '@/assets/images/placeholder.jpg';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
 import NetworkImage from './NetworkImage';
+import PopPressable from './PopPressable';
 
 interface UserItemProps {
   imageSource?: string;
@@ -21,7 +21,7 @@ export default function UserItem({
   onPress = () => {},
 }: UserItemProps) {
   return (
-    <Pressable style={styles.contributorContainer} onPress={onPress}>
+    <PopPressable style={styles.contributorContainer} onPress={onPress}>
       <NetworkImage
         source={imageSource}
         placeholder={Placeholder}
@@ -31,7 +31,7 @@ export default function UserItem({
         <Text style={textStyles.labelLargeBlack}>{text}</Text>
         {showTag && <Text style={textStyles.labelLargeGrey}>{tag}</Text>}
       </View>
-    </Pressable>
+    </PopPressable>
   );
 }
 const styles = StyleSheet.create({

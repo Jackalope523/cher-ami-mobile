@@ -2,12 +2,13 @@ import PlusIcon from '@/assets/icons/plus-grey.svg';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native';
 
-import { Pressable, ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
+import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
@@ -110,7 +111,7 @@ export default function AddRecipient() {
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
-        <Pressable style={styles.avatarContainer} onPress={pickImageAsync}>
+        <PopPressable style={styles.avatarContainer} onPress={pickImageAsync}>
           {avatar ? (
             <Image source={avatar} style={styles.avatar} />
           ) : (
@@ -118,7 +119,7 @@ export default function AddRecipient() {
               <PlusIcon height={48} width={48} />
             </View>
           )}
-        </Pressable>
+        </PopPressable>
 
         <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
           Change avatar
@@ -212,7 +213,7 @@ export default function AddRecipient() {
             1.
           </Text>
         </View>
-        <Pressable
+        <PopPressable
           onPress={handleAdd}
           disabled={buttonDisabled()}
           style={[
@@ -229,7 +230,7 @@ export default function AddRecipient() {
             ]}>
             Add Recipient
           </Text>
-        </Pressable>
+        </PopPressable>
       </ScrollView>
     </KeyboardAvoidingView>
   );

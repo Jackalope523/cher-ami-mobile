@@ -4,6 +4,7 @@ import {
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
 import NetworkImage from '@/components/NetworkImage';
+import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetUserQuery, useUpdateAvatarMutation } from '@/lib/hooks';
@@ -12,7 +13,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
 import { v4 } from 'uuid';
 
 export default function Profile() {
@@ -60,12 +60,12 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      <Pressable onPress={pickImageAsync}>
+      <PopPressable onPress={pickImageAsync}>
         <NetworkImage
           style={styles.avatar}
           source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
         />
-      </Pressable>
+      </PopPressable>
       <Text style={[textStyles.heading2, styles.name]}>
         {`${data.firstName} ${data.lastName}`}
       </Text>

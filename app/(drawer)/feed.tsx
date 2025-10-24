@@ -5,6 +5,7 @@ import MouseHole from '@/assets/illustrations/mouse-hole.svg';
 import CameraImage from '@/assets/images/camera.png';
 import MailboxImage from '@/assets/images/mailbox.png';
 import NetworkImage from '@/components/NetworkImage';
+import PopPressable from '@/components/PopPressable';
 import PostCounter from '@/components/PostCounter';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
@@ -16,7 +17,6 @@ import { Image } from 'expo-image';
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, SectionList, StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
 import 'react-native-get-random-values';
 import Animated, { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 
@@ -337,7 +337,7 @@ export default function Feed() {
           }}
           entering={SlideInRight}
           exiting={SlideOutRight}>
-          <Pressable
+          <PopPressable
             style={{
               backgroundColor: '#C15F3C',
               borderRadius: 20,
@@ -350,7 +350,7 @@ export default function Feed() {
             onPress={handleCreatePost}
             disabled={data?.pages[0].posts.length === 20}>
             <PlusIcon height={24} width={24} />
-          </Pressable>
+          </PopPressable>
         </Animated.View>
       )}
     </View>

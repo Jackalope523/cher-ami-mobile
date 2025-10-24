@@ -5,6 +5,7 @@ import SettingsIcon from '@/assets/icons/settings-orange.svg';
 import PersonIcon from '@/assets/icons/users-round.svg';
 import { useAuth } from '@/components/AuthProvider';
 import NetworkImage from '@/components/NetworkImage';
+import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetSelfQuery } from '@/lib/hooks';
@@ -15,15 +16,17 @@ import {
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { Dimensions, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
 
 export default function Layout() {
   function CustomDrawerContent(props: DrawerContentComponentProps) {
     const { deleteToken } = useAuth();
     const { data } = useGetSelfQuery();
 
-    function handleLogout() {
-      deleteToken().then(() => router.replace('/'));
+    async function handleLogout() {
+      await deleteToken();
+      setTimeout(() => {
+        router.replace('/');
+      }, 50);
     }
 
     if (!data) {
@@ -38,7 +41,7 @@ export default function Layout() {
           justifyContent: 'space-between',
         }}>
         <View>
-          <Pressable
+          <PopPressable
             onPress={() => {
               router.navigate({
                 pathname: '/profile/[id]',
@@ -64,8 +67,8 @@ export default function Layout() {
               style={
                 textStyles.heading4
               }>{`${data.firstName} ${data.lastName}`}</Text>
-          </Pressable>
-          <Pressable
+          </PopPressable>
+          <PopPressable
             onPress={() => {
               router.navigate('/feed');
             }}
@@ -79,8 +82,8 @@ export default function Layout() {
             }}>
             <GalleryIcon height={24} width={24} />
             <Text style={textStyles.buttonTextOrange}>Feed</Text>
-          </Pressable>
-          <Pressable
+          </PopPressable>
+          <PopPressable
             onPress={() => {
               router.navigate('/manage');
             }}
@@ -93,7 +96,7 @@ export default function Layout() {
             }}>
             <PersonIcon height={24} width={24} />
             <Text style={textStyles.buttonTextOrange}>Circle</Text>
-          </Pressable>
+          </PopPressable>
         </View>
 
         <View>
@@ -109,7 +112,7 @@ export default function Layout() {
             <SettingsIcon height={24} width={24} />
             <Text style={textStyles.buttonTextOrange}>Settings</Text>
           </View>
-          <Pressable
+          <PopPressable
             onPress={handleLogout}
             style={{
               flexDirection: 'row',
@@ -120,7 +123,7 @@ export default function Layout() {
             }}>
             <LogoutIcon height={24} width={24} />
             <Text style={textStyles.buttonTextOrange}>Log Out</Text>
-          </Pressable>
+          </PopPressable>
         </View>
       </DrawerContentScrollView>
     );
@@ -141,11 +144,11 @@ export default function Layout() {
           width: Dimensions.get('window').width * 0.75,
         },
         headerLeft: () => (
-          <Pressable
+          <PopPressable
             onPress={() => navigation.toggleDrawer()}
             style={{ paddingHorizontal: 15 }}>
             <MenuIcon height={24} width={24} />
-          </Pressable>
+          </PopPressable>
         ),
       })}>
       <Drawer.Screen name="feed" />

@@ -1,7 +1,7 @@
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
+import PopPressable from './PopPressable';
 
 interface LeaveCircleContentsProps {
   dismissModal?: () => void;
@@ -32,7 +32,7 @@ export default function LeaveCircleContents({
         <Text style={{ fontWeight: 'bold' }}> The Wolff Family</Text> circle, it
         will be gone for good and cannot be restored.
       </Text>
-      <Pressable
+      <PopPressable
         onPress={handleDelete}
         style={{
           backgroundColor: '#F47A70',
@@ -45,8 +45,8 @@ export default function LeaveCircleContents({
           marginBottom: Spacings.mdsm,
         }}>
         <Text style={textStyles.buttonTextBlack}>Leave</Text>
-      </Pressable>
-      <Pressable
+      </PopPressable>
+      <PopPressable
         onPress={dismissModal}
         style={{
           paddingVertical: Spacings.md,
@@ -57,7 +57,7 @@ export default function LeaveCircleContents({
           borderColor: '#242832',
         }}>
         <Text style={textStyles.buttonTextBlack}>Cancel</Text>
-      </Pressable>
+      </PopPressable>
     </View>
   );
 }

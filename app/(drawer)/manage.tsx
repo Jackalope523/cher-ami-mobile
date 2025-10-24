@@ -12,6 +12,7 @@ import {
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
 import NetworkImage from '@/components/NetworkImage';
+import PopPressable from '@/components/PopPressable';
 import UserItem from '@/components/UserItem';
 import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
@@ -26,7 +27,7 @@ import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
-import { Pressable, ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { v4 } from 'uuid';
 
@@ -103,7 +104,7 @@ export default function Manage() {
         onMomentumScrollEnd={() => setScrolling(false)}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}>
-        <Pressable onPress={pickImageAsync}>
+        <PopPressable onPress={pickImageAsync}>
           <NetworkImage
             source={
               circleQuery.data.headerPath +
@@ -118,7 +119,7 @@ export default function Manage() {
               marginVertical: Spacings.xl,
             }}
           />
-        </Pressable>
+        </PopPressable>
 
         <View
           style={{
@@ -145,7 +146,7 @@ export default function Manage() {
           </View>
         </View>
 
-        <Pressable
+        <PopPressable
           onPress={handleInvite}
           style={{
             borderRadius: 12,
@@ -161,7 +162,7 @@ export default function Manage() {
           }}>
           <Text style={textStyles.buttonTextOrange}>Invite to Circle</Text>
           <PlusIcon height={24} width={24} />
-        </Pressable>
+        </PopPressable>
 
         <View
           style={{
@@ -197,7 +198,7 @@ export default function Manage() {
           <Text style={textStyles.heading3}>Recipients</Text>
         </View>
 
-        <Pressable
+        <PopPressable
           onPress={() => router.push('/circle/recipients/add')}
           style={{
             borderRadius: 12,
@@ -213,7 +214,7 @@ export default function Manage() {
           }}>
           <Text style={textStyles.buttonTextOrange}>Add Recipient</Text>
           <PlusIcon height={24} width={24} />
-        </Pressable>
+        </PopPressable>
 
         <View
           style={{
@@ -250,7 +251,7 @@ export default function Manage() {
             justifyContent: 'center',
             padding: Spacings.lgmd,
           }}>
-          <Pressable
+          <PopPressable
             onPress={() => router.push('/billing/manage')}
             style={{
               flexDirection: 'row',
@@ -264,8 +265,8 @@ export default function Manage() {
             }}>
             <CreditCardIcon height={24} width={24} />
             <Text style={textStyles.buttonTextWhite}>Manage Billing</Text>
-          </Pressable>
-          <Pressable
+          </PopPressable>
+          <PopPressable
             onPress={handleCircleSettings}
             style={{
               flexDirection: 'row',
@@ -279,7 +280,7 @@ export default function Manage() {
             }}>
             <SettingsIcon height={24} width={24} />
             <Text style={textStyles.buttonTextWhite}>Circle Settings</Text>
-          </Pressable>
+          </PopPressable>
         </Animated.View>
       )}
     </View>

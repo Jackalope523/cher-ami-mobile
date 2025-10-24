@@ -3,11 +3,13 @@ import AppleIcon from '@/assets/icons/apple-logo.svg';
 import CherIcon from '@/assets/icons/cher.svg';
 import GoogleIcon from '@/assets/icons/google-logo.svg';
 import Dot from '@/assets/icons/i-top.svg';
+import MouseHole from '@/assets/illustrations/mouse-hole.svg';
 import { useAuth } from '@/components/AuthProvider';
 import {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
+import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
@@ -24,7 +26,7 @@ import {
 import { router } from 'expo-router';
 import { maybeCompleteAuthSession } from 'expo-web-browser';
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -117,15 +119,18 @@ export default function Index() {
 
       <View
         style={{
-          alignSelf: 'center',
+          flex: 1,
           marginVertical: Spacings.xxxl,
-          height: 228,
-          width: 228,
-          backgroundColor: 'grey',
-        }}
-      />
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <MouseHole
+          height={Dimensions.get('window').width - 280}
+          width={Dimensions.get('window').width - 280}
+        />
+      </View>
 
-      <Pressable
+      <PopPressable
         onPress={handleGoogle}
         style={{
           flexDirection: 'row',
@@ -149,7 +154,7 @@ export default function Index() {
         <Text style={{ fontWeight: 500, color: '#0000008A', fontSize: 20 }}>
           Continue with Google
         </Text>
-      </Pressable>
+      </PopPressable>
 
       <Pressable
         style={{
