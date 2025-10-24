@@ -14,15 +14,16 @@ import { FeedPost } from '@/lib/responses';
 import { formatPhotoDate } from '@/lib/utility';
 import { Image } from 'expo-image';
 import { router, useNavigation } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Dimensions, SectionList, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import 'react-native-get-random-values';
+import Animated, { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 
 export default function Feed() {
   const navigation = useNavigation();
   const circleQuery = useGetCircleQuery();
-
+  const [scrolling, setScrolling] = useState(false);
   const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
 
   function handleCreatePost() {
@@ -308,6 +309,9 @@ export default function Feed() {
     <View style={styles.container}>
       <SectionList
         overScrollMode="never"
+        onScrollBeginDrag={() => setScrolling(true)}
+        onScrollEndDrag={() => setScrolling(false)}
+        onMomentumScrollEnd={() => setScrolling(false)}
         sections={
           data?.pages.map((page) => ({
             id: page.id,
@@ -324,23 +328,31 @@ export default function Feed() {
         onEndReached={handleOnEndReached}
       />
 
-      <Pressable
-        onPress={handleCreatePost}
-        disabled={data?.pages[0].posts.length === 20}
-        style={{
-          position: 'absolute',
-          bottom: 20,
-          right: 20,
-          backgroundColor: '#C15F3C',
-          borderRadius: 20,
-          borderWidth: 2,
-          padding: 24,
-          borderColor: 'transparent',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <PlusIcon height={24} width={24} />
-      </Pressable>
+      {!scrolling && (
+        <Animated.View
+          style={{
+            position: 'absolute',
+            bottom: 20,
+            right: 20,
+          }}
+          entering={SlideInRight}
+          exiting={SlideOutRight}>
+          <Pressable
+            style={{
+              backgroundColor: '#C15F3C',
+              borderRadius: 20,
+              borderWidth: 2,
+              padding: 24,
+              borderColor: 'transparent',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={handleCreatePost}
+            disabled={data?.pages[0].posts.length === 20}>
+            <PlusIcon height={24} width={24} />
+          </Pressable>
+        </Animated.View>
+      )}
     </View>
   );
 }

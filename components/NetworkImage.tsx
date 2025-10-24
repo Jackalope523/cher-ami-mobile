@@ -13,10 +13,6 @@ export default function NetworkImage({
   const imagePath = props.source;
 
   useEffect(() => {
-    console.log(imagePath);
-  }, [imagePath]);
-
-  useEffect(() => {
     async function loadToken() {
       const token = await getToken();
       setToken(token);

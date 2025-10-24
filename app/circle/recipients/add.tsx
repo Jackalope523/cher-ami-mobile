@@ -110,7 +110,7 @@ export default function AddRecipient() {
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
-        <Pressable onPress={pickImageAsync}>
+        <Pressable style={styles.avatarContainer} onPress={pickImageAsync}>
           {avatar ? (
             <Image source={avatar} style={styles.avatar} />
           ) : (
@@ -241,15 +241,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#FCFBF8',
   },
 
-  avatar: {
+  avatarContainer: {
     height: 96,
     width: 96,
     borderRadius: 48,
     alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
     marginBottom: Spacings.sm,
     marginTop: Spacings.xxl,
+  },
+
+  avatar: {
+    height: 96,
+    width: 96,
+    borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   changeAvatar: {

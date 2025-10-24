@@ -24,9 +24,10 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useNavigation } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
+import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { v4 } from 'uuid';
 
 export default function Manage() {
@@ -37,6 +38,7 @@ export default function Manage() {
   const circleQuery = useGetCircleQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
   const { displayDialogue, dismissDialogue } = useDialogueModal();
+  const [scrolling, setScrolling] = useState(false);
 
   const uploadMutation = useUpdateHeaderMutation(
     () => {
@@ -96,6 +98,9 @@ export default function Manage() {
     <View style={{ flex: 1 }}>
       <ScrollView
         overScrollMode="never"
+        onScrollBeginDrag={() => setScrolling(true)}
+        onScrollEndDrag={() => setScrolling(false)}
+        onMomentumScrollEnd={() => setScrolling(false)}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}>
         <Pressable onPress={pickImageAsync}>
@@ -231,47 +236,52 @@ export default function Manage() {
           ))}
         </View>
       </ScrollView>
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 20,
-          left: 20,
-          right: 20,
-          flexDirection: 'row',
-          columnGap: Spacings.md,
-          justifyContent: 'center',
-        }}>
-        <Pressable
-          onPress={() => router.push('/billing/manage')}
+      {!scrolling && (
+        <Animated.View
+          entering={SlideInDown}
+          exiting={SlideOutDown}
           style={{
+            position: 'absolute',
+            bottom: 20,
+            left: 20,
+            right: 20,
             flexDirection: 'row',
-            backgroundColor: '#B05637',
-            paddingVertical: Spacings.mdsm,
-            paddingHorizontal: Spacings.md,
+            columnGap: Spacings.md,
             justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 12,
-            columnGap: Spacings.sm,
+            padding: Spacings.lgmd,
           }}>
-          <CreditCardIcon height={24} width={24} />
-          <Text style={textStyles.buttonTextWhite}>Manage Billing</Text>
-        </Pressable>
-        <Pressable
-          onPress={handleCircleSettings}
-          style={{
-            flexDirection: 'row',
-            backgroundColor: '#B05637',
-            paddingVertical: Spacings.mdsm,
-            paddingHorizontal: Spacings.md,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 12,
-            columnGap: Spacings.sm,
-          }}>
-          <SettingsIcon height={24} width={24} />
-          <Text style={textStyles.buttonTextWhite}>Circle Settings</Text>
-        </Pressable>
-      </View>
+          <Pressable
+            onPress={() => router.push('/billing/manage')}
+            style={{
+              flexDirection: 'row',
+              backgroundColor: '#B05637',
+              paddingVertical: Spacings.mdsm,
+              paddingHorizontal: Spacings.md,
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderRadius: 12,
+              columnGap: Spacings.sm,
+            }}>
+            <CreditCardIcon height={24} width={24} />
+            <Text style={textStyles.buttonTextWhite}>Manage Billing</Text>
+          </Pressable>
+          <Pressable
+            onPress={handleCircleSettings}
+            style={{
+              flexDirection: 'row',
+              backgroundColor: '#B05637',
+              paddingVertical: Spacings.mdsm,
+              paddingHorizontal: Spacings.md,
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderRadius: 12,
+              columnGap: Spacings.sm,
+            }}>
+            <SettingsIcon height={24} width={24} />
+            <Text style={textStyles.buttonTextWhite}>Circle Settings</Text>
+          </Pressable>
+        </Animated.View>
+      )}
     </View>
   );
 }
