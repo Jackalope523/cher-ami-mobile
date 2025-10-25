@@ -10,6 +10,7 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useAddPostMutation } from '@/lib/hooks';
 import { formatPhotoDate } from '@/lib/utility';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
@@ -26,9 +27,13 @@ import {
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import 'react-native-get-random-values';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { v4 } from 'uuid';
 
 export default function Create() {
+  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const { issueTitle, postCount } = useLocalSearchParams();
@@ -77,8 +82,11 @@ export default function Create() {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <Pressable style={{ flex: 1 }} onPress={() => Keyboard.dismiss()}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior="padding"
+      keyboardVerticalOffset={headerHeight + insets.top + 40}>
+      <Pressable style={styles.container} onPress={() => Keyboard.dismiss()}>
         <PostCounter
           issueTitle={issueTitle as string}
           numberOfPosts={parseInt(postCount as string, 10)}
@@ -127,8 +135,8 @@ export default function Create() {
           style={[
             textStyles.body,
             {
-              paddingHorizontal: 20,
               flex: 1,
+              paddingHorizontal: 20,
               textAlignVertical: 'top',
             },
           ]}

@@ -96,7 +96,7 @@ export default function Manage() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#FCFBF8' }}>
       <ScrollView
         overScrollMode="never"
         onScrollBeginDrag={() => setScrolling(true)}
@@ -136,7 +136,7 @@ export default function Manage() {
               columnGap: Spacings.sm,
               paddingVertical: Spacings.sm,
               paddingHorizontal: Spacings.mdsm,
-              backgroundColor: '#F4F1EA',
+              backgroundColor: '#FCFBF8',
               borderRadius: 10,
             }}>
             <UserIcon height={24} width={24} />

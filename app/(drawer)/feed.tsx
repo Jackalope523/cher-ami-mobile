@@ -18,7 +18,7 @@ import { router, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, SectionList, StyleSheet, Text, View } from 'react-native';
 import 'react-native-get-random-values';
-import Animated, { SlideInRight, SlideOutRight } from 'react-native-reanimated';
+import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 
 export default function Feed() {
   const navigation = useNavigation();
@@ -335,8 +335,8 @@ export default function Feed() {
             bottom: 20,
             right: 20,
           }}
-          entering={SlideInRight}
-          exiting={SlideOutRight}>
+          entering={SlideInDown}
+          exiting={SlideOutDown}>
           <PopPressable
             style={{
               backgroundColor: '#C15F3C',
