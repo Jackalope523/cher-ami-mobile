@@ -1,4 +1,3 @@
-import PlaceholderImage from '@/assets/images/placeholder.jpg';
 import Button, { ButtonType } from '@/components/Button';
 import LizardTextInput, { InputType } from '@/components/LizardTextInput';
 import {
@@ -8,7 +7,6 @@ import {
 import { borderRadius } from '@/constants/Borders';
 import { Colors } from '@/constants/Colors';
 import { Spacings } from '@/constants/Spacings';
-import { IssueSchedule } from '@/lib/enums';
 import { useCreateCircleMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
@@ -17,7 +15,6 @@ import { useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import 'react-native-get-random-values';
-import { v4 } from 'uuid';
 
 export default function CreateCircle() {
   const showToastMessage = useToastMessage();
@@ -54,9 +51,7 @@ export default function CreateCircle() {
     if (selectedImage) {
       createCircleMutation.mutate({
         title: title,
-        schedule: IssueSchedule.Monthly,
         imageUri: selectedImage,
-        imageName: `${v4()}.jpg`,
       });
     }
   }
@@ -70,10 +65,7 @@ export default function CreateCircle() {
         rowGap: Spacings.lg,
       }}>
       <Pressable style={styles.imageContainer} onPress={pickImageAsync}>
-        <Image
-          source={selectedImage ?? PlaceholderImage}
-          style={styles.image}
-        />
+        <Image source={selectedImage} style={styles.image} />
       </Pressable>
       <LizardTextInput
         type={InputType.CircleTitle}

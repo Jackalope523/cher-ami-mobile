@@ -2,7 +2,6 @@ import CreditCardIcon from '@/assets/icons/credit-card-white.svg';
 import PlusIcon from '@/assets/icons/plus-orange.svg';
 import SettingsIcon from '@/assets/icons/settings-white.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
-import Placeholder from '@/assets/images/placeholder.jpg';
 import InviteModalContents from '@/components/InviteModalContents';
 import LeaveCircleContents from '@/components/LeaveCircleContents';
 import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
@@ -110,7 +109,6 @@ export default function Manage() {
               circleQuery.data.headerPath +
               `?timestamp=${circleQuery.data.headerTimestamp}`
             }
-            placeholder={Placeholder}
             style={{
               height: 186,
               width: Dimensions.get('window').width - 40,

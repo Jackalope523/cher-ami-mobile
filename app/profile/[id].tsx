@@ -13,7 +13,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
-import { v4 } from 'uuid';
 
 export default function Profile() {
   const { id } = useLocalSearchParams();
@@ -47,7 +46,7 @@ export default function Profile() {
       if (!result.canceled) {
         uploadMutation.mutate({
           imageUri: result.assets[0].uri,
-          imageName: `${v4()}.jpg`,
+          imageName: 'image.jpg',
         });
       }
     }

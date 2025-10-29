@@ -1,4 +1,3 @@
-import Placeholder from '@/assets/images/placeholder.jpg';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { StyleSheet, Text, View } from 'react-native';
@@ -22,11 +21,7 @@ export default function UserItem({
 }: UserItemProps) {
   return (
     <PopPressable style={styles.contributorContainer} onPress={onPress}>
-      <NetworkImage
-        source={imageSource}
-        placeholder={Placeholder}
-        style={styles.image}
-      />
+      <NetworkImage source={imageSource} style={styles.image} />
       <View style={{ columnGap: Spacings.sm, flexDirection: 'row' }}>
         <Text style={textStyles.labelLargeBlack}>{text}</Text>
         {showTag && <Text style={textStyles.labelLargeGrey}>{tag}</Text>}
