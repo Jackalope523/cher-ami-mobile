@@ -17,7 +17,7 @@ import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import PhoneNumberImage from '@/assets/illustrations/phone-number-illustration.png';
+import PhoneNumberImage from '@/assets/images/mouse.png';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Signup() {

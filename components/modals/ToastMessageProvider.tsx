@@ -1,4 +1,7 @@
+import AlertIcon from '@/assets/icons/alert.svg';
 import CheckIcon from '@/assets/icons/check.svg';
+import InfoIcon from '@/assets/icons/info.svg';
+import ErrorIcon from '@/assets/icons/x.svg';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
@@ -71,6 +74,21 @@ export default function ToastMessageProvider({
     }
   }
 
+  function mapIcon() {
+    switch (toastType) {
+      case ToastMessageType.Success:
+        return <CheckIcon height={24} width={24} />;
+      case ToastMessageType.Error:
+        return <ErrorIcon height={24} width={24} />;
+      case ToastMessageType.Alert:
+        return <AlertIcon height={24} width={24} />;
+      case ToastMessageType.Informational:
+        return <InfoIcon height={24} width={24} />;
+      default:
+        return <CheckIcon height={24} width={24} />;
+    }
+  }
+
   return (
     <ToastMessageContext.Provider value={{ showToastMessage }}>
       {toastMessage && (
@@ -94,7 +112,7 @@ export default function ToastMessageProvider({
             }}
             entering={FadeInUp.duration(250)}
             exiting={FadeOutUp.duration(250)}>
-            <CheckIcon />
+            {mapIcon()}
             <Text style={textStyles.heading5}>{toastMessage}</Text>
           </Animated.View>
         </View>

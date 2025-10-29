@@ -26,10 +26,7 @@ import {
   View,
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import 'react-native-get-random-values';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { v4 } from 'uuid';
 
 export default function Create() {
   const headerHeight = useHeaderHeight();
@@ -58,7 +55,7 @@ export default function Create() {
         time: new Date().toISOString(),
         caption: caption,
         imageUri: selectedImage,
-        imageName: `${v4()}.jpg`,
+        imageName: 'image.jpg',
       });
       router.back();
     }

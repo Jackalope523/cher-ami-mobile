@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 
-import PhoneNumberImage from '@/assets/illustrations/phone-number-illustration.png';
+import PhoneNumberImage from '@/assets/images/mouse.png';
 import Button from '@/components/Button';
 import {
   ToastMessageType,

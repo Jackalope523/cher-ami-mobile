@@ -28,7 +28,6 @@ export default function Profile() {
       showToastMessage('Upload success!', ToastMessageType.Success);
       queryClient.invalidateQueries({ queryKey: ['User', 'Self'] });
       queryClient.invalidateQueries({ queryKey: ['User', Number(id)] });
-      queryClient.invalidateQueries({ queryKey: ['FeedPages'] });
     },
     (error) => {
       console.error('Upload failed:', error);

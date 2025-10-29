@@ -1,9 +1,7 @@
-import AmiIcon from '@/assets/icons/ami.svg';
 import AppleIcon from '@/assets/icons/apple-logo.svg';
-import CherIcon from '@/assets/icons/cher.svg';
 import GoogleIcon from '@/assets/icons/google-logo.svg';
-import Dot from '@/assets/icons/i-top.svg';
-import MouseHole from '@/assets/illustrations/mouse-hole.svg';
+import Squirrel from '@/assets/images/squirrel.png';
+import Title from '@/assets/images/title.png';
 import { useAuth } from '@/components/AuthProvider';
 import {
   ToastMessageType,
@@ -23,10 +21,11 @@ import {
   makeRedirectUri,
   useAuthRequest,
 } from 'expo-auth-session';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { maybeCompleteAuthSession } from 'expo-web-browser';
 import { useEffect } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -97,24 +96,17 @@ export default function Index() {
       <View
         style={{
           flexDirection: 'row',
-          columnGap: 8.99,
           alignItems: 'center',
           justifyContent: 'center',
+          marginHorizontal: 72,
         }}>
-        <CherIcon />
-        <View>
-          <AmiIcon />
-          <View
-            style={{
-              position: 'absolute',
-              right: 4.65,
-              left: 114.74,
-              bottom: 33.71,
-              top: 17.79,
-            }}>
-            <Dot />
-          </View>
-        </View>
+        <Image
+          source={Title}
+          style={{
+            width: '100%',
+            aspectRatio: 268 / 60,
+          }}
+        />
       </View>
 
       <View
@@ -122,10 +114,14 @@ export default function Index() {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
+          marginHorizontal: 62,
         }}>
-        <MouseHole
-          height={Dimensions.get('window').width - 280}
-          width={Dimensions.get('window').width - 280}
+        <Image
+          source={Squirrel}
+          style={{
+            width: '100%',
+            aspectRatio: 288 / 228,
+          }}
         />
       </View>
 

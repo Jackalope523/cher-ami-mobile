@@ -1,29 +1,23 @@
-import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
 import PlusIcon from '@/assets/icons/plus-white.svg';
-import HedgeHog from '@/assets/illustrations/hedgehog-ballooning.svg';
-import MouseHole from '@/assets/illustrations/mouse-hole.svg';
 import CameraImage from '@/assets/images/camera.png';
+import Hedgehog from '@/assets/images/hedgehog.png';
 import MailboxImage from '@/assets/images/mailbox.png';
-import NetworkImage from '@/components/NetworkImage';
+import Mouse from '@/assets/images/mouse.png';
 import PopPressable from '@/components/PopPressable';
+import Post from '@/components/Post';
 import PostCounter from '@/components/PostCounter';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useFeedPostsInfiniteQuery, useGetCircleQuery } from '@/lib/hooks';
-import { FeedPost } from '@/lib/responses';
-import { formatPhotoDate } from '@/lib/utility';
 import { Image } from 'expo-image';
 import { router, useNavigation } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Dimensions, SectionList, StyleSheet, Text, View } from 'react-native';
-import 'react-native-get-random-values';
-import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
+import { useEffect } from 'react';
+import { SectionList, StyleSheet, Text, View } from 'react-native';
 
 export default function Feed() {
   const navigation = useNavigation();
   const circleQuery = useGetCircleQuery();
-  const [scrolling, setScrolling] = useState(false);
   const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
 
   function handleCreatePost() {
@@ -94,37 +88,54 @@ export default function Feed() {
     return `${diffYears} Years Ago`;
   }
 
+  function renderEmptyComponent() {
+    return (
+      <View style={{ paddingVertical: 100 }}>
+        <View
+          style={{
+            rowGap: Spacings.md,
+            alignItems: 'center',
+            marginHorizontal: 94,
+          }}>
+          <View
+            style={{
+              marginHorizontal: 126 - 94,
+            }}>
+            <Image
+              source={Hedgehog}
+              style={{ aspectRatio: 160 / 223, width: '100%' }}
+            />
+          </View>
+
+          <Text style={[textStyles.fancyText, { marginBottom: Spacings.xxl }]}>
+            {'Nothing to see here :('}
+          </Text>
+        </View>
+        <View
+          style={{
+            marginLeft: 320,
+            marginRight: 21,
+          }}>
+          <Image
+            source={Mouse}
+            style={{ aspectRatio: 71 / 73, width: '100%' }}
+          />
+        </View>
+      </View>
+    );
+  }
+
   function renderIssueHeader(
     id: number | null,
     title: string | null,
     date: Date | null,
+    postCount: number | null,
   ) {
     if (!title || !date) return <View />;
 
     if (data?.pages[0].id === id) {
-      if (data?.pages[0].posts.length === 0) {
-        return (
-          <View
-            style={{
-              rowGap: Spacings.md,
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 120,
-            }}>
-            <HedgeHog height={223} width={160} />
-            <Text
-              style={[textStyles.fancyText, { marginBottom: Spacings.xxl }]}>
-              {'Nothing to see here :('}
-            </Text>
-            <View
-              style={{
-                alignSelf: 'flex-end',
-                paddingHorizontal: Spacings.lgmd,
-              }}>
-              <MouseHole height={73} width={71} />
-            </View>
-          </View>
-        );
+      if (postCount === 0) {
+        return renderEmptyComponent();
       } else {
         return <View />;
       }
@@ -172,88 +183,7 @@ export default function Feed() {
             </View>
           </View>
         </View>
-        <View
-          style={{
-            rowGap: Spacings.md,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 100,
-          }}>
-          <HedgeHog height={223} width={160} />
-          <Text style={[textStyles.fancyText, { marginBottom: Spacings.xxl }]}>
-            {'Nothing to see here :('}
-          </Text>
-          <View
-            style={{ alignSelf: 'flex-end', paddingHorizontal: Spacings.lgmd }}>
-            <MouseHole height={73} width={71} />
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  function renderPost(post: FeedPost) {
-    return (
-      <View>
-        <View
-          style={{
-            flexDirection: 'row',
-            paddingHorizontal: 20,
-            justifyContent: 'space-between',
-            paddingVertical: Spacings.md,
-            columnGap: Spacings.sm,
-            alignItems: 'center',
-          }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              columnGap: Spacings.md,
-              alignItems: 'center',
-            }}>
-            <NetworkImage
-              source={
-                post.authorAvatarPath +
-                `?timestamp=${post.authorAvatarTimestamp}`
-              }
-              style={{ height: 48, width: 48, borderRadius: 24 }}
-            />
-            <View>
-              <Text style={textStyles.labelLargeBlack}>{post.authorName}</Text>
-              <Text style={textStyles.captionMedium}>
-                {formatPhotoDate(post.photoDate)}
-              </Text>
-            </View>
-          </View>
-          <View style={{ padding: Spacings.mdsm }}>
-            <MenuIcon width={24} height={24} />
-          </View>
-        </View>
-
-        <View style={{ marginBottom: Spacings.md }}>
-          <NetworkImage
-            source={post.photoPath}
-            style={{
-              height: 259,
-              width: Dimensions.get('window').width - 40,
-              borderRadius: 32,
-              marginHorizontal: 20,
-            }}
-          />
-
-          {post.caption && (
-            <View style={{ paddingHorizontal: 20, marginTop: Spacings.lg }}>
-              <Text style={textStyles.body}>{post.caption}</Text>
-            </View>
-          )}
-        </View>
-
-        <View
-          style={{
-            borderWidth: 1.5 / 2,
-            borderColor: '#DEDBD5',
-            marginVertical: Spacings.md,
-          }}
-        />
+        {postCount === 0 && renderEmptyComponent()}
       </View>
     );
   }
@@ -309,9 +239,6 @@ export default function Feed() {
     <View style={styles.container}>
       <SectionList
         overScrollMode="never"
-        onScrollBeginDrag={() => setScrolling(true)}
-        onScrollEndDrag={() => setScrolling(false)}
-        onMomentumScrollEnd={() => setScrolling(false)}
         sections={
           data?.pages.map((page) => ({
             id: page.id,
@@ -320,39 +247,40 @@ export default function Feed() {
             data: page.posts,
           })) ?? []
         }
-        renderItem={({ item }) => renderPost(item)}
+        renderItem={({ item }) => <Post post={item} />}
         renderSectionHeader={({ section }) =>
-          renderIssueHeader(section.id, section.title, section.date)
+          renderIssueHeader(
+            section.id,
+            section.title,
+            section.date,
+            section.data.length,
+          )
         }
         ListHeaderComponent={renderListHeader}
         onEndReached={handleOnEndReached}
       />
 
-      {!scrolling && (
-        <Animated.View
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 20,
+          right: 20,
+        }}>
+        <PopPressable
           style={{
-            position: 'absolute',
-            bottom: 20,
-            right: 20,
+            backgroundColor: '#C15F3C',
+            borderRadius: 20,
+            borderWidth: 2,
+            padding: 24,
+            borderColor: 'transparent',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
-          entering={SlideInDown}
-          exiting={SlideOutDown}>
-          <PopPressable
-            style={{
-              backgroundColor: '#C15F3C',
-              borderRadius: 20,
-              borderWidth: 2,
-              padding: 24,
-              borderColor: 'transparent',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            onPress={handleCreatePost}
-            disabled={data?.pages[0].posts.length === 20}>
-            <PlusIcon height={24} width={24} />
-          </PopPressable>
-        </Animated.View>
-      )}
+          onPress={handleCreatePost}
+          disabled={data?.pages[0].posts.length === 20}>
+          <PlusIcon height={24} width={24} />
+        </PopPressable>
+      </View>
     </View>
   );
 }

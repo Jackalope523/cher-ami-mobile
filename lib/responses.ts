@@ -43,9 +43,7 @@ export interface UserDTO {
 
 export interface FeedPost {
   id: number;
-  authorAvatarPath: string;
-  authorAvatarTimestamp: Date; 
-  authorName: string;
+  authorId: number;
   photoDate: Date;
   photoPath: string;
   caption: string;

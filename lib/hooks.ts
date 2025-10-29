@@ -2,7 +2,7 @@ import { useAPI } from '@/components/APIProvider';
 import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
-import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, GoogleTokenRequest, ImageRequest, JoinCircleRequest, RecipientRequest, UpdateUserRequest, VerifyCodeRequest } from './requests';
+import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, GoogleTokenRequest, IdRequest, ImageRequest, JoinCircleRequest, RecipientRequest, UpdateUserRequest, VerifyCodeRequest } from './requests';
 import { CircleDTO, CodeResponse, FeedPageResponse, LoginResponse, UserDTO } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
@@ -97,6 +97,18 @@ export function useAddPostMutation(onSuccess?: () => void,   onError?: (error: A
           },
         }
       );
+    },
+    onSuccess,
+    onError
+  });
+}
+
+export function useDeletePostMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError, IdRequest>({
+    mutationFn: async (request) => {
+      await api.delete(`/posts/${request.Id}`,);
     },
     onSuccess,
     onError

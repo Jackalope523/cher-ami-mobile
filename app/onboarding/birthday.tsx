@@ -2,9 +2,6 @@ import ChevronIcon from '@/assets/icons/chevron.svg';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from '@react-native-community/datetimepicker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -15,12 +12,6 @@ export default function Birthday() {
   const today = new Date();
   const [birthday, setBirthday] = useState(today);
   const [show, setShow] = useState(false);
-
-  const onChange = (_: DateTimePickerEvent, selectedDate: Date | undefined) => {
-    const currentDate = selectedDate;
-    setShow(false);
-    setBirthday(currentDate ?? today);
-  };
 
   function isToday(date: Date) {
     return (
@@ -69,15 +60,6 @@ export default function Birthday() {
           <Text style={[textStyles.body]}>{renderDate()}</Text>
           <ChevronIcon height={24} width={24} />
         </Pressable>
-        {show && (
-          <DateTimePicker
-            value={birthday}
-            mode="date"
-            display="calendar"
-            onChange={onChange}
-            maximumDate={new Date()} // optional
-          />
-        )}
       </View>
       <Pressable
         onPress={() => {
