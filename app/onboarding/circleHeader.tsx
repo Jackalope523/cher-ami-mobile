@@ -1,7 +1,11 @@
 import PlusIcon from '@/assets/icons/plus-grey.svg';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useCreateCircleMutation, useUpdateUserMutation } from '@/lib/hooks';
+import { useCreateCircleMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -10,26 +14,18 @@ import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 
 export default function CircleHeader() {
-  const { firstName, lastName, birthday, avatar, circleName } =
-    useLocalSearchParams();
+  const { circleName } = useLocalSearchParams();
+  const showToastMessage = useToastMessage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const userMutation = useUpdateUserMutation(
+  const circleMutation = useCreateCircleMutation(
     () => {
+      showToastMessage('Circle created.', ToastMessageType.Success);
       router.replace('/onboarding/circleCode');
     },
-    () => {},
-  );
-  const circleMutation = useCreateCircleMutation(
-    async (circle) => {
-      userMutation.mutate({
-        firstName: firstName as string,
-        lastName: lastName as string,
-        dateOfBirth: new Date(birthday as string),
-        avatarPath: avatar as string,
-        inviteCode: circle.inviteCode,
-      });
+    (error) => {
+      console.log(error);
+      showToastMessage('Failed to create circle.', ToastMessageType.Error);
     },
-    () => {},
   );
 
   async function pickImageAsync() {
@@ -53,7 +49,7 @@ export default function CircleHeader() {
   }
 
   function buttonDisabled() {
-    return !selectedImage || circleMutation.isPending || userMutation.isPending;
+    return !selectedImage || circleMutation.isPending;
   }
 
   return (

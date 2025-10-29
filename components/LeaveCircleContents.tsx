@@ -1,6 +1,13 @@
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { useLeaveCircleMutation } from '@/lib/hooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from './modals/ToastMessageProvider';
 import PopPressable from './PopPressable';
 
 interface LeaveCircleContentsProps {
@@ -10,7 +17,25 @@ interface LeaveCircleContentsProps {
 export default function LeaveCircleContents({
   dismissModal = () => {},
 }: LeaveCircleContentsProps) {
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
+  const mutation = useLeaveCircleMutation(
+    async () => {
+      await queryClient.refetchQueries({ queryKey: ['Circle'] });
+      router.replace('/onboarding/joinOrCreateCircle');
+      showToastMessage('Successfully left circle.', ToastMessageType.Success);
+    },
+    (error) => {
+      console.log(error);
+      showToastMessage(
+        'Failed to leave circle. Try again.',
+        ToastMessageType.Error,
+      );
+    },
+  );
+
   function handleDelete() {
+    mutation.mutate();
     dismissModal();
   }
 

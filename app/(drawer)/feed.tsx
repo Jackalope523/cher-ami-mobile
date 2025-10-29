@@ -3,6 +3,7 @@ import CameraImage from '@/assets/images/camera.png';
 import Hedgehog from '@/assets/images/hedgehog.png';
 import MailboxImage from '@/assets/images/mailbox.png';
 import Mouse from '@/assets/images/mouse.png';
+
 import PopPressable from '@/components/PopPressable';
 import Post from '@/components/Post';
 import PostCounter from '@/components/PostCounter';
@@ -231,7 +232,7 @@ export default function Feed() {
     fetchNextPage();
   }
 
-  if (status === 'pending') {
+  if (status === 'pending' && circleQuery.isPending) {
     return <Text>Loading</Text>;
   }
 

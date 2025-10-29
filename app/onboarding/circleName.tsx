@@ -1,13 +1,12 @@
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 
 export default function CircleName() {
-  const { firstName, lastName, birthday, avatar } = useLocalSearchParams();
   const [circleName, setCircleName] = useState('');
 
   return (
@@ -33,7 +32,7 @@ export default function CircleName() {
         onPress={() => {
           router.push({
             pathname: '/onboarding/circleHeader',
-            params: { firstName, lastName, birthday, avatar, circleName },
+            params: { circleName },
           });
         }}
         disabled={!circleName}

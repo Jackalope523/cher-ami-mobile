@@ -1,6 +1,8 @@
 import PlusIcon from '@/assets/icons/plus-grey.svg';
+import { useAuth } from '@/components/AuthProvider';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { useUpdateUserMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -9,8 +11,21 @@ import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 
 export default function Avatar() {
+  const { updateOnboarded } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { firstName, lastName, birthday } = useLocalSearchParams();
+  const userMutation = useUpdateUserMutation(
+    () => {
+      updateOnboarded(true).then(() => {
+        setTimeout(() => {
+          router.replace('/feed');
+        }, 50);
+      });
+    },
+    (error) => {
+      console.log(error.message);
+    },
+  );
 
   async function pickImageAsync() {
     let result = await launchImageLibraryAsync({
@@ -24,6 +39,16 @@ export default function Avatar() {
       setSelectedImage(result.assets[0].uri);
     }
   }
+
+  async function handleCreateUser() {
+    userMutation.mutate({
+      firstName: firstName as string,
+      lastName: lastName as string,
+      dateOfBirth: new Date(birthday as string),
+      avatarPath: selectedImage as string,
+    });
+  }
+
   return (
     <View style={styles.container}>
       <View>
@@ -55,16 +80,11 @@ export default function Avatar() {
         </Pressable>
       </View>
       <Pressable
-        onPress={() => {
-          router.push({
-            pathname: '/onboarding/joinOrCreateCircle',
-            params: { firstName, lastName, birthday, avatar: selectedImage },
-          });
-        }}
-        disabled={!selectedImage}
+        onPress={handleCreateUser}
+        disabled={!selectedImage || userMutation.isPending}
         style={[
           styles.button,
-          !selectedImage && {
+          (!selectedImage || userMutation.isPending) && {
             backgroundColor: '#ECEDEF',
             borderColor: '#ECEDEF',
           },
@@ -72,7 +92,7 @@ export default function Avatar() {
         <Text
           style={[
             textStyles.buttonTextWhite,
-            !selectedImage && { color: '#A8ABB3' },
+            (!selectedImage || userMutation.isPending) && { color: '#A8ABB3' },
           ]}>
           Continue
         </Text>

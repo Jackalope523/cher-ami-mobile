@@ -1,36 +1,44 @@
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
+import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useUpdateUserMutation } from '@/lib/hooks';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useJoinCircleMutation } from '@/lib/hooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
 
 export default function JoinOrCreateCircle() {
+  const queryClient = useQueryClient();
+  const showToastMessage = useToastMessage();
   const [circleCode, setCircleCode] = useState('');
-  const { firstName, lastName, birthday, avatar } = useLocalSearchParams();
-  const userMutation = useUpdateUserMutation(
-    () => {
-      router.replace('/onboarding/circleCode');
+  const mutation = useJoinCircleMutation(
+    async () => {
+      await queryClient.refetchQueries({ queryKey: ['Circle'] });
+      showToastMessage('Successfully joined circle.', ToastMessageType.Success);
     },
     (error) => {
-      console.log(error.message);
+      console.log(error);
+      showToastMessage('Failed to join circle.', ToastMessageType.Error);
     },
   );
 
   function handleJoinPress() {
-    userMutation.mutate({
-      firstName: firstName as string,
-      lastName: lastName as string,
-      dateOfBirth: new Date(birthday as string),
-      avatarPath: avatar as string,
-      inviteCode: circleCode,
+    mutation.mutate({
+      code: circleCode,
     });
   }
 
+  function handleCreatePress() {
+    router.push('/onboarding/circleName');
+  }
+
   function joinButtonDisabled() {
-    return !circleCode || userMutation.isPending;
+    return !circleCode || mutation.isPending;
   }
 
   return (
@@ -63,7 +71,7 @@ export default function JoinOrCreateCircle() {
         />
       </View>
 
-      <Pressable
+      <PopPressable
         onPress={handleJoinPress}
         disabled={joinButtonDisabled()}
         style={[
@@ -80,7 +88,7 @@ export default function JoinOrCreateCircle() {
           ]}>
           Join circle
         </Text>
-      </Pressable>
+      </PopPressable>
 
       <View
         style={{
@@ -119,13 +127,8 @@ export default function JoinOrCreateCircle() {
         Start your own circle and invite others to join.
       </Text>
 
-      <Pressable
-        onPress={() => {
-          router.push({
-            pathname: '/onboarding/circleName',
-            params: { firstName, lastName, birthday, avatar },
-          });
-        }}
+      <PopPressable
+        onPress={handleCreatePress}
         disabled={false}
         style={[
           styles.button,
@@ -138,7 +141,7 @@ export default function JoinOrCreateCircle() {
           style={[textStyles.buttonTextWhite, false && { color: '#A8ABB3' }]}>
           Create circle
         </Text>
-      </Pressable>
+      </PopPressable>
     </View>
   );
 }

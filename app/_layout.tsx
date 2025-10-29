@@ -1,6 +1,6 @@
 import TrashIcon from '@/assets/icons/trash-orange.svg';
 import APIProvider from '@/components/APIProvider';
-import AuthProvider, { useAuth } from '@/components/AuthProvider';
+import AuthProvider from '@/components/AuthProvider';
 import BottomSheetModalProvider from '@/components/modals/BottomSheetModalProvider';
 import DialogueModalProvider from '@/components/modals/DialogueModalProvider';
 import DrawerModalProvider from '@/components/modals/DrawerModalProvider';
@@ -8,42 +8,18 @@ import ToastMessageProvider from '@/components/modals/ToastMessageProvider';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { StripeProvider } from '@stripe/stripe-react-native';
-import { router, SplashScreen, Stack } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { router, Stack } from 'expo-router';
 import {
   GestureHandlerRootView,
   Pressable,
 } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-SplashScreen.preventAutoHideAsync();
-
 function RootNavigator() {
-  const { getToken, getOnboarded } = useAuth();
-  const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
-  const [onboarded, setOnboarded] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    getOnboarded()
-      .then(async (onboarded) => {
-        setOnboarded(onboarded);
-
-        if (!onboarded) {
-          setLoggedIn(false);
-        } else {
-          getToken().then((token) => setLoggedIn(token !== null));
-        }
-      })
-      .finally(() => SplashScreen.hide());
-  }, [getOnboarded, getToken, onboarded, loggedIn]);
-
-  if (loggedIn === null || onboarded === null) {
-    return null;
-  }
-
   return (
     <Stack
       screenOptions={{
+        animation: 'none',
         headerShadowVisible: false,
         headerTitleStyle: textStyles.screenHeader,
         headerTitleAlign: 'center',
@@ -53,91 +29,84 @@ function RootNavigator() {
           backgroundColor: '#FCFBF8',
         },
       }}>
-      <Stack.Protected guard={!loggedIn}>
-        <Stack.Screen
-          name="index"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen name="signup" />
-        <Stack.Screen name="login" />
-        <Stack.Screen
-          name="verify"
-          options={{
-            title: '',
-          }}
-        />
-      </Stack.Protected>
-      <Stack.Protected guard={loggedIn}>
-        <Stack.Protected guard={!onboarded}>
-          <Stack.Screen name="onboarding/firstName" options={{ title: '' }} />
-          <Stack.Screen name="onboarding/lastName" options={{ title: '' }} />
-          <Stack.Screen name="onboarding/birthday" options={{ title: '' }} />
-          <Stack.Screen name="onboarding/avatar" options={{ title: '' }} />
-          <Stack.Screen
-            name="onboarding/joinOrCreateCircle"
-            options={{ title: '' }}
-          />
-          <Stack.Screen name="onboarding/circleName" options={{ title: '' }} />
-          <Stack.Screen
-            name="onboarding/circleHeader"
-            options={{ title: '' }}
-          />
-          <Stack.Screen
-            name="onboarding/circleCode"
-            options={{ headerShown: false }}
-          />
-        </Stack.Protected>
-        <Stack.Protected guard={onboarded}>
-          <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="profile/[id]"
-            options={{
-              title: 'Profile',
-            }}
-          />
-          <Stack.Screen name="circle/create" />
-          <Stack.Screen name="circle/join" />
-          <Stack.Screen
-            name="post/create"
-            options={{
-              title: 'New Post',
-            }}
-          />
-          <Stack.Screen
-            name="billing/manage"
-            options={{
-              title: 'Manage Billing',
-            }}
-          />
-          <Stack.Screen
-            name="circle/recipients/add"
-            options={{
-              title: 'Add Recipient',
-            }}
-          />
-          <Stack.Screen
-            name="circle/recipients/edit"
-            options={{
-              title: 'Edit Recipient',
-              headerRight: () => (
-                <Pressable
-                  onPress={() => router.push('/circle/recipients/remove')}
-                  style={{ paddingHorizontal: Spacings.md }}>
-                  <TrashIcon height={24} width={24} />
-                </Pressable>
-              ),
-            }}
-          />
-          <Stack.Screen
-            name="circle/recipients/remove"
-            options={{
-              headerShown: false,
-            }}
-          />
-        </Stack.Protected>
-      </Stack.Protected>
+      <Stack.Screen
+        name="index"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="landing"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen name="signup" />
+      <Stack.Screen name="login" />
+      <Stack.Screen
+        name="verify"
+        options={{
+          title: '',
+        }}
+      />
+      <Stack.Screen name="onboarding/firstName" options={{ title: '' }} />
+      <Stack.Screen name="onboarding/lastName" options={{ title: '' }} />
+      <Stack.Screen name="onboarding/birthday" options={{ title: '' }} />
+      <Stack.Screen name="onboarding/avatar" options={{ title: '' }} />
+      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="profile/[id]"
+        options={{
+          title: 'Profile',
+        }}
+      />
+      <Stack.Screen
+        name="post/create"
+        options={{
+          title: 'New Post',
+        }}
+      />
+      <Stack.Screen
+        name="billing/manage"
+        options={{
+          title: 'Manage Billing',
+        }}
+      />
+      <Stack.Screen
+        name="circle/recipients/add"
+        options={{
+          title: 'Add Recipient',
+        }}
+      />
+      <Stack.Screen
+        name="circle/recipients/edit"
+        options={{
+          title: 'Edit Recipient',
+          headerRight: () => (
+            <Pressable
+              onPress={() => router.push('/circle/recipients/remove')}
+              style={{ paddingHorizontal: Spacings.md }}>
+              <TrashIcon height={24} width={24} />
+            </Pressable>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="circle/recipients/remove"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="onboarding/joinOrCreateCircle"
+        options={{ title: '' }}
+      />
+      <Stack.Screen name="onboarding/circleName" options={{ title: '' }} />
+      <Stack.Screen name="onboarding/circleHeader" options={{ title: '' }} />
+      <Stack.Screen
+        name="onboarding/circleCode"
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 }

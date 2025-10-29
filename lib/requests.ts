@@ -25,7 +25,6 @@ export interface UpdateUserRequest {
   lastName: string;
   dateOfBirth: Date;
   avatarPath: string;
-  inviteCode: string;
 }
 
 

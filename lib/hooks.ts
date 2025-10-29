@@ -26,12 +26,12 @@ export function useInterval(callback: () => void, delay: number) {
 export function useGetCircleQuery() {
   const api = useAPI();
 
-  return useQuery<CircleDTO, AxiosError>({
+  return useQuery<CircleDTO | null, AxiosError>({
     queryKey: ['Circle'],
     queryFn: async () => {
-      const response = await api.get<CircleDTO>('/circle');
-      return response.data;
-    }
+      const response = await api.get('/circle');
+      return response.status === 204 ? null : response.data;
+    }  
   });
 }
 
@@ -59,17 +59,18 @@ export function useGetUserQuery(id: number) {
   });
 }
 
-export function useFeedPostsInfiniteQuery() {
+export function useFeedPostsInfiniteQuery(enabled: boolean = true) {
   const api = useAPI();
 
   return useInfiniteQuery<FeedPageResponse, AxiosError>({
     queryKey: ['FeedPages'],
     queryFn: async ({pageParam = 0}: QueryFunctionContext) => {
-      const response = await api.get(`/circle/issues/${pageParam}`);
+      const response = await api.get<FeedPageResponse>(`/circle/issues/${pageParam}`);
       return response.data;
     },
     initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextPage
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    enabled
   });
 }
 
@@ -218,7 +219,6 @@ export function useUpdateUserMutation(onSuccess?:() => void , onError?: (error: 
   
         formData.append('FirstName', request.firstName);
         formData.append('LastName', request.lastName);
-        formData.append('InviteCode', request.inviteCode);
         formData.append('Avatar', {
           uri: request.avatarPath,
           type: 'image/jpeg',
@@ -279,6 +279,18 @@ export function useJoinCircleMutation(onSuccess?:() => void , onError?: (error: 
   return useMutation<void, AxiosError, JoinCircleRequest>({
       mutationFn: async (request: JoinCircleRequest) => {
         await api.post('/circles/join', request)
+      },
+      onSuccess: onSuccess,
+      onError: onError,
+    });
+}
+
+export function useLeaveCircleMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError>({
+      mutationFn: async () => {
+        await api.post('/circle/leave')
       },
       onSuccess: onSuccess,
       onError: onError,
