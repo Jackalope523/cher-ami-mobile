@@ -21,8 +21,8 @@ export default function LeaveCircleContents({
   const queryClient = useQueryClient();
   const mutation = useLeaveCircleMutation(
     async () => {
-      await queryClient.refetchQueries({ queryKey: ['Circle'] });
-      router.replace('/onboarding/joinOrCreateCircle');
+      await queryClient.invalidateQueries({ queryKey: ['Circle'] });
+      router.replace('/feed');
       showToastMessage('Successfully left circle.', ToastMessageType.Success);
     },
     (error) => {

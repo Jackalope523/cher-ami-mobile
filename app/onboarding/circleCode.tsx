@@ -1,6 +1,5 @@
 import CopyIcon from '@/assets/icons/copy.svg';
 import RefreshIcon from '@/assets/icons/refresh.svg';
-import { useAuth } from '@/components/AuthProvider';
 import {
   ToastMessageType,
   useToastMessage,
@@ -10,6 +9,7 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetCircleQuery, useRerollCodeMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
+import { setStringAsync } from 'expo-clipboard';
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
@@ -21,7 +21,6 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CircleCode() {
-  const { updateOnboarded } = useAuth();
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const { data } = useGetCircleQuery();
@@ -58,12 +57,11 @@ export default function CircleCode() {
       scale.value = withTiming(1, { duration: 150 });
     });
 
-    //await setStringAsync(data?.code ?? '');
+    await setStringAsync(data?.inviteCode ?? '');
     showToastMessage('Invitation code copied to clipboard');
   };
 
   function handleContinue() {
-    updateOnboarded(false);
     router.replace('/feed');
   }
 

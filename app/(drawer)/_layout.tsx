@@ -18,17 +18,17 @@ import { Drawer } from 'expo-router/drawer';
 import { Dimensions, Text, View } from 'react-native';
 
 export default function Layout() {
+  const selfQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
+  const { deleteToken } = useAuth();
+
+  async function handleLogout() {
+    deleteToken();
+    router.replace('/');
+  }
 
   function CustomDrawerContent(props: DrawerContentComponentProps) {
-    const { deleteToken } = useAuth();
-    const { data } = useGetSelfQuery();
-
-    async function handleLogout() {
-      deleteToken();
-    }
-
-    if (!data) {
+    if (!selfQuery.data) {
       return <Text>Loading...</Text>;
     }
 
@@ -44,7 +44,7 @@ export default function Layout() {
             onPress={() => {
               router.navigate({
                 pathname: '/profile/[id]',
-                params: { id: data.id },
+                params: { id: selfQuery.data.id },
               });
             }}
             style={{
@@ -55,7 +55,10 @@ export default function Layout() {
               marginBottom: Spacings.xl,
             }}>
             <NetworkImage
-              source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
+              source={
+                selfQuery.data.avatarPath +
+                `?timestamp=${selfQuery.data.avatarTimestamp}`
+              }
               style={{
                 height: 48,
                 width: 48,
@@ -65,7 +68,7 @@ export default function Layout() {
             <Text
               style={
                 textStyles.heading4
-              }>{`${data.firstName} ${data.lastName}`}</Text>
+              }>{`${selfQuery.data.firstName} ${selfQuery.data.lastName}`}</Text>
           </PopPressable>
           <PopPressable
             onPress={() => {

@@ -74,8 +74,6 @@ function RootNavigator() {
               title: 'Profile',
             }}
           />
-          <Stack.Screen name="circle/create" />
-          <Stack.Screen name="circle/join" />
           <Stack.Screen
             name="post/create"
             options={{

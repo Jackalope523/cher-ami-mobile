@@ -55,12 +55,6 @@ export default function Index() {
       showToast('Successfully logged in!');
       updateToken(response.token);
       updateOnboarded(response.onboarded);
-
-      if (!response.onboarded) {
-        router.push('/onboarding/firstName');
-      } else {
-        router.push('/feed');
-      }
     },
     () => {
       showToast('Failed to log in. Try again.', ToastMessageType.Error);

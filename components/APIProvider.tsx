@@ -62,10 +62,10 @@ const api = axios.create({
 });
 
 export default function APIProvider({ children }: APIProviderProps) {
-  const { isLoaded, getToken, deleteToken } = useAuth();
+  const { getToken, deleteToken } = useAuth();
 
   useEffect(() => {
-    if (isLoaded()) {
+    if (getToken()) {
       api.interceptors.request.use(
         async (config) => {
           const openURLs = [
@@ -108,7 +108,7 @@ export default function APIProvider({ children }: APIProviderProps) {
         },
       );
     }
-  }, [getToken, isLoaded]);
+  }, [deleteToken, getToken]);
 
   const queryClient = new QueryClient();
 
