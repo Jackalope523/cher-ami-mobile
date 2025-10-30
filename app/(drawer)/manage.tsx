@@ -1,4 +1,4 @@
-import CreditCardIcon from '@/assets/icons/credit-card-white.svg';
+import CreditCardIcon from '@/assets/icons/credit-card.svg';
 import PlusIcon from '@/assets/icons/plus-orange.svg';
 import SettingsIcon from '@/assets/icons/settings-white.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
@@ -261,7 +261,7 @@ export default function Manage() {
               borderRadius: 12,
               columnGap: Spacings.sm,
             }}>
-            <CreditCardIcon height={24} width={24} />
+            <CreditCardIcon height={24} width={24} color={'#FFFFFF'} />
             <Text style={textStyles.buttonTextWhite}>Manage Billing</Text>
           </PopPressable>
           <PopPressable

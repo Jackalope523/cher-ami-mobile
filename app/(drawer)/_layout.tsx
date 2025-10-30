@@ -2,13 +2,13 @@ import GalleryIcon from '@/assets/icons/gallery-vertical.svg';
 import LogoutIcon from '@/assets/icons/log-out.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
 import SettingsIcon from '@/assets/icons/settings-orange.svg';
-import PersonIcon from '@/assets/icons/users-round.svg';
+import PersonIconOrange from '@/assets/icons/users-round.svg';
 import { useAuth } from '@/components/AuthProvider';
 import NetworkImage from '@/components/NetworkImage';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetSelfQuery } from '@/lib/hooks';
+import { useGetCircleQuery, useGetSelfQuery } from '@/lib/hooks';
 import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
@@ -18,15 +18,14 @@ import { Drawer } from 'expo-router/drawer';
 import { Dimensions, Text, View } from 'react-native';
 
 export default function Layout() {
+  const circleQuery = useGetCircleQuery();
+
   function CustomDrawerContent(props: DrawerContentComponentProps) {
     const { deleteToken } = useAuth();
     const { data } = useGetSelfQuery();
 
     async function handleLogout() {
-      await deleteToken();
-      setTimeout(() => {
-        router.replace('/');
-      }, 50);
+      deleteToken();
     }
 
     if (!data) {
@@ -84,6 +83,7 @@ export default function Layout() {
             <Text style={textStyles.buttonTextOrange}>Feed</Text>
           </PopPressable>
           <PopPressable
+            disabled={!circleQuery.data}
             onPress={() => {
               router.navigate('/manage');
             }}
@@ -94,8 +94,19 @@ export default function Layout() {
               paddingVertical: Spacings.md,
               paddingLeft: Spacings.lg,
             }}>
-            <PersonIcon height={24} width={24} />
-            <Text style={textStyles.buttonTextOrange}>Circle</Text>
+            <PersonIconOrange
+              height={24}
+              width={24}
+              color={circleQuery.data ? '#B05637' : '#868581'}
+            />
+            <Text
+              style={
+                circleQuery.data
+                  ? textStyles.buttonTextOrange
+                  : textStyles.buttonTextGrey
+              }>
+              Circle
+            </Text>
           </PopPressable>
         </View>
 

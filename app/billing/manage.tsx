@@ -1,4 +1,4 @@
-import CreditCardIcon from '@/assets/icons/credit-card-orange.svg';
+import CreditCardIcon from '@/assets/icons/credit-card.svg';
 import PopPressable from '@/components/PopPressable';
 import UserItem from '@/components/UserItem';
 import { Spacings } from '@/constants/Spacings';
@@ -46,7 +46,7 @@ export default function ManageBilling() {
       <Text style={textStyles.heading3}>Billing details</Text>
       <PopPressable onPress={() => {}} style={styles.button}>
         <Text style={textStyles.buttonTextOrange}>Configure Billing</Text>
-        <CreditCardIcon height={24} width={24} />
+        <CreditCardIcon height={24} width={24} color={'#B05637'} />
       </PopPressable>
     </ScrollView>
   );

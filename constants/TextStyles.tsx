@@ -107,6 +107,13 @@ export const textStyles = StyleSheet.create({
     color: '#FFFFFF',
   },
 
+  buttonTextGrey: {
+    fontFamily: 'Poppins',
+    fontWeight: 500,
+    fontSize: 16,
+    color: '#868581',
+  },
+
   caption: {
     fontFamily: 'Poppins',
     fontWeight: 400,

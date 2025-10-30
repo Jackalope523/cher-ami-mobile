@@ -62,51 +62,53 @@ const api = axios.create({
 });
 
 export default function APIProvider({ children }: APIProviderProps) {
-  const { getToken, deleteToken } = useAuth();
+  const { isLoaded, getToken, deleteToken } = useAuth();
 
   useEffect(() => {
-    api.interceptors.request.use(
-      async (config) => {
-        const openURLs = [
-          '/account/signup',
-          '/account/login',
-          '/account/verify',
-        ];
-        if (config.url && !openURLs.includes(config.url)) {
-          const token = await getToken();
-          config.headers.Authorization = `Bearer ${token}`;
-        }
+    if (isLoaded()) {
+      api.interceptors.request.use(
+        async (config) => {
+          const openURLs = [
+            '/account/signup',
+            '/account/login',
+            '/account/verify',
+          ];
+          if (config.url && !openURLs.includes(config.url)) {
+            const token = getToken();
+            config.headers.Authorization = `Bearer ${token}`;
+          }
 
-        return config;
-      },
-      (error) => {
-        console.error('Error attaching JWT to request: ', error);
-        return Promise.reject(error);
-      },
-    );
+          return config;
+        },
+        (error) => {
+          console.error('Error attaching JWT to request: ', error);
+          return Promise.reject(error);
+        },
+      );
 
-    api.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        if (error.response?.status === 401) {
-          await deleteToken();
-          router.replace('/');
-        }
-        return Promise.reject(error);
-      },
-    );
+      api.interceptors.response.use(
+        (response) => response,
+        (error) => {
+          if (error.response?.status === 401) {
+            deleteToken();
+            router.replace('/');
+          }
+          return Promise.reject(error);
+        },
+      );
 
-    api.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response?.data) {
-          console.error('ProblemDetails: ', error.response.data);
-        }
+      api.interceptors.response.use(
+        (response) => response,
+        (error) => {
+          if (error.response?.data) {
+            console.error('ProblemDetails: ', error.response.data);
+          }
 
-        return Promise.reject(error);
-      },
-    );
-  }, []);
+          return Promise.reject(error);
+        },
+      );
+    }
+  }, [getToken, isLoaded]);
 
   const queryClient = new QueryClient();
 

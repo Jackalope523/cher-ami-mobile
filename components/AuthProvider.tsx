@@ -1,16 +1,23 @@
 import { deleteItemAsync, getItemAsync, setItemAsync } from 'expo-secure-store';
-import { createContext, ReactNode, useContext, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 interface AuthInterface {
-  getToken: () => Promise<string | null>;
-  updateToken: (freshToken: string) => Promise<void>;
-  deleteToken: () => Promise<void>;
-  getOnboarded: () => Promise<boolean | null>;
-  updateOnboarded: (onboarded: boolean) => Promise<void>;
+  isLoaded: () => boolean;
+  getToken: () => string | null;
+  updateToken: (token: string) => void;
+  deleteToken: () => void;
+  getOnboarded: () => boolean | null;
+  updateOnboarded: (onboarded: boolean) => void;
 }
 
 const AuthContext = createContext<AuthInterface | null>(null);
@@ -23,6 +30,7 @@ export const useAuth = () => {
   }
 
   return {
+    isLoaded: context.isLoaded,
     getToken: context.getToken,
     updateToken: context.updateToken,
     deleteToken: context.deleteToken,
@@ -32,45 +40,51 @@ export const useAuth = () => {
 };
 
 export default function AuthProvider({ children }: AuthProviderProps) {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [token, setToken] = useState<string | null>(null);
   const [onboarded, setOnboarded] = useState<boolean | null>(null);
 
-  async function getToken() {
-    if (token === null) {
-      let freshToken = await getItemAsync('token');
-      setToken(freshToken);
-      return freshToken;
+  useEffect(() => {
+    async function loadAsync() {
+      setToken(await getItemAsync('token'));
+      setOnboarded((await getItemAsync('Onboarded')) === 'true');
+      setLoaded(true);
     }
+
+    loadAsync();
+  }, []);
+
+  function isLoaded() {
+    return loaded;
+  }
+
+  function getToken() {
     return token;
   }
 
-  async function updateToken(token: string) {
+  function updateToken(token: string) {
     setToken(token);
-    await setItemAsync('token', token);
+    setItemAsync('token', token);
   }
 
-  async function deleteToken() {
+  function deleteToken() {
     setToken(null);
-    await deleteItemAsync('token');
+    deleteItemAsync('token');
   }
 
-  async function getOnboarded() {
-    if (onboarded === null) {
-      let freshValue = (await getItemAsync('Onboarded')) === 'true';
-      setOnboarded(freshValue);
-      return freshValue;
-    }
+  function getOnboarded() {
     return onboarded;
   }
 
-  async function updateOnboarded(value: boolean) {
+  function updateOnboarded(value: boolean) {
     setOnboarded(value);
-    await setItemAsync('Onboarded', value.toString());
+    setItemAsync('Onboarded', value.toString());
   }
 
   return (
     <AuthContext.Provider
       value={{
+        isLoaded,
         getToken,
         updateToken,
         deleteToken,
