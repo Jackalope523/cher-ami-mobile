@@ -1,5 +1,9 @@
 import PlusIcon from '@/assets/icons/plus-grey.svg';
 import { useAuth } from '@/components/AuthProvider';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useUpdateUserMutation } from '@/lib/hooks';
@@ -12,17 +16,17 @@ import { Pressable } from 'react-native-gesture-handler';
 
 export default function Avatar() {
   const { updateOnboarded } = useAuth();
+  const showToastMessage = useToastMessage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { firstName, lastName, birthday } = useLocalSearchParams();
   const userMutation = useUpdateUserMutation(
     () => {
-      updateOnboarded(true).then(() => {
-        setTimeout(() => {
-          router.replace('/feed');
-        }, 50);
-      });
+      showToastMessage('Successfully created user!', ToastMessageType.Success);
+      updateOnboarded(true);
+      router.replace('/feed');
     },
     (error) => {
+      showToastMessage('Successfully created user!', ToastMessageType.Error);
       console.log(error.message);
     },
   );

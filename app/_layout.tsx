@@ -1,31 +1,34 @@
-import TrashIcon from '@/assets/icons/trash-orange.svg';
 import APIProvider from '@/components/APIProvider';
 import AuthProvider, { useAuth } from '@/components/AuthProvider';
 import BottomSheetModalProvider from '@/components/modals/BottomSheetModalProvider';
 import DialogueModalProvider from '@/components/modals/DialogueModalProvider';
 import DrawerModalProvider from '@/components/modals/DrawerModalProvider';
 import ToastMessageProvider from '@/components/modals/ToastMessageProvider';
-import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { usePingMutation } from '@/lib/hooks';
 import { StripeProvider } from '@stripe/stripe-react-native';
-import { router, SplashScreen, Stack } from 'expo-router';
+import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
-import {
-  GestureHandlerRootView,
-  Pressable,
-} from 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
+  const pingMutation = usePingMutation();
   const { isLoaded, getToken, getOnboarded } = useAuth();
 
   useEffect(() => {
-    if (isLoaded()) {
-      SplashScreen.hide();
+    pingMutation.mutate();
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded() && pingMutation.isSuccess) {
+      setTimeout(() => {
+        SplashScreen.hide();
+      }, 500);
     }
-  }, [isLoaded]);
+  }, [isLoaded, pingMutation.isSuccess]);
 
   if (!isLoaded()) {
     return null;
@@ -60,7 +63,7 @@ function RootNavigator() {
         />
       </Stack.Protected>
       <Stack.Protected guard={getToken() !== null}>
-        <Stack.Protected guard={getOnboarded() === null}>
+        <Stack.Protected guard={!getOnboarded()}>
           <Stack.Screen name="onboarding/firstName" options={{ title: '' }} />
           <Stack.Screen name="onboarding/lastName" options={{ title: '' }} />
           <Stack.Screen name="onboarding/birthday" options={{ title: '' }} />
@@ -93,20 +96,13 @@ function RootNavigator() {
             }}
           />
           <Stack.Screen
-            name="circle/recipients/edit"
+            name="circle/recipients/[id]/edit"
             options={{
               title: 'Edit Recipient',
-              headerRight: () => (
-                <Pressable
-                  onPress={() => router.push('/circle/recipients/remove')}
-                  style={{ paddingHorizontal: Spacings.md }}>
-                  <TrashIcon height={24} width={24} />
-                </Pressable>
-              ),
             }}
           />
           <Stack.Screen
-            name="circle/recipients/remove"
+            name="circle/recipients/[id]/delete"
             options={{
               headerShown: false,
             }}

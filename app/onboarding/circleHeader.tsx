@@ -6,6 +6,7 @@ import {
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useCreateCircleMutation } from '@/lib/hooks';
+import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -16,11 +17,13 @@ import { Pressable } from 'react-native-gesture-handler';
 export default function CircleHeader() {
   const { circleName } = useLocalSearchParams();
   const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const circleMutation = useCreateCircleMutation(
     () => {
       showToastMessage('Circle created.', ToastMessageType.Success);
-      router.replace('/onboarding/circleCode');
+      queryClient.invalidateQueries({ queryKey: ['Circle'] });
+      router.replace('/feed');
     },
     (error) => {
       console.log(error);

@@ -27,6 +27,20 @@ export interface UpdateUserRequest {
   avatarPath: string;
 }
 
+export interface UpdateRecipientRequest {
+  id: number;
+  avatarPath?: string;
+  title: string;
+  firstName: string;
+  lastName: string;
+  street: string;
+  city: string;
+  provinceOrState: string;
+  postalCode: string;
+  country: string;
+  unitNumber: string;
+}
+
 
 export interface CreateCircleRequest {
   title: string;

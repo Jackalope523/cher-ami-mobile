@@ -1,40 +1,76 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import NetworkImage from '@/components/NetworkImage';
+import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { router } from 'expo-router';
-import { Pressable } from 'react-native-gesture-handler';
+import { useDeleteRecipientMutation, useGetRecipientQuery } from '@/lib/hooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function RemoveRecipient() {
+export default function DeleteRecipient() {
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
+  const { id } = useLocalSearchParams();
+  const { data } = useGetRecipientQuery(Number(id));
+  const mutation = useDeleteRecipientMutation(
+    () => {
+      showToastMessage(
+        'Successfully removed recipient.',
+        ToastMessageType.Success,
+      );
+      queryClient.invalidateQueries({ queryKey: ['Circle'] });
+      router.replace('/(drawer)/manage');
+    },
+    () => {
+      showToastMessage('Failed to remove recipient.', ToastMessageType.Error);
+    },
+  );
+
+  if (!data) {
+    return <Text>Loading...</Text>;
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View>
         <Text style={[textStyles.heading1, styles.screenHeader]}>
           Remove recipient?
         </Text>
-        <NetworkImage style={styles.avatar} />
+        <NetworkImage
+          style={styles.avatar}
+          source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
+        />
         <Text style={[textStyles.heading2, styles.recipientName]}>
-          Kimi Neumann
+          {`${data.firstName} ${data.lastName}`}
         </Text>
         <Text style={textStyles.body}>
-          By removing Kimi Neumann from the recipients, they will{' '}
+          By removing {`${data.firstName} ${data.lastName}`} from the
+          recipients, they will{' '}
           <Text style={[textStyles.body, { fontWeight: 'bold' }]}>
             stop receiving
-          </Text>
+          </Text>{' '}
           print-out magazines.
         </Text>
       </View>
       <View style={styles.buttonContainer}>
-        <Pressable
-          onPress={() => {}}
-          disabled={false}
+        <PopPressable
+          onPress={() => {
+            mutation.mutate({ Id: Number(id) });
+          }}
+          disabled={mutation.isPending}
           style={[styles.removeButton]}>
           <Text style={textStyles.buttonTextBlack}>Remove</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => router.back()}
+        </PopPressable>
+        <PopPressable
+          onPress={() => {
+            router.back();
+          }}
           disabled={false}
           style={[
             styles.cancelButton,
@@ -47,7 +83,7 @@ export default function RemoveRecipient() {
             style={[textStyles.buttonTextWhite, false && { color: '#A8ABB3' }]}>
             Cancel
           </Text>
-        </Pressable>
+        </PopPressable>
       </View>
     </SafeAreaView>
   );

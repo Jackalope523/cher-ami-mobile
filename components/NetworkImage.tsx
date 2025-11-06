@@ -11,7 +11,7 @@ export default function NetworkImage({ style, ...props }: ImageProps) {
 
   useEffect(() => {
     async function loadToken() {
-      const token = await getToken();
+      const token = getToken();
       setToken(token);
     }
     loadToken();
@@ -23,6 +23,7 @@ export default function NetworkImage({ style, ...props }: ImageProps) {
         {...props}
         style={style}
         placeholder={Placeholder}
+        placeholderContentFit="fill"
         source={{
           headers: {
             Authorization: `Bearer ${token}`,

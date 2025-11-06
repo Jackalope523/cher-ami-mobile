@@ -2,8 +2,8 @@ import { useAPI } from '@/components/APIProvider';
 import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
-import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, GoogleTokenRequest, IdRequest, ImageRequest, JoinCircleRequest, RecipientRequest, UpdateUserRequest, VerifyCodeRequest } from './requests';
-import { CircleDTO, CodeResponse, FeedPageResponse, LoginResponse, UserDTO } from './responses';
+import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, GoogleTokenRequest, IdRequest, ImageRequest, JoinCircleRequest, RecipientRequest, UpdateRecipientRequest, UpdateUserRequest, VerifyCodeRequest } from './requests';
+import { CircleDTO, CodeResponse, FeedPageResponse, LoginResponse, RecipientDTO, UserDTO } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
   const savedCallback = useRef(callback);
@@ -21,6 +21,16 @@ export function useInterval(callback: () => void, delay: number) {
       return () => clearInterval(id);
     }
   }, [delay]);
+}
+
+export function usePingMutation() {
+  const api = useAPI();
+  
+  return useMutation<void, AxiosError>({
+    mutationFn: async () => {
+      await api.get('/ping', {timeout: 60000});
+    },
+  });
 }
 
 export function useGetCircleQuery() {
@@ -54,6 +64,21 @@ export function useGetUserQuery(id: number) {
     queryKey: ['User', id],
     queryFn: async () => {
       const response = await api.get<UserDTO>(`/users/${id}`);
+      return response.data;
+    },
+  });
+}
+
+export function useGetRecipientQuery(id: number) {
+  const api = useAPI();
+
+   console.log("Getting cahed: " + id);
+
+  return useQuery<RecipientDTO, AxiosError>({
+    queryKey: ['Recipient', id],
+    queryFn: async () => {
+      console.log("Getting remote: " + id);
+      const response = await api.get<RecipientDTO>(`/circle/recipients/${id}`);
       return response.data;
     },
   });
@@ -110,6 +135,18 @@ export function useDeletePostMutation(onSuccess?: () => void,   onError?: (error
   return useMutation<void, AxiosError, IdRequest>({
     mutationFn: async (request) => {
       await api.delete(`/posts/${request.Id}`,);
+    },
+    onSuccess,
+    onError
+  });
+}
+
+export function useDeleteRecipientMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError, IdRequest>({
+    mutationFn: async (request) => {
+      await api.delete(`/circle/recipients/${request.Id}`,);
     },
     onSuccess,
     onError
@@ -227,6 +264,49 @@ export function useUpdateUserMutation(onSuccess?:() => void , onError?: (error: 
   
         const response = await api.put(
           '/user', 
+          formData, 
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        
+        return response.data;
+      },
+      onSuccess,
+      onError,
+    });
+}
+
+export function useUpdateRecipientMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError, UpdateRecipientRequest>({
+      mutationFn: async (request) => {
+        const formData = new FormData();
+  
+        formData.append('Title', request.title);
+        formData.append('FirstName', request.firstName);
+        formData.append('LastName', request.lastName);
+
+        formData.append('Street', request.street);
+        formData.append('City', request.city);
+        formData.append('ProvinceOrState', request.provinceOrState);
+        formData.append('PostalCode', request.postalCode);
+        formData.append('Country', request.country);
+        formData.append('UnitNumber', request.unitNumber);
+
+        if (request.avatarPath) {
+          formData.append('Avatar', {
+            uri: request.avatarPath,
+            type: 'image/jpeg',
+            name: 'avatar.jpg',
+          } as any);
+        }
+ 
+        const response = await api.put(
+          `/circle/recipients/${request.id}`, 
           formData, 
           {
             headers: {

@@ -1,6 +1,6 @@
 import CreditCardIcon from '@/assets/icons/credit-card.svg';
 import PlusIcon from '@/assets/icons/plus-orange.svg';
-import SettingsIcon from '@/assets/icons/settings-white.svg';
+import SettingsIcon from '@/assets/icons/settings.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
 import InviteModalContents from '@/components/InviteModalContents';
 import LeaveCircleContents from '@/components/LeaveCircleContents';
@@ -227,7 +227,10 @@ export default function Manage() {
               imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
               onPress={() => {
                 if (x.managerId === userQuery.data.id)
-                  router.push('/circle/recipients/edit');
+                  router.push({
+                    pathname: '/circle/recipients/[id]/edit',
+                    params: { id: x.id },
+                  });
               }}
               tag={'(Edit)'}
               showTag={x.managerId === userQuery.data.id}
@@ -276,7 +279,7 @@ export default function Manage() {
               borderRadius: 12,
               columnGap: Spacings.sm,
             }}>
-            <SettingsIcon height={24} width={24} />
+            <SettingsIcon height={24} width={24} color={'#FFFFFF'} />
             <Text style={textStyles.buttonTextWhite}>Circle Settings</Text>
           </PopPressable>
         </Animated.View>

@@ -1,7 +1,7 @@
 import GalleryIcon from '@/assets/icons/gallery-vertical.svg';
 import LogoutIcon from '@/assets/icons/log-out.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
-import SettingsIcon from '@/assets/icons/settings-orange.svg';
+import SettingsIcon from '@/assets/icons/settings.svg';
 import PersonIconOrange from '@/assets/icons/users-round.svg';
 import { useAuth } from '@/components/AuthProvider';
 import NetworkImage from '@/components/NetworkImage';
@@ -114,7 +114,10 @@ export default function Layout() {
         </View>
 
         <View>
-          <View
+          <PopPressable
+            onPress={() => {
+              router.navigate('/settings');
+            }}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -123,9 +126,9 @@ export default function Layout() {
               marginBottom: Spacings.md,
               paddingLeft: Spacings.lg,
             }}>
-            <SettingsIcon height={24} width={24} />
+            <SettingsIcon height={24} width={24} color={'#B05637'} />
             <Text style={textStyles.buttonTextOrange}>Settings</Text>
-          </View>
+          </PopPressable>
           <PopPressable
             onPress={handleLogout}
             style={{
@@ -165,10 +168,9 @@ export default function Layout() {
           </PopPressable>
         ),
       })}>
-      <Drawer.Screen name="feed" />
-      <Drawer.Screen name="manage" />
-      <Drawer.Screen name="settings" />
-      <Drawer.Screen name="logout" />
+      <Drawer.Screen name="feed" options={{ title: '' }} />
+      <Drawer.Screen name="manage" options={{ title: '' }} />
+      <Drawer.Screen name="settings" options={{ title: 'Settings' }} />
     </Drawer>
   );
 }

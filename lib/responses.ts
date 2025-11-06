@@ -41,6 +41,22 @@ export interface UserDTO {
   recipients: RecipientItem[];
 }
 
+export interface RecipientDTO {
+  id: number;
+  managerId: number;
+  avatarPath: string;
+  avatarTimestamp: Date;
+  title: string;
+  firstName: string;
+  lastName: string;
+  street: string;
+  city: string;
+  provinceOrState: string;
+  postalCode: string;
+  country: string;
+  unitNumber: string;
+}
+
 export interface FeedPost {
   id: number;
   authorId: number;

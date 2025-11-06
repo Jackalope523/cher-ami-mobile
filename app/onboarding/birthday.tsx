@@ -1,5 +1,4 @@
-import ChevronIcon from '@/assets/icons/chevron.svg';
-import { borderRadius } from '@/constants/Borders';
+import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -10,8 +9,7 @@ import { Pressable } from 'react-native-gesture-handler';
 export default function Birthday() {
   const { firstName, lastName } = useLocalSearchParams();
   const today = new Date();
-  const [birthday, setBirthday] = useState(today);
-  const [show, setShow] = useState(false);
+  const [dateText, setDateText] = useState('');
 
   function isToday(date: Date) {
     return (
@@ -21,16 +19,9 @@ export default function Birthday() {
     );
   }
 
-  function renderDate() {
-    if (isToday(birthday)) {
-      return 'Select';
-    }
-
-    const month = String(birthday.getMonth() + 1).padStart(2, '0'); // months are 0-indexed
-    const day = String(birthday.getDate()).padStart(2, '0');
-    const year = birthday.getFullYear();
-
-    return `${month}/${day}/${year}`;
+  function parseDate() {
+    const [month, day, year] = dateText.split('/').map(Number);
+    return new Date(year, month - 1, day);
   }
 
   return (
@@ -45,33 +36,28 @@ export default function Birthday() {
           ]}>
           When were you born?
         </Text>
-        <Pressable
-          onPress={() => setShow(true)}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingVertical: Spacings.mdsm,
-            paddingHorizontal: Spacings.md,
-            borderRadius: borderRadius.mdsm,
-            borderWidth: 2,
-            borderColor: '#DEDBD5',
-          }}>
-          <Text style={[textStyles.body]}>{renderDate()}</Text>
-          <ChevronIcon height={24} width={24} />
-        </Pressable>
+        <TextInput
+          placeholder="MM/DD/YYYY"
+          maxLength={10}
+          value={dateText}
+          onChangeText={setDateText}
+        />
       </View>
       <Pressable
         onPress={() => {
           router.push({
             pathname: '/onboarding/avatar',
-            params: { firstName, lastName, birthday: birthday.toISOString() },
+            params: {
+              firstName,
+              lastName,
+              birthday: parseDate().toISOString(),
+            },
           });
         }}
-        disabled={isToday(birthday)}
+        disabled={dateText === ''}
         style={[
           styles.button,
-          isToday(birthday) && {
+          dateText === '' && {
             backgroundColor: '#ECEDEF',
             borderColor: '#ECEDEF',
           },
@@ -79,7 +65,7 @@ export default function Birthday() {
         <Text
           style={[
             textStyles.buttonTextWhite,
-            isToday(birthday) && { color: '#A8ABB3' },
+            dateText === '' && { color: '#A8ABB3' },
           ]}>
           Continue
         </Text>
