@@ -87,137 +87,142 @@ export default function Index() {
         flex: 1,
         padding: 20,
         backgroundColor: '#FCFBF8',
+        justifyContent: 'space-between',
       }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginHorizontal: 72,
-          marginBottom: Spacings.lgmd,
-        }}>
-        <Image
-          source={Title}
+      <View>
+        <View
           style={{
-            width: '100%',
-            aspectRatio: 268 / 60,
-          }}
-        />
-      </View>
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginHorizontal: 72,
+            marginBottom: Spacings.lgmd,
+          }}>
+          <Image
+            source={Title}
+            style={{
+              width: '100%',
+              aspectRatio: 268 / 60,
+            }}
+          />
+        </View>
 
-      <View
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginHorizontal: 62,
-          marginBottom: Spacings.lgmd,
-        }}>
-        <Image
-          source={Squirrel}
+        <View
           style={{
-            width: '100%',
-            aspectRatio: 288 / 228,
-          }}
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginHorizontal: 62,
+            marginBottom: Spacings.lgmd,
+          }}>
+          <Image
+            source={Squirrel}
+            style={{
+              width: '100%',
+              aspectRatio: 288 / 228,
+            }}
+          />
+        </View>
+      </View>
+
+      <View>
+        <PopPressable
+          onPress={handleGoogle}
+          style={{
+            flexDirection: 'row',
+            columnGap: 15,
+            paddingVertical: 15,
+            borderRadius: 10,
+            backgroundColor: '#FFFFFF',
+            marginBottom: Spacings.md,
+            justifyContent: 'center',
+
+            // iOS shadow
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 6,
+
+            // Android shadow
+            elevation: 8,
+          }}>
+          <GoogleIcon />
+          <Text style={{ fontWeight: 500, color: '#0000008A', fontSize: 20 }}>
+            Continue with Google
+          </Text>
+        </PopPressable>
+
+        <Pressable
+          style={{
+            flexDirection: 'row',
+            columnGap: 15,
+            paddingVertical: 15,
+            borderRadius: 10,
+            backgroundColor: '#000000',
+            justifyContent: 'center',
+
+            // iOS shadow
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 6,
+
+            // Android shadow
+            elevation: 8,
+          }}>
+          <AppleIcon />
+          <Text style={{ fontWeight: 500, color: '#FFFFFF', fontSize: 20 }}>
+            Continue with Apple
+          </Text>
+        </Pressable>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            columnGap: Spacings.mdsm,
+            marginVertical: Spacings.xl,
+          }}>
+          <View style={{ borderWidth: 1.5, borderColor: '#DEDBD5', flex: 1 }} />
+          <Text style={[textStyles.labelLargeBlack, { color: '#868581' }]}>
+            OR
+          </Text>
+          <View style={{ borderWidth: 1.5, borderColor: '#DEDBD5', flex: 1 }} />
+        </View>
+
+        <TextInput
+          placeholder="Your email"
+          maxLength={255}
+          value={email}
+          onChangeText={setEmail}
         />
-      </View>
 
-      <PopPressable
-        onPress={handleGoogle}
-        style={{
-          flexDirection: 'row',
-          columnGap: 15,
-          paddingVertical: 15,
-          borderRadius: 10,
-          backgroundColor: '#FFFFFF',
-          marginBottom: Spacings.md,
-          justifyContent: 'center',
+        <PopPressable
+          onPress={() => {}}
+          style={[
+            styles.button,
+            email === '' && {
+              backgroundColor: '#ECEDEF',
+              borderColor: '#ECEDEF',
+            },
+          ]}>
+          <Text
+            style={[
+              textStyles.buttonTextWhite,
+              email === '' && { color: '#A8ABB3' },
+            ]}>
+            Continue
+          </Text>
+        </PopPressable>
 
-          // iOS shadow
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 6,
-
-          // Android shadow
-          elevation: 8,
-        }}>
-        <GoogleIcon />
-        <Text style={{ fontWeight: 500, color: '#0000008A', fontSize: 20 }}>
-          Continue with Google
-        </Text>
-      </PopPressable>
-
-      <Pressable
-        style={{
-          flexDirection: 'row',
-          columnGap: 15,
-          paddingVertical: 15,
-          borderRadius: 10,
-          backgroundColor: '#000000',
-          justifyContent: 'center',
-
-          // iOS shadow
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 6,
-
-          // Android shadow
-          elevation: 8,
-        }}>
-        <AppleIcon />
-        <Text style={{ fontWeight: 500, color: '#FFFFFF', fontSize: 20 }}>
-          Continue with Apple
-        </Text>
-      </Pressable>
-
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          columnGap: Spacings.mdsm,
-          marginVertical: Spacings.xl,
-        }}>
-        <View style={{ borderWidth: 1.5, borderColor: '#DEDBD5', flex: 1 }} />
-        <Text style={[textStyles.labelLargeBlack, { color: '#868581' }]}>
-          OR
-        </Text>
-        <View style={{ borderWidth: 1.5, borderColor: '#DEDBD5', flex: 1 }} />
-      </View>
-
-      <TextInput
-        placeholder="Your email"
-        maxLength={255}
-        value={email}
-        onChangeText={setEmail}
-      />
-
-      <PopPressable
-        onPress={() => {}}
-        style={[
-          styles.button,
-          email === '' && {
-            backgroundColor: '#ECEDEF',
-            borderColor: '#ECEDEF',
-          },
-        ]}>
         <Text
           style={[
-            textStyles.buttonTextWhite,
-            email === '' && { color: '#A8ABB3' },
+            textStyles.buttonTextBlack,
+            { textAlign: 'center', paddingHorizontal: Spacings.xl },
           ]}>
-          Continue
+          By continuing, you agree to the Terms of Service and Privacy Policy.
         </Text>
-      </PopPressable>
-
-      <Text
-        style={[
-          textStyles.buttonTextBlack,
-          { textAlign: 'center', paddingHorizontal: Spacings.xl },
-        ]}>
-        By continuing, you agree to the Terms of Service and Privacy Policy.
-      </Text>
+      </View>
     </SafeAreaView>
   );
 }
