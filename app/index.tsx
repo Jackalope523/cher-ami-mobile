@@ -107,7 +107,6 @@ export default function Index() {
 
       <View
         style={{
-          flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
           marginHorizontal: 62,
