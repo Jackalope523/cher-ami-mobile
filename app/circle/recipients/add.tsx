@@ -196,12 +196,18 @@ export default function AddRecipient() {
             maxLength={50}
             value={provinceOrState}
             onChangeText={setProvinceOrState}
+            containerStyle={{
+              width: Dimensions.get('window').width / 2 - 20 - 10,
+            }}
           />
           <TextInput
             title={'ZIP code'}
             maxLength={20}
             value={postalCode}
             onChangeText={setPostalCode}
+            containerStyle={{
+              width: Dimensions.get('window').width / 2 - 20 - 10,
+            }}
           />
         </View>
         <TextInput

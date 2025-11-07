@@ -3,6 +3,7 @@ import {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
+import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useCreateCircleMutation } from '@/lib/hooks';
@@ -85,7 +86,7 @@ export default function CircleHeader() {
           )}
         </Pressable>
       </View>
-      <Pressable
+      <PopPressable
         onPress={handleCreateCircleAndUpdateUser}
         disabled={buttonDisabled()}
         style={[
@@ -102,7 +103,7 @@ export default function CircleHeader() {
           ]}>
           Create Circle
         </Text>
-      </Pressable>
+      </PopPressable>
     </View>
   );
 }

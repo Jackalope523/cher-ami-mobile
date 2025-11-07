@@ -10,7 +10,8 @@ import { useJoinCircleMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 
 export default function JoinOrCreateCircle() {
   const queryClient = useQueryClient();
@@ -42,7 +43,7 @@ export default function JoinOrCreateCircle() {
   }
 
   return (
-    <View style={styles.container}>
+    <Pressable style={styles.container} onPress={Keyboard.dismiss}>
       <Text
         style={[
           textStyles.heading1,
@@ -142,7 +143,7 @@ export default function JoinOrCreateCircle() {
           Create circle
         </Text>
       </PopPressable>
-    </View>
+    </Pressable>
   );
 }
 

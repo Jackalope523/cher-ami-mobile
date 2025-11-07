@@ -3,37 +3,39 @@ import { textStyles } from '@/constants/TextStyles';
 import {
   TextInput as ReactNativeTextInput,
   TextInputProps as ReactNativeTextInputProps,
+  StyleProp,
   StyleSheet,
   Text,
   View,
+  ViewStyle,
 } from 'react-native';
 
 interface TextInputProps extends ReactNativeTextInputProps {
   title?: string;
   required?: boolean;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export default function TextInput({
   title,
   required = false,
+  containerStyle,
   ...props
 }: TextInputProps) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       {title && <Text style={textStyles.labelLargeBlack}>{title}</Text>}
-      <View>
-        <ReactNativeTextInput
-          style={[textStyles.body, styles.textInput]}
-          placeholderTextColor="#868581"
-          {...props}
-        />
-      </View>
+
+      <ReactNativeTextInput
+        style={[textStyles.body, styles.textInput]}
+        placeholderTextColor="#868581"
+        {...props}
+      />
     </View>
   );
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     rowGap: Spacings.smxs,
   },
 

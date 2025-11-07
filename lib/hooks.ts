@@ -250,7 +250,7 @@ export function useUpdateUserMutation(onSuccess?:() => void , onError?: (error: 
   return useMutation<void, AxiosError, UpdateUserRequest>({
       mutationFn: async (request) => {
         const formData = new FormData();
-  
+
         formData.append('FirstName', request.firstName);
         formData.append('LastName', request.lastName);
         formData.append('Avatar', {

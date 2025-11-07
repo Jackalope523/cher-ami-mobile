@@ -1,16 +1,39 @@
+import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 
 export default function CircleName() {
   const [circleName, setCircleName] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   return (
-    <View style={styles.container}>
+    <Pressable
+      style={[
+        styles.container,
+        keyboardVisible && {
+          justifyContent: 'flex-start',
+        },
+      ]}
+      onPress={Keyboard.dismiss}>
       <View>
         <Text
           style={[
@@ -26,9 +49,10 @@ export default function CircleName() {
           maxLength={100}
           value={circleName}
           onChangeText={setCircleName}
+          containerStyle={{ marginBottom: Spacings.md }}
         />
       </View>
-      <Pressable
+      <PopPressable
         onPress={() => {
           router.push({
             pathname: '/onboarding/circleHeader',
@@ -50,8 +74,8 @@ export default function CircleName() {
           ]}>
           Continue
         </Text>
-      </Pressable>
-    </View>
+      </PopPressable>
+    </Pressable>
   );
 }
 

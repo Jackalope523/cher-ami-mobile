@@ -196,6 +196,7 @@ export default function Index() {
           maxLength={255}
           value={email}
           onChangeText={setEmail}
+          containerStyle={{ width: '100%' }}
         />
       </View>
 

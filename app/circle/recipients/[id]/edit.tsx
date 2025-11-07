@@ -226,18 +226,28 @@ export default function EditRecipient() {
           value={city}
           onChangeText={setCity}
         />
-        <View style={{ flexDirection: 'row', columnGap: 20 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            columnGap: 20,
+          }}>
           <TextInput
             title={'State'}
             maxLength={50}
             value={provinceOrState}
             onChangeText={setProvinceOrState}
+            containerStyle={{
+              width: Dimensions.get('window').width / 2 - 20 - 10,
+            }}
           />
           <TextInput
             title={'ZIP code'}
             maxLength={20}
             value={postalCode}
             onChangeText={setPostalCode}
+            containerStyle={{
+              width: Dimensions.get('window').width / 2 - 20 - 10,
+            }}
           />
         </View>
         <TextInput

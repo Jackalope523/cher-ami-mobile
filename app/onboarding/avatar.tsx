@@ -4,6 +4,7 @@ import {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
+import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useUpdateUserMutation } from '@/lib/hooks';
@@ -26,7 +27,10 @@ export default function Avatar() {
       router.replace('/feed');
     },
     (error) => {
-      showToastMessage('Successfully created user!', ToastMessageType.Error);
+      showToastMessage(
+        'Failed to create user. Try again.',
+        ToastMessageType.Error,
+      );
       console.log(error.message);
     },
   );
@@ -83,7 +87,7 @@ export default function Avatar() {
           )}
         </Pressable>
       </View>
-      <Pressable
+      <PopPressable
         onPress={handleCreateUser}
         disabled={!selectedImage || userMutation.isPending}
         style={[
@@ -100,7 +104,7 @@ export default function Avatar() {
           ]}>
           Continue
         </Text>
-      </Pressable>
+      </PopPressable>
     </View>
   );
 }

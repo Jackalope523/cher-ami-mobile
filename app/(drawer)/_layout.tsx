@@ -15,6 +15,7 @@ import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
+import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { Dimensions, Text, View } from 'react-native';
@@ -22,9 +23,11 @@ import { Dimensions, Text, View } from 'react-native';
 export default function Layout() {
   const selfQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
+  const queryClient = useQueryClient();
   const { deleteToken } = useAuth();
 
   async function handleLogout() {
+    queryClient.invalidateQueries();
     deleteToken();
     router.replace('/');
   }
