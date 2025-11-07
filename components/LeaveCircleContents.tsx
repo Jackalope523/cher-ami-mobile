@@ -1,6 +1,6 @@
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useLeaveCircleMutation } from '@/lib/hooks';
+import { useGetCircleQuery, useLeaveCircleMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
@@ -19,6 +19,7 @@ export default function LeaveCircleContents({
 }: LeaveCircleContentsProps) {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
+  const { data } = useGetCircleQuery();
   const mutation = useLeaveCircleMutation(
     async () => {
       await queryClient.invalidateQueries({ queryKey: ['Circle'] });
@@ -53,9 +54,9 @@ export default function LeaveCircleContents({
           textStyles.body,
           { textAlign: 'center', marginBottom: Spacings.xxl },
         ]}>
-        Once you delete
-        <Text style={{ fontWeight: 'bold' }}> The Wolff Family</Text> circle, it
-        will be gone for good and cannot be restored.
+        If you leave
+        <Text style={{ fontWeight: 'bold' }}> {data?.title} </Text>
+        {"you'll lose access to its posts and updates."}
       </Text>
       <PopPressable
         onPress={handleDelete}

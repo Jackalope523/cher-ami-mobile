@@ -138,7 +138,7 @@ export default function Layout() {
               paddingVertical: Spacings.md,
               paddingLeft: Spacings.lg,
             }}>
-            <LogoutIcon height={24} width={24} />
+            <LogoutIcon height={24} width={24} color={'#B05637'} />
             <Text style={textStyles.buttonTextOrange}>Log Out</Text>
           </PopPressable>
         </View>

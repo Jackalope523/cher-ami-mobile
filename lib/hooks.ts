@@ -72,12 +72,9 @@ export function useGetUserQuery(id: number) {
 export function useGetRecipientQuery(id: number) {
   const api = useAPI();
 
-   console.log("Getting cahed: " + id);
-
   return useQuery<RecipientDTO, AxiosError>({
     queryKey: ['Recipient', id],
     queryFn: async () => {
-      console.log("Getting remote: " + id);
       const response = await api.get<RecipientDTO>(`/circle/recipients/${id}`);
       return response.data;
     },

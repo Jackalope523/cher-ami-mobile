@@ -5,20 +5,29 @@ import PopPressable from '@/components/PopPressable';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { openURL } from 'expo-linking';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function Settings() {
   return (
     <View style={styles.container}>
       <View style={styles.optionsContainer}>
-        <PopPressable onPress={() => {}} style={styles.option}>
+        <PopPressable
+          onPress={() => {
+            openURL('https://thecherami.com/legal/privacy');
+          }}
+          style={styles.option}>
           <View style={styles.optionLabel}>
             <PrivacyPolicyIcon height={24} width={24} color={'#B05637'} />
             <Text style={textStyles.buttonTextOrange}>Privacy Policy</Text>
           </View>
           <Chevron height={24} width={24} color={'#B05637'} />
         </PopPressable>
-        <PopPressable onPress={() => {}} style={styles.option}>
+        <PopPressable
+          onPress={() => {
+            openURL('https://thecherami.com/legal/terms');
+          }}
+          style={styles.option}>
           <View style={styles.optionLabel}>
             <TermsOfServiceIcon height={24} width={24} color={'#B05637'} />
             <Text style={textStyles.buttonTextOrange}>Privacy Policy</Text>

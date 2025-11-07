@@ -1,6 +1,6 @@
 import PlusIcon from '@/assets/icons/plus-grey.svg';
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
 
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -23,6 +23,7 @@ export default function AddRecipient() {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const [avatar, setAvatar] = useState('');
   const [title, setTitle] = useState('');
@@ -33,7 +34,7 @@ export default function AddRecipient() {
   const [city, setCity] = useState('');
   const [provinceOrState, setProvinceOrState] = useState('');
   const [postalCode, setPostalCode] = useState('');
-  const [country, setCountry] = useState('');
+  const [country, setCountry] = useState('United States');
 
   const addRecipientMutation = useAddRecipientMutation(
     () => {
@@ -64,6 +65,20 @@ export default function AddRecipient() {
 
     initializePaymentSheet();
   }, [initPaymentSheet]);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   function buttonDisabled() {
     return (
@@ -109,87 +124,95 @@ export default function AddRecipient() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior="padding"
-      keyboardVerticalOffset={130}>
-      <View>
-        <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
-          <PopPressable style={styles.avatarContainer} onPress={pickImageAsync}>
-            {avatar ? (
-              <Image source={avatar} style={styles.avatar} />
-            ) : (
-              <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
-                <PlusIcon height={48} width={48} />
-              </View>
-            )}
-          </PopPressable>
-
-          <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
-            Change avatar
-          </Text>
-          <Text style={[textStyles.heading3, styles.sectionHeader]}>
-            Mailing address
-          </Text>
-          <View style={styles.textInputs}>
-            <TextInput
-              title={'Title'}
-              maxLength={25}
-              value={title}
-              onChangeText={setTitle}
-            />
-            <TextInput
-              title={'First name'}
-              maxLength={100}
-              value={firstName}
-              onChangeText={setFirstName}
-            />
-            <TextInput
-              title={'Last name'}
-              maxLength={100}
-              value={lastName}
-              onChangeText={setLastName}
-            />
-            <TextInput
-              title={'Street address'}
-              maxLength={150}
-              value={street}
-              onChangeText={setStreet}
-            />
-            <TextInput
-              title={'Unit number'}
-              maxLength={15}
-              value={unitNumber}
-              onChangeText={setUnitNumber}
-            />
-            <TextInput
-              title={'City'}
-              maxLength={50}
-              value={city}
-              onChangeText={setCity}
-            />
-            <View style={{ flexDirection: 'row', columnGap: 20 }}>
-              <TextInput
-                title={'State'}
-                maxLength={50}
-                value={provinceOrState}
-                onChangeText={setProvinceOrState}
-              />
-              <TextInput
-                title={'ZIP code'}
-                maxLength={20}
-                value={postalCode}
-                onChangeText={setPostalCode}
-              />
-            </View>
-            <TextInput
-              title={'Country'}
-              maxLength={56}
-              value={country}
-              onChangeText={setCountry}
-            />
+    <ScrollView
+      contentContainerStyle={[
+        styles.container,
+        keyboardVisible && {
+          paddingBottom: Dimensions.get('window').height / 2,
+        },
+      ]}
+      overScrollMode="never"
+      showsVerticalScrollIndicator={false}>
+      <PopPressable style={styles.avatarContainer} onPress={pickImageAsync}>
+        {avatar ? (
+          <Image source={avatar} style={styles.avatar} />
+        ) : (
+          <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
+            <PlusIcon height={48} width={48} />
           </View>
-          <Text style={[textStyles.heading3, styles.sectionHeader]}>
+        )}
+      </PopPressable>
+
+      <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
+        Change avatar
+      </Text>
+      <Text style={[textStyles.heading3, styles.sectionHeader]}>
+        Mailing address
+      </Text>
+      <View style={styles.textInputs}>
+        <TextInput
+          title={'Title'}
+          maxLength={25}
+          value={title}
+          onChangeText={setTitle}
+        />
+        <TextInput
+          title={'First name'}
+          maxLength={100}
+          value={firstName}
+          onChangeText={setFirstName}
+        />
+        <TextInput
+          title={'Last name'}
+          maxLength={100}
+          value={lastName}
+          onChangeText={setLastName}
+        />
+        <TextInput
+          title={'Street address'}
+          maxLength={150}
+          value={street}
+          onChangeText={setStreet}
+        />
+        <TextInput
+          title={'Unit number'}
+          maxLength={15}
+          value={unitNumber}
+          onChangeText={setUnitNumber}
+        />
+        <TextInput
+          title={'City'}
+          maxLength={50}
+          value={city}
+          onChangeText={setCity}
+        />
+        <View
+          style={{
+            flexDirection: 'row',
+            columnGap: 20,
+          }}>
+          <TextInput
+            title={'State'}
+            maxLength={50}
+            value={provinceOrState}
+            onChangeText={setProvinceOrState}
+          />
+          <TextInput
+            title={'ZIP code'}
+            maxLength={20}
+            value={postalCode}
+            onChangeText={setPostalCode}
+          />
+        </View>
+        <TextInput
+          title={'Country'}
+          maxLength={56}
+          value={country}
+          onChangeText={setCountry}
+          editable={false}
+        />
+      </View>
+      {/* <Text style={[textStyles.heading3, styles.sectionHeader]}>
             Summary
           </Text>
           <View style={styles.summaryItemList}>
@@ -220,28 +243,26 @@ export default function AddRecipient() {
               *Monthly subscription that charges you every month, starting
               October 1.
             </Text>
-          </View>
-          <PopPressable
-            onPress={handleAdd}
-            disabled={buttonDisabled()}
-            style={[
-              styles.button,
-              buttonDisabled() && {
-                backgroundColor: '#ECEDEF',
-                borderColor: '#ECEDEF',
-              },
-            ]}>
-            <Text
-              style={[
-                textStyles.buttonTextWhite,
-                buttonDisabled() && { color: '#A8ABB3' },
-              ]}>
-              Add Recipient
-            </Text>
-          </PopPressable>
-        </ScrollView>
-      </View>
-    </KeyboardAvoidingView>
+          </View> */}
+      <PopPressable
+        onPress={handleAdd}
+        disabled={buttonDisabled()}
+        style={[
+          styles.button,
+          buttonDisabled() && {
+            backgroundColor: '#ECEDEF',
+            borderColor: '#ECEDEF',
+          },
+        ]}>
+        <Text
+          style={[
+            textStyles.buttonTextWhite,
+            buttonDisabled() && { color: '#A8ABB3' },
+          ]}>
+          Add Recipient
+        </Text>
+      </PopPressable>
+    </ScrollView>
   );
 }
 

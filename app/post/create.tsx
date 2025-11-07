@@ -15,11 +15,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Dimensions,
   Keyboard,
-  KeyboardAvoidingView,
   Pressable,
   StyleSheet,
   Text,
@@ -37,6 +36,7 @@ export default function Create() {
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const uploadMutation = useAddPostMutation(
     () => {
@@ -48,6 +48,20 @@ export default function Create() {
       showToastMessage('Upload failed.', ToastMessageType.Error);
     },
   );
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   function handlePost() {
     if (selectedImage) {
@@ -65,7 +79,7 @@ export default function Create() {
     let result = await launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [Dimensions.get('window').width - 40, 259],
+      aspect: [372, 259],
       quality: 1,
     });
 
@@ -79,43 +93,51 @@ export default function Create() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior="padding"
-      keyboardVerticalOffset={headerHeight + insets.top + 40}>
-      <Pressable style={styles.container} onPress={() => Keyboard.dismiss()}>
-        <PostCounter
-          issueTitle={issueTitle as string}
-          numberOfPosts={parseInt(postCount as string, 10)}
-        />
-        <PopPressable style={styles.imageContainer} onPress={pickImageAsync}>
-          {selectedImage ? (
-            <Image source={selectedImage} style={styles.image} />
-          ) : (
-            <View
-              style={{
-                backgroundColor: '#F4F1EA',
-                borderRadius: 32,
-                width: Dimensions.get('window').width - 40,
-                height: 259,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <PlusIcon height={96} width={96} />
-            </View>
-          )}
-        </PopPressable>
+    <Pressable
+      style={[
+        styles.container,
+        keyboardVisible && { justifyContent: 'flex-start' },
+      ]}
+      onPress={Keyboard.dismiss}>
+      <View>
+        {!keyboardVisible && (
+          <View>
+            <PostCounter
+              issueTitle={issueTitle as string}
+              numberOfPosts={parseInt(postCount as string, 10)}
+            />
+            <PopPressable
+              style={styles.imageContainer}
+              onPress={pickImageAsync}>
+              {selectedImage ? (
+                <Image source={selectedImage} style={styles.image} />
+              ) : (
+                <View
+                  style={{
+                    backgroundColor: '#F4F1EA',
+                    borderRadius: 32,
+                    width: Dimensions.get('window').width - 40,
+                    height: 259,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <PlusIcon height={96} width={96} />
+                </View>
+              )}
+            </PopPressable>
 
-        <Text
-          style={[
-            textStyles.captionMedium,
-            {
-              paddingLeft: 20,
-              paddingBottom: 32,
-            },
-          ]}>
-          {formatPhotoDate(new Date())}
-        </Text>
+            <Text
+              style={[
+                textStyles.captionMedium,
+                {
+                  paddingLeft: 20,
+                  paddingBottom: 32,
+                },
+              ]}>
+              {formatPhotoDate(new Date())}
+            </Text>
+          </View>
+        )}
 
         <View
           style={{
@@ -132,7 +154,6 @@ export default function Create() {
           style={[
             textStyles.body,
             {
-              flex: 1,
               paddingHorizontal: 20,
               textAlignVertical: 'top',
             },
@@ -144,27 +165,27 @@ export default function Create() {
           onChangeText={setCaption}
           multiline
         />
+      </View>
 
-        <Pressable
-          onPress={handlePost}
-          disabled={buttonDisabled()}
+      <PopPressable
+        onPress={handlePost}
+        disabled={buttonDisabled()}
+        style={[
+          styles.button,
+          buttonDisabled() && {
+            backgroundColor: '#ECEDEF',
+            borderColor: '#ECEDEF',
+          },
+        ]}>
+        <Text
           style={[
-            styles.button,
-            buttonDisabled() && {
-              backgroundColor: '#ECEDEF',
-              borderColor: '#ECEDEF',
-            },
+            textStyles.buttonTextWhite,
+            buttonDisabled() && { color: '#A8ABB3' },
           ]}>
-          <Text
-            style={[
-              textStyles.buttonTextWhite,
-              buttonDisabled() && { color: '#A8ABB3' },
-            ]}>
-            Post
-          </Text>
-        </Pressable>
-      </Pressable>
-    </KeyboardAvoidingView>
+          Post
+        </Text>
+      </PopPressable>
+    </Pressable>
   );
 }
 
@@ -172,6 +193,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FCFBF8',
+    justifyContent: 'space-between',
   },
 
   noCircleContainer: {

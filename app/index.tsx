@@ -24,7 +24,7 @@ import {
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { maybeCompleteAuthSession } from 'expo-web-browser';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -48,6 +48,7 @@ const config: AuthRequestConfig = {
 
 export default function Index() {
   const { updateToken, updateOnboarded } = useAuth();
+  const [email, setEmail] = useState('');
   const [request, response, promptAsync] = useAuthRequest(config, discovery);
   const showToast = useToastMessage();
   const exchangeGoogleTokenMutation = useExchangeGoogleTokenMutation(
@@ -93,6 +94,7 @@ export default function Index() {
           alignItems: 'center',
           justifyContent: 'center',
           marginHorizontal: 72,
+          marginBottom: Spacings.lgmd,
         }}>
         <Image
           source={Title}
@@ -109,6 +111,7 @@ export default function Index() {
           alignItems: 'center',
           justifyContent: 'center',
           marginHorizontal: 62,
+          marginBottom: Spacings.lgmd,
         }}>
         <Image
           source={Squirrel}
@@ -124,11 +127,11 @@ export default function Index() {
         style={{
           flexDirection: 'row',
           columnGap: 15,
-          paddingHorizontal: 56,
           paddingVertical: 15,
           borderRadius: 10,
           backgroundColor: '#FFFFFF',
           marginBottom: Spacings.md,
+          justifyContent: 'center',
 
           // iOS shadow
           shadowColor: '#000',
@@ -149,10 +152,10 @@ export default function Index() {
         style={{
           flexDirection: 'row',
           columnGap: 15,
-          paddingHorizontal: 56,
           paddingVertical: 15,
           borderRadius: 10,
           backgroundColor: '#000000',
+          justifyContent: 'center',
 
           // iOS shadow
           shadowColor: '#000',
@@ -184,21 +187,30 @@ export default function Index() {
         <View style={{ borderWidth: 1.5, borderColor: '#DEDBD5', flex: 1 }} />
       </View>
 
-      <TextInput placeholder="Your email" />
+      <TextInput
+        placeholder="Your email"
+        maxLength={255}
+        value={email}
+        onChangeText={setEmail}
+      />
 
-      <Pressable
-        onPress={() =>
-          emailAuthMutation.mutate({ email: 'ecote523@gmail.com' })
-        }
+      <PopPressable
+        onPress={() => {}}
         style={[
           styles.button,
-          {
+          email === '' && {
             backgroundColor: '#ECEDEF',
             borderColor: '#ECEDEF',
           },
         ]}>
-        <Text style={textStyles.buttonTextWhite}>Continue</Text>
-      </Pressable>
+        <Text
+          style={[
+            textStyles.buttonTextWhite,
+            email === '' && { color: '#A8ABB3' },
+          ]}>
+          Continue
+        </Text>
+      </PopPressable>
 
       <Text
         style={[

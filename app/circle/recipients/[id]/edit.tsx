@@ -14,7 +14,7 @@ import { Image } from 'expo-image';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function EditRecipient() {
@@ -23,6 +23,7 @@ export default function EditRecipient() {
   const queryClient = useQueryClient();
   const showToastMessage = useToastMessage();
   const { data } = useGetRecipientQuery(Number(id));
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const mutation = useUpdateRecipientMutation(
     () => {
       showToastMessage(
@@ -47,7 +48,7 @@ export default function EditRecipient() {
   const [city, setCity] = useState('');
   const [provinceOrState, setProvinceOrState] = useState('');
   const [postalCode, setPostalCode] = useState('');
-  const [country, setCountry] = useState('');
+  const [country, setCountry] = useState('United States');
 
   useEffect(() => {
     if (data) {
@@ -57,7 +58,7 @@ export default function EditRecipient() {
             onPress={() => {
               router.navigate({
                 pathname: '/circle/recipients/[id]/delete',
-                params: { id },
+                params: { id: id as string },
               });
             }}
             style={{ paddingHorizontal: Spacings.md }}>
@@ -82,6 +83,20 @@ export default function EditRecipient() {
       setCountry(data.country);
     }
   }, [data]);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   async function pickImageAsync() {
     let result = await launchImageLibraryAsync({
@@ -140,7 +155,12 @@ export default function EditRecipient() {
 
   return (
     <ScrollView
-      style={styles.container}
+      contentContainerStyle={[
+        styles.container,
+        keyboardVisible && {
+          paddingBottom: Dimensions.get('window').height / 2,
+        },
+      ]}
       overScrollMode="never"
       showsVerticalScrollIndicator={false}>
       <PopPressable onPress={pickImageAsync}>
@@ -215,9 +235,10 @@ export default function EditRecipient() {
           maxLength={56}
           value={country}
           onChangeText={setCountry}
+          editable={false}
         />
       </View>
-      <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
+      {/* <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
       <View style={styles.summaryItemList}>
         <View style={styles.summaryItem}>
           <Text style={textStyles.labelLargeBlack}>Renewal</Text>
@@ -244,7 +265,7 @@ export default function EditRecipient() {
           *Monthly subscription that charges you every month, starting October
           1.
         </Text>
-      </View>
+      </View> */}
       <PopPressable
         onPress={handleSaveChanges}
         disabled={buttonDisabled()}
@@ -256,7 +277,10 @@ export default function EditRecipient() {
           },
         ]}>
         <Text
-          style={[textStyles.buttonTextWhite, false && { color: '#A8ABB3' }]}>
+          style={[
+            textStyles.buttonTextWhite,
+            buttonDisabled() && { color: '#A8ABB3' },
+          ]}>
           Save Changes
         </Text>
       </PopPressable>
@@ -266,7 +290,6 @@ export default function EditRecipient() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingHorizontal: 20,
     backgroundColor: '#FCFBF8',
   },

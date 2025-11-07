@@ -1,6 +1,5 @@
-import CreditCardIcon from '@/assets/icons/credit-card.svg';
+import SettingsIcon from '@/assets/icons/log-out.svg';
 import PlusIcon from '@/assets/icons/plus-orange.svg';
-import SettingsIcon from '@/assets/icons/settings.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
 import InviteModalContents from '@/components/InviteModalContents';
 import LeaveCircleContents from '@/components/LeaveCircleContents';
@@ -252,7 +251,7 @@ export default function Manage() {
             justifyContent: 'center',
             padding: Spacings.lgmd,
           }}>
-          <PopPressable
+          {/* <PopPressable
             onPress={() => router.push('/billing/manage')}
             style={{
               flexDirection: 'row',
@@ -266,7 +265,7 @@ export default function Manage() {
             }}>
             <CreditCardIcon height={24} width={24} color={'#FFFFFF'} />
             <Text style={textStyles.buttonTextWhite}>Manage Billing</Text>
-          </PopPressable>
+          </PopPressable> */}
           <PopPressable
             onPress={handleCircleSettings}
             style={{
@@ -280,7 +279,7 @@ export default function Manage() {
               columnGap: Spacings.sm,
             }}>
             <SettingsIcon height={24} width={24} color={'#FFFFFF'} />
-            <Text style={textStyles.buttonTextWhite}>Circle Settings</Text>
+            <Text style={textStyles.buttonTextWhite}>Leave Circle</Text>
           </PopPressable>
         </Animated.View>
       )}
