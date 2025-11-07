@@ -1,8 +1,10 @@
 import SettingsIcon from '@/assets/icons/log-out.svg';
-import PlusIcon from '@/assets/icons/plus-orange.svg';
+import PlusIcon from '@/assets/icons/plus.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
+import Error from '@/components/Error';
 import InviteModalContents from '@/components/InviteModalContents';
 import LeaveCircleContents from '@/components/LeaveCircleContents';
+import Loading from '@/components/Loading';
 import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
 import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
 import {
@@ -12,7 +14,6 @@ import {
 import NetworkImage from '@/components/NetworkImage';
 import PopPressable from '@/components/PopPressable';
 import UserItem from '@/components/UserItem';
-import { GlobalStyles } from '@/constants/GlobalStyles';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
@@ -56,13 +57,6 @@ export default function Manage() {
     });
   }, [circleQuery.data, navigation]);
 
-  if (circleQuery.isLoading) {
-    return <Text style={GlobalStyles.bodyTextOne}>Loading...</Text>;
-  }
-  if (circleQuery.isError) {
-    return <Text style={GlobalStyles.bodyTextOne}>Error</Text>;
-  }
-
   function handleInvite() {
     displayBottomSheet(
       <InviteModalContents dismissModal={dismissBottomSheetModal} />,
@@ -89,8 +83,16 @@ export default function Manage() {
     }
   }
 
+  if (circleQuery.isError || userQuery.isError) {
+    return <Error />;
+  }
+
+  if (circleQuery.isLoading || userQuery.isLoading) {
+    return <Loading />;
+  }
+
   if (!circleQuery.data || !userQuery.data) {
-    return <Text>Loading...</Text>;
+    return null;
   }
 
   return (
@@ -158,7 +160,7 @@ export default function Manage() {
             marginHorizontal: 20,
           }}>
           <Text style={textStyles.buttonTextOrange}>Invite to Circle</Text>
-          <PlusIcon height={24} width={24} />
+          <PlusIcon height={24} width={24} color={'#B05637'} />
         </PopPressable>
 
         <View
@@ -210,7 +212,7 @@ export default function Manage() {
             marginHorizontal: 20,
           }}>
           <Text style={textStyles.buttonTextOrange}>Add Recipient</Text>
-          <PlusIcon height={24} width={24} />
+          <PlusIcon height={24} width={24} color={'#B05637'} />
         </PopPressable>
 
         <View

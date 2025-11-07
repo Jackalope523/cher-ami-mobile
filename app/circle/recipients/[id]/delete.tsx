@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import Error from '@/components/Error';
+import Loading from '@/components/Loading';
 import {
   ToastMessageType,
   useToastMessage,
@@ -17,7 +19,7 @@ export default function DeleteRecipient() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const { id } = useLocalSearchParams();
-  const { data } = useGetRecipientQuery(Number(id));
+  const { data, status } = useGetRecipientQuery(Number(id));
   const mutation = useDeleteRecipientMutation(
     () => {
       showToastMessage(
@@ -32,8 +34,16 @@ export default function DeleteRecipient() {
     },
   );
 
+  if (status === 'error') {
+    return <Error />;
+  }
+
+  if (status === 'pending') {
+    return <Loading />;
+  }
+
   if (!data) {
-    return <Text>Loading...</Text>;
+    return null;
   }
 
   return (

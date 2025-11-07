@@ -1,4 +1,4 @@
-import PlusIcon from '@/assets/icons/plus-grey.svg';
+import PlusIcon from '@/assets/icons/plus.svg';
 import { useEffect, useState } from 'react';
 import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
 
@@ -138,7 +138,7 @@ export default function AddRecipient() {
           <Image source={avatar} style={styles.avatar} />
         ) : (
           <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
-            <PlusIcon height={48} width={48} />
+            <PlusIcon height={48} width={48} color={'#868581'} />
           </View>
         )}
       </PopPressable>

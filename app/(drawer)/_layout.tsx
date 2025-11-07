@@ -4,6 +4,8 @@ import MenuIcon from '@/assets/icons/menu.svg';
 import SettingsIcon from '@/assets/icons/settings.svg';
 import PersonIconOrange from '@/assets/icons/users-round.svg';
 import { useAuth } from '@/components/AuthProvider';
+import Error from '@/components/Error';
+import Loading from '@/components/Loading';
 import NetworkImage from '@/components/NetworkImage';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
@@ -28,8 +30,16 @@ export default function Layout() {
   }
 
   function CustomDrawerContent(props: DrawerContentComponentProps) {
-    if (!selfQuery.data) {
-      return <Text>Loading...</Text>;
+    if (selfQuery.isError || circleQuery.isError) {
+      return <Error />;
+    }
+
+    if (selfQuery.isLoading || circleQuery.isLoading) {
+      return <Loading />;
+    }
+
+    if (!selfQuery.data || !circleQuery.data) {
+      return null;
     }
 
     return (

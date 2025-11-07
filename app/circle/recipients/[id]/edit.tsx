@@ -1,4 +1,6 @@
 import TrashIcon from '@/assets/icons/trash.svg';
+import Error from '@/components/Error';
+import Loading from '@/components/Loading';
 import {
   ToastMessageType,
   useToastMessage,
@@ -22,7 +24,7 @@ export default function EditRecipient() {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const showToastMessage = useToastMessage();
-  const { data } = useGetRecipientQuery(Number(id));
+  const { data, status } = useGetRecipientQuery(Number(id));
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const mutation = useUpdateRecipientMutation(
     () => {
@@ -149,8 +151,16 @@ export default function EditRecipient() {
     }
   }
 
+  if (status === 'error') {
+    return <Error />;
+  }
+
+  if (status === 'pending') {
+    return <Loading />;
+  }
+
   if (!data) {
-    return <Text>Loading...</Text>;
+    return null;
   }
 
   return (

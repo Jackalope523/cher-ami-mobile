@@ -1,4 +1,6 @@
 import BirthdayIcon from '@/assets/icons/cake.svg';
+import Error from '@/components/Error';
+import Loading from '@/components/Loading';
 import {
   ToastMessageType,
   useToastMessage,
@@ -19,7 +21,7 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const isSelf =
     queryClient.getQueryData<UserDTO>(['User', 'Self'])?.id === Number(id);
-  const { data } = useGetUserQuery(Number(id));
+  const { data, status } = useGetUserQuery(Number(id));
   const showToastMessage = useToastMessage();
 
   const uploadMutation = useUpdateAvatarMutation(
@@ -52,8 +54,16 @@ export default function Profile() {
     }
   }
 
+  if (status === 'error') {
+    return <Error />;
+  }
+
+  if (status === 'pending') {
+    return <Loading />;
+  }
+
   if (!data) {
-    return <Text>Loading...</Text>;
+    return null;
   }
 
   return (

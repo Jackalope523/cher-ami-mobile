@@ -1,5 +1,7 @@
+import Error from '@/components/Error';
 import FeedContents from '@/components/FeedContents';
 import JoinOrCreateCircle from '@/components/JoinOrCreateCircle';
+import Loading from '@/components/Loading';
 
 import { useGetCircleQuery } from '@/lib/hooks';
 import { useNavigation } from 'expo-router';
@@ -16,8 +18,11 @@ export default function Feed() {
     });
   }, [circleQuery.data, navigation]);
 
+  if (circleQuery.isError) {
+    return <Error />;
+  }
   if (circleQuery.isLoading) {
-    return null;
+    return <Loading />;
   }
 
   if (!circleQuery.data) {

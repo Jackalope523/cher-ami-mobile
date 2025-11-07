@@ -1,4 +1,4 @@
-import PlusIcon from '@/assets/icons/plus-white.svg';
+import PlusIcon from '@/assets/icons/plus.svg';
 import CameraImage from '@/assets/images/camera.png';
 import Hedgehog from '@/assets/images/hedgehog.png';
 import MailboxImage from '@/assets/images/mailbox.png';
@@ -15,6 +15,8 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
+import Error from './Error';
+import Loading from './Loading';
 
 export default function FeedContents() {
   const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
@@ -224,8 +226,16 @@ export default function FeedContents() {
     fetchNextPage();
   }
 
+  if (status === 'error') {
+    return <Error />;
+  }
+
   if (status === 'pending') {
-    return <Text>Loading</Text>;
+    return <Loading />;
+  }
+
+  if (!data) {
+    return null;
   }
 
   return (
@@ -233,7 +243,7 @@ export default function FeedContents() {
       <SectionList
         overScrollMode="never"
         sections={
-          data?.pages.map((page) => ({
+          data.pages.map((page) => ({
             id: page.id,
             title: page.issueTitle,
             date: page.issueDate,
@@ -270,8 +280,8 @@ export default function FeedContents() {
             justifyContent: 'center',
           }}
           onPress={handleCreatePost}
-          disabled={data?.pages[0].posts.length === 20}>
-          <PlusIcon height={24} width={24} />
+          disabled={data.pages[0].posts.length === 20}>
+          <PlusIcon height={24} width={24} color={'#FFFFFF'} />
         </PopPressable>
       </View>
     </View>

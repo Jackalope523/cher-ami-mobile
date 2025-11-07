@@ -1,4 +1,6 @@
 import CreditCardIcon from '@/assets/icons/credit-card.svg';
+import Error from '@/components/Error';
+import Loading from '@/components/Loading';
 import PopPressable from '@/components/PopPressable';
 import UserItem from '@/components/UserItem';
 import { Spacings } from '@/constants/Spacings';
@@ -8,10 +10,18 @@ import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function ManageBilling() {
-  const { data } = useGetSelfQuery();
+  const { data, status } = useGetSelfQuery();
+
+  if (status === 'error') {
+    return <Error />;
+  }
+
+  if (status === 'pending') {
+    return <Loading />;
+  }
 
   if (!data) {
-    return <Text>Loading...</Text>;
+    return null;
   }
 
   return (

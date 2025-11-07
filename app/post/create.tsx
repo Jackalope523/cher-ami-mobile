@@ -1,4 +1,4 @@
-import PlusIcon from '@/assets/icons/plus-grey.svg';
+import PlusIcon from '@/assets/icons/plus.svg';
 import {
   ToastMessageType,
   useToastMessage,
@@ -121,7 +121,7 @@ export default function Create() {
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
-                  <PlusIcon height={96} width={96} />
+                  <PlusIcon height={96} width={96} color={'#868581'} />
                 </View>
               )}
             </PopPressable>
