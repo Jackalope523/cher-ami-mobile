@@ -13,6 +13,7 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
   useEmailAuthMutation,
+  useExchangeAppleTokenMutation,
   useExchangeGoogleTokenMutation,
 } from '@/lib/hooks';
 import {
@@ -25,22 +26,33 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { maybeCompleteAuthSession } from 'expo-web-browser';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 maybeCompleteAuthSession();
 
-// Endpoint
-const discovery: DiscoveryDocument = {
+const googleDiscovery: DiscoveryDocument = {
   authorizationEndpoint:
     'https://app-cherami-prod.azurewebsites.net/auth/google',
   tokenEndpoint: 'https://app-cherami-prod.azurewebsites.net/auth/google/token',
 };
 
+const appleDiscovery: DiscoveryDocument = {
+  authorizationEndpoint:
+    'https://app-cherami-prod.azurewebsites.net/auth/apple',
+  tokenEndpoint: 'https://app-cherami-prod.azurewebsites.net/auth/apple/token',
+};
+
 // JACKALOPE: Set up auth.
-const config: AuthRequestConfig = {
+const googleConfig: AuthRequestConfig = {
   clientId: 'google',
+  redirectUri: makeRedirectUri({
+    scheme: 'cherami',
+  }),
+};
+
+const appleConfig: AuthRequestConfig = {
+  clientId: 'apple',
   redirectUri: makeRedirectUri({
     scheme: 'cherami',
   }),
@@ -49,7 +61,15 @@ const config: AuthRequestConfig = {
 export default function Index() {
   const { updateToken, updateOnboarded } = useAuth();
   const [email, setEmail] = useState('');
-  const [request, response, promptAsync] = useAuthRequest(config, discovery);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [googleRequest, googleResponse, promptGoogleAsync] = useAuthRequest(
+    googleConfig,
+    googleDiscovery,
+  );
+  const [appleRequest, appleResponse, promptAppleAsync] = useAuthRequest(
+    appleConfig,
+    appleDiscovery,
+  );
   const showToast = useToastMessage();
   const exchangeGoogleTokenMutation = useExchangeGoogleTokenMutation(
     (response) => {
@@ -61,24 +81,63 @@ export default function Index() {
       showToast('Failed to log in. Try again.', ToastMessageType.Error);
     },
   );
+  const exchangeAppleTokenMutation = useExchangeAppleTokenMutation(
+    (response) => {
+      showToast('Successfully logged in!');
+      updateToken(response.token);
+      updateOnboarded(response.onboarded);
+    },
+    () => {
+      showToast('Failed to log in. Try again.', ToastMessageType.Error);
+    },
+  );
+
   const emailAuthMutation = useEmailAuthMutation(
     () => {
-      router.push('/verify');
+      showToast('Check your email!', ToastMessageType.Success);
+      router.push({
+        pathname: '/verify',
+        params: {
+          email,
+        },
+      });
     },
     (error) => {
       console.log(error);
+      showToast('Failed to log in. Try again.', ToastMessageType.Error);
     },
   );
 
   useEffect(() => {
-    if (response?.type === 'success') {
-      const { code } = response.params;
+    if (googleResponse?.type === 'success') {
+      const { code } = googleResponse.params;
       exchangeGoogleTokenMutation.mutate({ authorizationCode: code });
     }
-  }, [response]);
+  }, [googleResponse]);
 
-  function handleGoogle() {
-    promptAsync();
+  useEffect(() => {
+    if (appleResponse?.type === 'success') {
+      const { code } = appleResponse.params;
+      exchangeAppleTokenMutation.mutate({ authorizationCode: code });
+    }
+  }, [appleResponse]);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  function continueDisabled() {
+    return emailAuthMutation.isPending || email === '';
   }
 
   return (
@@ -88,42 +147,47 @@ export default function Index() {
         padding: 20,
         backgroundColor: '#FCFBF8',
       }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginHorizontal: 72,
-          marginBottom: Spacings.lgmd,
-        }}>
-        <Image
-          source={Title}
+      {!keyboardVisible && (
+        <View
           style={{
-            width: '100%',
-            aspectRatio: 268 / 60,
-          }}
-        />
-      </View>
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginHorizontal: 72,
+            marginBottom: Spacings.lgmd,
+          }}>
+          <Image
+            source={Title}
+            style={{
+              width: '100%',
+              aspectRatio: 268 / 60,
+            }}
+          />
+        </View>
+      )}
 
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: Spacings.lgmd,
-        }}>
-        <Image
-          source={Squirrel}
+      {!keyboardVisible && (
+        <View
           style={{
-            width: '90%',
-            height: '90%',
-            aspectRatio: 288 / 228,
-          }}
-        />
-      </View>
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: Spacings.lgmd,
+          }}>
+          <Image
+            source={Squirrel}
+            style={{
+              width: '90%',
+              height: '90%',
+              aspectRatio: 288 / 228,
+            }}
+          />
+        </View>
+      )}
 
       <PopPressable
-        onPress={handleGoogle}
+        onPress={() => {
+          promptGoogleAsync();
+        }}
         style={{
           flexDirection: 'row',
           columnGap: 15,
@@ -148,7 +212,10 @@ export default function Index() {
         </Text>
       </PopPressable>
 
-      <Pressable
+      <PopPressable
+        onPress={() => {
+          promptAppleAsync();
+        }}
         style={{
           flexDirection: 'row',
           columnGap: 15,
@@ -170,7 +237,7 @@ export default function Index() {
         <Text style={{ fontWeight: 500, color: '#FFFFFF', fontSize: 20 }}>
           Continue with Apple
         </Text>
-      </Pressable>
+      </PopPressable>
 
       <View
         style={{
@@ -201,10 +268,13 @@ export default function Index() {
       </View>
 
       <PopPressable
-        onPress={() => {}}
+        disabled={continueDisabled()}
+        onPress={() => {
+          emailAuthMutation.mutate({ email });
+        }}
         style={[
           styles.button,
-          email === '' && {
+          continueDisabled() && {
             backgroundColor: '#ECEDEF',
             borderColor: '#ECEDEF',
           },
@@ -212,7 +282,7 @@ export default function Index() {
         <Text
           style={[
             textStyles.buttonTextWhite,
-            email === '' && { color: '#A8ABB3' },
+            continueDisabled() && { color: '#A8ABB3' },
           ]}>
           Continue
         </Text>

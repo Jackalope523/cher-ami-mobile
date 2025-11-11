@@ -1,5 +1,4 @@
-import { Colors } from '@/constants/Colors';
-import { GlobalStyles } from '@/constants/GlobalStyles';
+import { textStyles } from '@/constants/TextStyles';
 import { Dimensions, StyleSheet, Text } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -20,14 +19,13 @@ export default function OTPSquare({ value, focused }: OTPSquareProps) {
   const focusStyle = useAnimatedStyle(() => {
     return {
       borderWidth: bw.value,
+      borderColor: focused ? '#242832' : '#DEDBD5',
     };
   });
 
   return (
     <Animated.View style={[styles.inputContainer, focusStyle]}>
-      <Text style={[GlobalStyles.textDark, GlobalStyles.buttonTextTwo]}>
-        {value}
-      </Text>
+      <Text style={textStyles.labelLargeBlack}>{value}</Text>
     </Animated.View>
   );
 }
@@ -35,11 +33,11 @@ export default function OTPSquare({ value, focused }: OTPSquareProps) {
 const styles = StyleSheet.create({
   inputContainer: {
     borderRadius: 8,
-    backgroundColor: Colors.canarySand,
+    backgroundColor: '#FCFBF8',
     alignItems: 'center',
     justifyContent: 'center',
     height: (Dimensions.get('window').width * 0.8) / 6,
     width: (Dimensions.get('window').width * 0.8) / 6,
-    borderColor: Colors.brown800,
+    borderColor: '#DEDBD5',
   },
 });

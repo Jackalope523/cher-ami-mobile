@@ -14,15 +14,9 @@ interface OTPInputProps {
   codeLength: number;
   code: string;
   setCode: Dispatch<SetStateAction<string>>;
-  setCodeReady: Dispatch<SetStateAction<boolean>>;
 }
 
-const OTPInput: React.FC<OTPInputProps> = ({
-  codeLength,
-  code,
-  setCode,
-  setCodeReady,
-}) => {
+const OTPInput: React.FC<OTPInputProps> = ({ codeLength, code, setCode }) => {
   const textInputRef: RefObject<TextInput | null> = useRef(null);
 
   const handlePress = () => {
@@ -33,7 +27,6 @@ const OTPInput: React.FC<OTPInputProps> = ({
 
   const handleChangeText = (text: string) => {
     setCode(text);
-    setCodeReady(text.length === codeLength);
   };
 
   return (

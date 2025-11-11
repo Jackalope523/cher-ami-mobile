@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: Spacings.lgmd,
     justifyContent: 'space-between',
+    backgroundColor: '#FCFBF8',
   },
 
   button: {

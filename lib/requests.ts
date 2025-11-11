@@ -15,7 +15,7 @@ export interface EmailAuthRequest {
   email: string;
 }
 
-export interface VerifyCodeRequest {
+export interface EmailVerifyRequest {
   email: string;
   code: string;
 }
@@ -51,7 +51,7 @@ export interface JoinCircleRequest {
   code: string;
 }
 
-export interface GoogleTokenRequest {
+export interface TokenRequest {
   authorizationCode: string;
 }
 
