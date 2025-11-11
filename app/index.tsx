@@ -23,6 +23,7 @@ import {
   useAuthRequest,
 } from 'expo-auth-session';
 import { Image } from 'expo-image';
+import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
 import { maybeCompleteAuthSession } from 'expo-web-browser';
 import { useEffect, useState } from 'react';
@@ -293,7 +294,29 @@ export default function Index() {
           textStyles.buttonTextBlack,
           { textAlign: 'center', paddingHorizontal: Spacings.xl },
         ]}>
-        By continuing, you agree to the Terms of Service and Privacy Policy.
+        By continuing, you agree to the{' '}
+        <Text
+          onPress={() => {
+            openURL('https://thecherami.com/legal/terms');
+          }}
+          style={[
+            textStyles.buttonTextBlack,
+            { textDecorationLine: 'underline' },
+          ]}>
+          Terms of Service
+        </Text>{' '}
+        and{' '}
+        <Text
+          onPress={() => {
+            openURL('https://thecherami.com/legal/privacy');
+          }}
+          style={[
+            textStyles.buttonTextBlack,
+            { textDecorationLine: 'underline' },
+          ]}>
+          Privacy Policy
+        </Text>
+        .
       </Text>
     </SafeAreaView>
   );

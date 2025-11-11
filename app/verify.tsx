@@ -26,7 +26,6 @@ export default function Verify() {
       updateOnboarded(response.onboarded);
     },
     (error) => {
-      console.log(error);
       showToast('Failed to verify. Try again.', ToastMessageType.Error);
     },
   );
