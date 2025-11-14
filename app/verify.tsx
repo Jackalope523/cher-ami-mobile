@@ -49,22 +49,24 @@ export default function Verify() {
   }
 
   return (
-    <Pressable
+    <View
       style={[
         styles.container,
         keyboardVisible && {
           justifyContent: 'flex-start',
         },
-      ]}
-      onPress={Keyboard.dismiss}>
+      ]}>
       <View style={{ marginBottom: Spacings.md }}>
-        <Text style={[textStyles.heading1, { marginBottom: Spacings.md }]}>
-          Verification
-        </Text>
-        <Text style={[textStyles.body, { marginBottom: Spacings.xxl }]}>
-          Please enter the code we sent to your email{' '}
-          <Text style={{ fontWeight: 'bold' }}>{email}</Text>
-        </Text>
+        <Pressable onPress={Keyboard.dismiss}>
+          <Text style={[textStyles.heading1, { marginBottom: Spacings.md }]}>
+            Verification
+          </Text>
+          <Text style={[textStyles.body, { marginBottom: Spacings.xxl }]}>
+            Please enter the code we sent to your email{' '}
+            <Text style={{ fontWeight: 'bold' }}>{email}</Text>
+          </Text>
+        </Pressable>
+
         <OTPInput codeLength={6} code={code} setCode={setCode} />
       </View>
 
@@ -88,7 +90,7 @@ export default function Verify() {
           Continue
         </Text>
       </PopPressable>
-    </Pressable>
+    </View>
   );
 }
 

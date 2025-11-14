@@ -28,7 +28,6 @@ import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
-import { v4 } from 'uuid';
 
 export default function Manage() {
   const showToastMessage = useToastMessage();
@@ -71,14 +70,13 @@ export default function Manage() {
     let result = await launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [Dimensions.get('window').width - 40, 186],
+      aspect: [372, 186],
       quality: 1,
     });
 
     if (!result.canceled) {
       uploadMutation.mutate({
         imageUri: result.assets[0].uri,
-        imageName: `${v4()}.jpg`,
       });
     }
   }

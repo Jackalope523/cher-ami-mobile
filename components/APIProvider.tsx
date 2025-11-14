@@ -66,7 +66,7 @@ export default function APIProvider({ children }: APIProviderProps) {
 
   useEffect(() => {
     if (getToken()) {
-      api.interceptors.request.use(
+      const attachToken = api.interceptors.request.use(
         async (config) => {
           const openURLs = [
             '/account/signup',
@@ -77,7 +77,6 @@ export default function APIProvider({ children }: APIProviderProps) {
             const token = getToken();
             config.headers.Authorization = `Bearer ${token}`;
           }
-
           return config;
         },
         (error) => {
@@ -86,7 +85,7 @@ export default function APIProvider({ children }: APIProviderProps) {
         },
       );
 
-      api.interceptors.response.use(
+      const staleToken = api.interceptors.response.use(
         (response) => response,
         (error) => {
           if (error.response?.status === 401) {
@@ -97,7 +96,7 @@ export default function APIProvider({ children }: APIProviderProps) {
         },
       );
 
-      api.interceptors.response.use(
+      const logError = api.interceptors.response.use(
         (response) => response,
         (error) => {
           if (error.response?.data) {
@@ -107,6 +106,12 @@ export default function APIProvider({ children }: APIProviderProps) {
           return Promise.reject(error);
         },
       );
+
+      return () => {
+        api.interceptors.request.eject(attachToken);
+        api.interceptors.response.eject(staleToken);
+        api.interceptors.response.eject(logError);
+      };
     }
   }, [deleteToken, getToken]);
 

@@ -26,7 +26,7 @@ export default function Layout() {
   const queryClient = useQueryClient();
   const { deleteToken } = useAuth();
 
-  async function handleLogout() {
+  function handleLogout() {
     queryClient.invalidateQueries();
     deleteToken();
     router.replace('/');
@@ -41,7 +41,7 @@ export default function Layout() {
       return <Loading />;
     }
 
-    if (!selfQuery.data || !circleQuery.data) {
+    if (!selfQuery.data) {
       return null;
     }
 

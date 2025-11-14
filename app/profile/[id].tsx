@@ -48,7 +48,6 @@ export default function Profile() {
       if (!result.canceled) {
         uploadMutation.mutate({
           imageUri: result.assets[0].uri,
-          imageName: 'image.jpg',
         });
       }
     }

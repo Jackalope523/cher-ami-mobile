@@ -16,7 +16,7 @@ interface OTPInputProps {
   setCode: Dispatch<SetStateAction<string>>;
 }
 
-const OTPInput: React.FC<OTPInputProps> = ({ codeLength, code, setCode }) => {
+export default function OTPInput({ codeLength, code, setCode }: OTPInputProps) {
   const textInputRef: RefObject<TextInput | null> = useRef(null);
 
   const handlePress = () => {
@@ -52,7 +52,7 @@ const OTPInput: React.FC<OTPInputProps> = ({ codeLength, code, setCode }) => {
       />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -80,5 +80,3 @@ const styles = StyleSheet.create({
     color: Colors.brown800,
   },
 });
-
-export default OTPInput;

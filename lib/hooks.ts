@@ -53,7 +53,7 @@ export function useGetSelfQuery() {
     queryFn: async () => {
       const response = await api.get<UserDTO>('/user');
       return response.data;
-    }
+    }, 
   });
 }
 
@@ -160,7 +160,7 @@ export function useUpdateHeaderMutation(onSuccess?: () => void,   onError?: (err
       formData.append('Image', {
         uri: request.imageUri,
         type: 'image/jpeg',
-        name: request.imageName,
+        name: 'header.jpg',
       } as any);
 
       await api.post(
@@ -188,7 +188,7 @@ export function useUpdateAvatarMutation(onSuccess?: () => void,   onError?: (err
       formData.append('Image', {
         uri: request.imageUri,
         type: 'image/jpeg',
-        name: request.imageName,
+        name: 'avatar.jpg',
       } as any);
 
       await api.post(

@@ -12,6 +12,7 @@
       "bundleIdentifier": "com.hollowinc.cherami",
       "icon": "./assets/images/icon.png",
       "supportsTablet": true,
+      "usesAppleSignIn": true,
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -20,7 +21,7 @@
       "package": "com.hollowinc.cherami",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#C15F3C"
       },
       "edgeToEdgeEnabled": true
     },
@@ -30,6 +31,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "expo-apple-authentication",
       "expo-router",
       [
         "expo-splash-screen",
@@ -37,7 +39,7 @@
           "image": "./assets/images/icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#CF5830"
+          "backgroundColor": "#C15F3C"
         }
       ],
       [

@@ -36,7 +36,7 @@ export default function CircleHeader() {
     let result = await launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [Dimensions.get('window').width - 40, 186],
+      aspect: [372, 186],
       quality: 1,
     });
 
@@ -45,7 +45,7 @@ export default function CircleHeader() {
     }
   }
 
-  function handleCreateCircleAndUpdateUser() {
+  function handleCreateCircle() {
     circleMutation.mutate({
       title: circleName as string,
       imageUri: selectedImage as string,
@@ -87,7 +87,7 @@ export default function CircleHeader() {
         </Pressable>
       </View>
       <PopPressable
-        onPress={handleCreateCircleAndUpdateUser}
+        onPress={handleCreateCircle}
         disabled={buttonDisabled()}
         style={[
           styles.button,

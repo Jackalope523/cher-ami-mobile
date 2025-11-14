@@ -16,6 +16,7 @@ import {
   useExchangeAppleTokenMutation,
   useExchangeGoogleTokenMutation,
 } from '@/lib/hooks';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   AuthRequestConfig,
   DiscoveryDocument,
@@ -60,7 +61,8 @@ const appleConfig: AuthRequestConfig = {
 };
 
 export default function Index() {
-  const { updateToken, updateOnboarded } = useAuth();
+  const queryClient = useQueryClient();
+  const { updateToken, updateOnboarded, getToken } = useAuth();
   const [email, setEmail] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [googleRequest, googleResponse, promptGoogleAsync] = useAuthRequest(
@@ -74,7 +76,6 @@ export default function Index() {
   const showToast = useToastMessage();
   const exchangeGoogleTokenMutation = useExchangeGoogleTokenMutation(
     (response) => {
-      showToast('Successfully logged in!');
       updateToken(response.token);
       updateOnboarded(response.onboarded);
     },
@@ -84,7 +85,6 @@ export default function Index() {
   );
   const exchangeAppleTokenMutation = useExchangeAppleTokenMutation(
     (response) => {
-      showToast('Successfully logged in!');
       updateToken(response.token);
       updateOnboarded(response.onboarded);
     },
