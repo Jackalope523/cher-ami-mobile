@@ -30,7 +30,9 @@ export default function Settings() {
           style={styles.option}>
           <View style={styles.optionLabel}>
             <TermsOfServiceIcon height={24} width={24} color={'#B05637'} />
-            <Text style={textStyles.buttonTextOrange}>Privacy Policy</Text>
+            <Text style={textStyles.buttonTextOrange}>
+              Terms and Conditions
+            </Text>
           </View>
           <Chevron height={24} width={24} color={'#B05637'} />
         </PopPressable>

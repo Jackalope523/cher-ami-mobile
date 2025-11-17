@@ -253,6 +253,7 @@ export function useUpdateUserMutation(onSuccess?:() => void , onError?: (error: 
 
         formData.append('FirstName', request.firstName);
         formData.append('LastName', request.lastName);
+        formData.append('DateOfBirth', request.dateOfBirth.toISOString().split("T")[0]);
         formData.append('Avatar', {
           uri: request.avatarPath,
           type: 'image/jpeg',
@@ -273,6 +274,18 @@ export function useUpdateUserMutation(onSuccess?:() => void , onError?: (error: 
       },
       onSuccess,
       onError,
+    });
+}
+
+export function useDeleteUserMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError, void>({
+      mutationFn: async () => {
+        await api.delete('/user')
+      },
+      onSuccess: onSuccess,
+      onError: onError,
     });
 }
 
@@ -350,6 +363,8 @@ export function useCreateCircleMutation(onSuccess?:(data: CircleDTO) => void , o
     });
 }
 
+
+
 export function useJoinCircleMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
   const api = useAPI();
 
@@ -368,6 +383,18 @@ export function useLeaveCircleMutation(onSuccess?:() => void , onError?: (error:
   return useMutation<void, AxiosError>({
       mutationFn: async () => {
         await api.post('/circle/leave')
+      },
+      onSuccess: onSuccess,
+      onError: onError,
+    });
+}
+
+export function useReportPostMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError, IdRequest>({
+      mutationFn: async (request: IdRequest) => {
+        await api.post(`/posts/${request.Id}/report`, request)
       },
       onSuccess: onSuccess,
       onError: onError,

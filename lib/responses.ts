@@ -33,7 +33,6 @@ export interface UserDTO {
   id: number;
   avatarPath: string;
   avatarTimestamp: Date;
-  title: string;
   firstName: string;
   lastName: string;
   dateOfBirth: Date;

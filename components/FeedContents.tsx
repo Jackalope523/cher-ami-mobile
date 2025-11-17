@@ -241,6 +241,7 @@ export default function FeedContents() {
   return (
     <View style={styles.container}>
       <SectionList
+        showsVerticalScrollIndicator={false}
         overScrollMode="never"
         sections={
           data.pages.map((page) => ({

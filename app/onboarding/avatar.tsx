@@ -9,6 +9,7 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useUpdateUserMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -22,15 +23,15 @@ export default function Avatar() {
   const { firstName, lastName, birthday } = useLocalSearchParams();
   const userMutation = useUpdateUserMutation(
     () => {
-      showToastMessage('Successfully created user!', ToastMessageType.Success);
+      showToastMessage(
+        'Successfully created account!',
+        ToastMessageType.Success,
+      );
       updateOnboarded(true);
       router.replace('/feed');
     },
     (error) => {
-      showToastMessage(
-        'Failed to create user. Try again.',
-        ToastMessageType.Error,
-      );
+      showToastMessage('Network error. Try again.', ToastMessageType.Error);
       console.log(error.message);
     },
   );
@@ -44,7 +45,14 @@ export default function Avatar() {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      const image = await ImageManipulator.manipulate(
+        result.assets[0].uri,
+      ).renderAsync();
+      const jpgImage = await image.saveAsync({
+        format: SaveFormat.JPEG,
+      });
+
+      setSelectedImage(jpgImage.uri);
     }
   }
 

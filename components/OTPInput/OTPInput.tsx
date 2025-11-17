@@ -71,9 +71,12 @@ const styles = StyleSheet.create({
   },
 
   hiddenTextInput: {
-    height: 0,
-    width: 0,
+    position: 'absolute',
+    height: 1,
+    width: 1,
     opacity: 0,
+    bottom: 0,
+    left: 0,
   },
 
   text: {

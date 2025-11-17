@@ -16,7 +16,6 @@ import {
   useExchangeAppleTokenMutation,
   useExchangeGoogleTokenMutation,
 } from '@/lib/hooks';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   AuthRequestConfig,
   DiscoveryDocument,
@@ -61,8 +60,7 @@ const appleConfig: AuthRequestConfig = {
 };
 
 export default function Index() {
-  const queryClient = useQueryClient();
-  const { updateToken, updateOnboarded, getToken } = useAuth();
+  const { updateToken, updateOnboarded } = useAuth();
   const [email, setEmail] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [googleRequest, googleResponse, promptGoogleAsync] = useAuthRequest(
@@ -303,7 +301,7 @@ export default function Index() {
             textStyles.buttonTextBlack,
             { textDecorationLine: 'underline' },
           ]}>
-          Terms of Service
+          Terms and Conditions
         </Text>{' '}
         and{' '}
         <Text

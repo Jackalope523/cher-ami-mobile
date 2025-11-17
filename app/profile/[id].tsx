@@ -1,6 +1,8 @@
 import BirthdayIcon from '@/assets/icons/cake.svg';
+import DeleteAccountContents from '@/components/DeleteAccountContents';
 import Error from '@/components/Error';
 import Loading from '@/components/Loading';
+import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
 import {
   ToastMessageType,
   useToastMessage,
@@ -12,6 +14,7 @@ import { textStyles } from '@/constants/TextStyles';
 import { useGetUserQuery, useUpdateAvatarMutation } from '@/lib/hooks';
 import { UserDTO } from '@/lib/responses';
 import { useQueryClient } from '@tanstack/react-query';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
@@ -23,6 +26,7 @@ export default function Profile() {
     queryClient.getQueryData<UserDTO>(['User', 'Self'])?.id === Number(id);
   const { data, status } = useGetUserQuery(Number(id));
   const showToastMessage = useToastMessage();
+  const { displayDialogue, dismissDialogue } = useDialogueModal();
 
   const uploadMutation = useUpdateAvatarMutation(
     () => {
@@ -46,8 +50,15 @@ export default function Profile() {
       });
 
       if (!result.canceled) {
+        const image = await ImageManipulator.manipulate(
+          result.assets[0].uri,
+        ).renderAsync();
+        const jpgImage = await image.saveAsync({
+          format: SaveFormat.JPEG,
+        });
+
         uploadMutation.mutate({
-          imageUri: result.assets[0].uri,
+          imageUri: jpgImage.uri,
         });
       }
     }
@@ -67,25 +78,47 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      <PopPressable onPress={pickImageAsync}>
-        <NetworkImage
-          style={styles.avatar}
-          source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
-        />
-      </PopPressable>
-      <Text style={[textStyles.heading2, styles.name]}>
-        {`${data.firstName} ${data.lastName}`}
-      </Text>
-      <Text style={[textStyles.heading3, styles.about]}>About</Text>
-      <View style={styles.birthdayContainer}>
-        <BirthdayIcon height={24} width={24} />
-        <Text style={[textStyles.body, styles.about]}>
-          {`Born on ${data.dateOfBirth.getDate()} ${data.dateOfBirth.toLocaleString(
-            'default',
-            { month: 'short' },
-          )} ${data.dateOfBirth.getFullYear()}`}
+      <View>
+        <PopPressable onPress={pickImageAsync}>
+          <NetworkImage
+            style={styles.avatar}
+            source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
+          />
+        </PopPressable>
+        <Text style={[textStyles.heading2, styles.name]}>
+          {`${data.firstName} ${data.lastName}`}
         </Text>
+        <Text style={[textStyles.heading3, styles.about]}>About</Text>
+        <View style={styles.birthdayContainer}>
+          <BirthdayIcon height={24} width={24} />
+          <Text style={[textStyles.body, styles.about]}>
+            {`Born on ${data.dateOfBirth.getDate()} ${data.dateOfBirth.toLocaleString(
+              'default',
+              { month: 'short' },
+            )} ${data.dateOfBirth.getFullYear()}`}
+          </Text>
+        </View>
       </View>
+      {isSelf && (
+        <PopPressable
+          onPress={() => {
+            displayDialogue(
+              <DeleteAccountContents dismissModal={dismissDialogue} />,
+            );
+          }}
+          style={{
+            backgroundColor: '#F47A70',
+            paddingVertical: Spacings.md,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 14,
+            borderWidth: 2,
+            borderColor: '#F47A70',
+            marginBottom: Spacings.mdsm,
+          }}>
+          <Text style={textStyles.buttonTextBlack}>Delete Account</Text>
+        </PopPressable>
+      )}
     </View>
   );
 }
@@ -95,6 +128,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     backgroundColor: '#FCFBF8',
+    justifyContent: 'space-between',
+    paddingBottom: Spacings.xl,
   },
 
   avatar: {

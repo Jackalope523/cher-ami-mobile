@@ -10,9 +10,9 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useAddPostMutation } from '@/lib/hooks';
 import { formatPhotoDate } from '@/lib/utility';
-import { useHeaderHeight } from '@react-navigation/elements';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -25,11 +25,8 @@ import {
   View,
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Create() {
-  const headerHeight = useHeaderHeight();
-  const insets = useSafeAreaInsets();
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const { issueTitle, postCount } = useLocalSearchParams();
@@ -84,7 +81,14 @@ export default function Create() {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      const image = await ImageManipulator.manipulate(
+        result.assets[0].uri,
+      ).renderAsync();
+      const jpgImage = await image.saveAsync({
+        format: SaveFormat.JPEG,
+      });
+
+      setSelectedImage(jpgImage.uri);
     }
   }
 

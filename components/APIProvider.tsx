@@ -68,11 +68,7 @@ export default function APIProvider({ children }: APIProviderProps) {
     if (getToken()) {
       const attachToken = api.interceptors.request.use(
         async (config) => {
-          const openURLs = [
-            '/account/signup',
-            '/account/login',
-            '/account/verify',
-          ];
+          const openURLs = ['/account/login', '/account/verify'];
           if (config.url && !openURLs.includes(config.url)) {
             const token = getToken();
             config.headers.Authorization = `Bearer ${token}`;

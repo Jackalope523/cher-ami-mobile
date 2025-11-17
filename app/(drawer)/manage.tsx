@@ -22,6 +22,7 @@ import {
   useUpdateHeaderMutation,
 } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -75,8 +76,15 @@ export default function Manage() {
     });
 
     if (!result.canceled) {
+      const image = await ImageManipulator.manipulate(
+        result.assets[0].uri,
+      ).renderAsync();
+      const jpgImage = await image.saveAsync({
+        format: SaveFormat.JPEG,
+      });
+
       uploadMutation.mutate({
-        imageUri: result.assets[0].uri,
+        imageUri: jpgImage.uri,
       });
     }
   }

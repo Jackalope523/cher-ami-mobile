@@ -45,14 +45,29 @@ export default function Birthday() {
         ToastMessageType.Error,
       );
     } else {
-      router.push({
-        pathname: '/onboarding/avatar',
-        params: {
-          firstName,
-          lastName,
-          birthday: parseDate().toISOString(),
-        },
-      });
+      const birthday = parseDate();
+      const age = new Date().getFullYear() - birthday.getFullYear();
+
+      if (age < 13) {
+        showToastMessage(
+          'You must be at least 13 years old.',
+          ToastMessageType.Error,
+        );
+      } else if (age > 110) {
+        showToastMessage(
+          'You are too old to create an account.',
+          ToastMessageType.Error,
+        );
+      } else {
+        router.push({
+          pathname: '/onboarding/avatar',
+          params: {
+            firstName,
+            lastName,
+            birthday: parseDate().toISOString(),
+          },
+        });
+      }
     }
   }
 

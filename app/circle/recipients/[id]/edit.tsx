@@ -13,6 +13,7 @@ import { textStyles } from '@/constants/TextStyles';
 import { useGetRecipientQuery, useUpdateRecipientMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -109,7 +110,14 @@ export default function EditRecipient() {
     });
 
     if (!result.canceled) {
-      setAvatar(result.assets[0].uri);
+      const image = await ImageManipulator.manipulate(
+        result.assets[0].uri,
+      ).renderAsync();
+      const jpgImage = await image.saveAsync({
+        format: SaveFormat.JPEG,
+      });
+
+      setAvatar(jpgImage.uri);
     }
   }
 

@@ -10,6 +10,7 @@ import DeletePostContents from './DeletePostContents';
 import { useDialogueModal } from './modals/DialogueModalProvider';
 import NetworkImage from './NetworkImage';
 import PopPressable from './PopPressable';
+import ReportPostContents from './ReportPostContents';
 
 type PostProps = {
   post: FeedPost;
@@ -21,9 +22,15 @@ export default function Post({ post }: PostProps) {
   const selfQuery = useGetSelfQuery();
 
   function handlePostSettings(postId: number) {
-    displayDialogue(
-      <DeletePostContents dismissModal={dismissDialogue} postId={postId} />,
-    );
+    if (post.authorId === selfQuery.data?.id) {
+      displayDialogue(
+        <DeletePostContents dismissModal={dismissDialogue} postId={postId} />,
+      );
+    } else {
+      displayDialogue(
+        <ReportPostContents dismissModal={dismissDialogue} postId={postId} />,
+      );
+    }
   }
 
   if (!userQuery.data || !selfQuery.data) {
@@ -64,13 +71,12 @@ export default function Post({ post }: PostProps) {
             </Text>
           </View>
         </View>
-        {post.authorId === selfQuery.data.id && (
-          <PopPressable
-            onPress={() => handlePostSettings(post.id)}
-            style={{ padding: Spacings.mdsm }}>
-            <MenuIcon width={24} height={24} />
-          </PopPressable>
-        )}
+
+        <PopPressable
+          onPress={() => handlePostSettings(post.id)}
+          style={{ padding: Spacings.mdsm }}>
+          <MenuIcon width={24} height={24} />
+        </PopPressable>
       </View>
 
       <View style={{ marginBottom: Spacings.md }}>

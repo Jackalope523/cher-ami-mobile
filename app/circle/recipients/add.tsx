@@ -16,6 +16,7 @@ import { useAddRecipientMutation } from '@/lib/hooks';
 import { SetupParams, useStripe } from '@stripe/stripe-react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router } from 'expo-router';
 
@@ -103,7 +104,14 @@ export default function AddRecipient() {
     });
 
     if (!result.canceled) {
-      setAvatar(result.assets[0].uri);
+      const image = await ImageManipulator.manipulate(
+        result.assets[0].uri,
+      ).renderAsync();
+      const jpgImage = await image.saveAsync({
+        format: SaveFormat.JPEG,
+      });
+
+      setAvatar(jpgImage.uri);
     }
   }
 
