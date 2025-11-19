@@ -53,7 +53,6 @@ function RootNavigator() {
             headerShown: false,
           }}
         />
-        <Stack.Screen name="login" />
         <Stack.Screen
           name="verify"
           options={{
@@ -110,10 +109,6 @@ function RootNavigator() {
           <Stack.Screen
             name="onboarding/circleHeader"
             options={{ title: '' }}
-          />
-          <Stack.Screen
-            name="onboarding/circleCode"
-            options={{ headerShown: false }}
           />
         </Stack.Protected>
       </Stack.Protected>

@@ -1,9 +1,6 @@
-import { Dimensions, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Colors } from './Colors';
 import { Spacings } from './Spacings';
-
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 
 export const GlobalStyles = StyleSheet.create({
   // ! ||--------------------------------------------------------------------------------||

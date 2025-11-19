@@ -28,10 +28,7 @@ export default function LeaveCircleContents({
     },
     (error) => {
       console.log(error);
-      showToastMessage(
-        'Failed to leave circle. Try again.',
-        ToastMessageType.Error,
-      );
+      showToastMessage('Network error. Try again.', ToastMessageType.Error);
     },
   );
 

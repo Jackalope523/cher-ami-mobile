@@ -5,7 +5,6 @@ import {
 } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import PostCounter from '@/components/PostCounter';
-import { Colors } from '@/constants/Colors';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useAddPostMutation } from '@/lib/hooks';
@@ -198,21 +197,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FCFBF8',
     justifyContent: 'space-between',
-  },
-
-  noCircleContainer: {
-    flex: 1,
-    backgroundColor: Colors.canarySand,
-    alignItems: 'center',
-    justifyContent: 'center',
-    rowGap: Spacings.sm,
-  },
-
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: Colors.canarySand,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 
   image: {

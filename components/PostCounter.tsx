@@ -1,4 +1,3 @@
-import { Colors } from '@/constants/Colors';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { StyleSheet, Text, View } from 'react-native';
@@ -64,7 +63,7 @@ const styles = StyleSheet.create({
   },
 
   loadingBar: {
-    backgroundColor: Colors.charcoal100,
+    backgroundColor: '#C4C6CC',
     height: Spacings.sm,
     borderRadius: Spacings.sm,
   },

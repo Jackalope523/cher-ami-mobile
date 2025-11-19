@@ -1,13 +1,6 @@
-import { Colors } from '@/constants/Colors';
 import { Spacings } from '@/constants/Spacings';
 import { Dispatch, RefObject, SetStateAction, useRef } from 'react';
-import {
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import OTPSquare from './OTPSquare';
 
 interface OTPInputProps {
@@ -60,16 +53,6 @@ const styles = StyleSheet.create({
     columnGap: Spacings.sm,
   },
 
-  inputContainer: {
-    borderRadius: 8,
-    backgroundColor: Colors.canarySand,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: (Dimensions.get('window').width * 0.8) / 6,
-    width: (Dimensions.get('window').width * 0.8) / 6,
-    borderColor: Colors.brown800,
-  },
-
   hiddenTextInput: {
     position: 'absolute',
     height: 1,
@@ -77,9 +60,5 @@ const styles = StyleSheet.create({
     opacity: 0,
     bottom: 0,
     left: 0,
-  },
-
-  text: {
-    color: Colors.brown800,
   },
 });

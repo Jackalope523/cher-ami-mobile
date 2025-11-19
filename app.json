@@ -15,12 +15,15 @@
       "usesAppleSignIn": true,
       "config": {
         "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app may use your camera if you choose to take a new photo rather than selecting one from your library when prompted."
       }
     },
     "android": {
       "package": "com.hollowinc.cherami",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
+        "foregroundImage": "./assets/images/foreground.png",
         "backgroundColor": "#C15F3C"
       },
       "edgeToEdgeEnabled": true

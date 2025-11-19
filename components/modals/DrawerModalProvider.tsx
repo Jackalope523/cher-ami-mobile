@@ -7,7 +7,6 @@ import {
   View,
 } from 'react-native';
 
-import { Colors } from '@/constants/Colors';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   clamp,
@@ -156,6 +155,6 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').height / 4,
     width: 4,
     borderRadius: 100,
-    backgroundColor: Colors.brown800,
+    backgroundColor: '#372E2E',
   },
 });

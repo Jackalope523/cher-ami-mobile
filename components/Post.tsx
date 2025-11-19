@@ -1,5 +1,4 @@
 import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
-import { Colors } from '@/constants/Colors';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetSelfQuery, useGetUserQuery } from '@/lib/hooks';
@@ -120,7 +119,7 @@ const styles = StyleSheet.create({
   },
 
   loadingBar: {
-    backgroundColor: Colors.charcoal100,
+    backgroundColor: '#C4C6CC',
     height: Spacings.sm,
     borderRadius: Spacings.sm,
   },
