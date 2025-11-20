@@ -117,8 +117,8 @@ export default function Manage() {
               `?timestamp=${circleQuery.data.headerTimestamp}`
             }
             style={{
-              height: 186,
               width: Dimensions.get('window').width - 40,
+              aspectRatio: 744 / 496,
               borderRadius: 32,
               marginHorizontal: 20,
               marginVertical: Spacings.xl,
@@ -158,9 +158,8 @@ export default function Manage() {
             borderWidth: 2,
             borderColor: '#B05637',
             paddingVertical: Spacings.mdsm,
-            paddingRight: Dimensions.get('window').width / 3.5,
             alignItems: 'center',
-            justifyContent: 'flex-end',
+            justifyContent: 'center',
             flexDirection: 'row',
             columnGap: Spacings.sm,
             marginHorizontal: 20,
@@ -210,9 +209,8 @@ export default function Manage() {
             borderWidth: 2,
             borderColor: '#B05637',
             paddingVertical: Spacings.mdsm,
-            paddingRight: Dimensions.get('window').width / 3.5,
             alignItems: 'center',
-            justifyContent: 'flex-end',
+            justifyContent: 'center',
             flexDirection: 'row',
             columnGap: Spacings.sm,
             marginHorizontal: 20,

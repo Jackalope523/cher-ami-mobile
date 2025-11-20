@@ -14,7 +14,6 @@ import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
 
 export default function Avatar() {
   const { updateOnboarded } = useAuth();
@@ -77,7 +76,7 @@ export default function Avatar() {
           ]}>
           Add an avatar.
         </Text>
-        <Pressable style={styles.imageContainer} onPress={pickImageAsync}>
+        <PopPressable style={styles.imageContainer} onPress={pickImageAsync}>
           {selectedImage ? (
             <Image source={selectedImage} style={styles.image} />
           ) : (
@@ -93,7 +92,7 @@ export default function Avatar() {
               <PlusIcon height={96} width={96} color={'#868581'} />
             </View>
           )}
-        </Pressable>
+        </PopPressable>
       </View>
       <PopPressable
         onPress={handleCreateUser}

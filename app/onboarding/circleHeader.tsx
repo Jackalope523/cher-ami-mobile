@@ -14,7 +14,6 @@ import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
 
 export default function CircleHeader() {
   const { circleName } = useLocalSearchParams();
@@ -76,7 +75,7 @@ export default function CircleHeader() {
           ]}>
           Add a header image for your circle.
         </Text>
-        <Pressable style={styles.imageContainer} onPress={pickImageAsync}>
+        <PopPressable style={styles.imageContainer} onPress={pickImageAsync}>
           {selectedImage ? (
             <Image source={selectedImage} style={styles.image} />
           ) : (
@@ -85,14 +84,14 @@ export default function CircleHeader() {
                 backgroundColor: '#F4F1EA',
                 borderRadius: 32,
                 width: Dimensions.get('window').width - 40,
-                height: 186,
+                aspectRatio: 744 / 496,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
               <PlusIcon height={96} width={96} color={'#868581'} />
             </View>
           )}
-        </Pressable>
+        </PopPressable>
       </View>
       <PopPressable
         onPress={handleCreateCircle}
@@ -131,7 +130,7 @@ const styles = StyleSheet.create({
 
   image: {
     width: Dimensions.get('window').width - 40,
-    height: 186,
+    aspectRatio: 744 / 496,
     borderRadius: 32,
   },
 

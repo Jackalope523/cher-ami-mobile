@@ -159,6 +159,8 @@ export default function Index() {
             style={{
               width: '100%',
               aspectRatio: 268 / 60,
+              maxHeight: 60,
+              maxWidth: 268,
             }}
           />
         </View>
@@ -178,6 +180,8 @@ export default function Index() {
               width: '90%',
               height: '90%',
               aspectRatio: 288 / 228,
+              maxWidth: 288,
+              maxHeight: 228,
             }}
           />
         </View>

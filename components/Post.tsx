@@ -82,8 +82,8 @@ export default function Post({ post }: PostProps) {
         <NetworkImage
           source={post.photoPath}
           style={{
-            height: 259,
             width: Dimensions.get('window').width - 40,
+            aspectRatio: 744 / 496,
             borderRadius: 32,
             marginHorizontal: 20,
           }}

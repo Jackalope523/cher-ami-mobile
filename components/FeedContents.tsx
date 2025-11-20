@@ -98,7 +98,12 @@ export default function FeedContents() {
             }}>
             <Image
               source={Hedgehog}
-              style={{ aspectRatio: 160 / 223, width: '100%' }}
+              style={{
+                aspectRatio: 160 / 223,
+                width: '100%',
+                maxHeight: 223,
+                maxWidth: 160,
+              }}
             />
           </View>
 
@@ -106,14 +111,15 @@ export default function FeedContents() {
             {'Nothing to see here :('}
           </Text>
         </View>
-        <View
-          style={{
-            marginLeft: 320,
-            marginRight: 21,
-          }}>
+        <View style={{ alignItems: 'flex-end' }}>
           <Image
             source={Mouse}
-            style={{ aspectRatio: 71 / 73, width: '100%' }}
+            style={{
+              aspectRatio: 71 / 73,
+              width: '100%',
+              maxHeight: 73,
+              maxWidth: 71,
+            }}
           />
         </View>
       </View>

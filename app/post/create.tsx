@@ -120,7 +120,7 @@ export default function Create() {
                     backgroundColor: '#F4F1EA',
                     borderRadius: 32,
                     width: Dimensions.get('window').width - 40,
-                    height: 259,
+                    aspectRatio: 744 / 496,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
 
   image: {
     width: Dimensions.get('window').width - 40,
-    height: 259,
+    aspectRatio: 744 / 496,
     borderRadius: 32,
   },
 
