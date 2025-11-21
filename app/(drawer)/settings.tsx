@@ -1,6 +1,9 @@
 import Chevron from '@/assets/icons/chevron-right.svg';
 import PrivacyPolicyIcon from '@/assets/icons/file-key.svg';
 import TermsOfServiceIcon from '@/assets/icons/scroll.svg';
+import TrashIcon from '@/assets/icons/trash.svg';
+import DeleteAccountContents from '@/components/DeleteAccountContents';
+import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
 import PopPressable from '@/components/PopPressable';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
@@ -9,6 +12,8 @@ import { openURL } from 'expo-linking';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function Settings() {
+  const { displayDialogue, dismissDialogue } = useDialogueModal();
+
   return (
     <View style={styles.container}>
       <View style={styles.optionsContainer}>
@@ -37,6 +42,21 @@ export default function Settings() {
           <Chevron height={24} width={24} color={'#B05637'} />
         </PopPressable>
       </View>
+      <View style={styles.optionsContainer}>
+        <PopPressable
+          onPress={() => {
+            displayDialogue(
+              <DeleteAccountContents dismissModal={dismissDialogue} />,
+            );
+          }}
+          style={styles.option}>
+          <View style={styles.optionLabel}>
+            <TrashIcon height={24} width={24} color={'#B05637'} />
+            <Text style={textStyles.buttonTextOrange}>Delete Account</Text>
+          </View>
+          <Chevron height={24} width={24} color={'#B05637'} />
+        </PopPressable>
+      </View>
     </View>
   );
 }
@@ -46,6 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FCFBF8',
     paddingHorizontal: Spacings.lgmd,
+    rowGap: Spacings.xl,
   },
 
   optionsContainer: {

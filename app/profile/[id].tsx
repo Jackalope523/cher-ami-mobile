@@ -1,8 +1,6 @@
 import BirthdayIcon from '@/assets/icons/cake.svg';
-import DeleteAccountContents from '@/components/DeleteAccountContents';
 import Error from '@/components/Error';
 import Loading from '@/components/Loading';
-import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
 import {
   ToastMessageType,
   useToastMessage,
@@ -26,7 +24,6 @@ export default function Profile() {
     queryClient.getQueryData<UserDTO>(['User', 'Self'])?.id === Number(id);
   const { data, status } = useGetUserQuery(Number(id));
   const showToastMessage = useToastMessage();
-  const { displayDialogue, dismissDialogue } = useDialogueModal();
 
   const uploadMutation = useUpdateAvatarMutation(
     () => {
@@ -99,26 +96,6 @@ export default function Profile() {
           </Text>
         </View>
       </View>
-      {isSelf && (
-        <PopPressable
-          onPress={() => {
-            displayDialogue(
-              <DeleteAccountContents dismissModal={dismissDialogue} />,
-            );
-          }}
-          style={{
-            backgroundColor: '#F47A70',
-            paddingVertical: Spacings.md,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 14,
-            borderWidth: 2,
-            borderColor: '#F47A70',
-            marginBottom: Spacings.mdsm,
-          }}>
-          <Text style={textStyles.buttonTextBlack}>Delete Account</Text>
-        </PopPressable>
-      )}
     </View>
   );
 }
