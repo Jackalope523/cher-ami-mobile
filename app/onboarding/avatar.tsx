@@ -19,7 +19,7 @@ export default function Avatar() {
   const { updateOnboarded } = useAuth();
   const showToastMessage = useToastMessage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const { firstName, lastName, birthday } = useLocalSearchParams();
+  const { firstName, lastName } = useLocalSearchParams();
   const userMutation = useUpdateUserMutation(
     () => {
       showToastMessage(
@@ -55,11 +55,10 @@ export default function Avatar() {
     }
   }
 
-  async function handleCreateUser() {
+  async function handleUpdateUser() {
     userMutation.mutate({
       firstName: firstName as string,
       lastName: lastName as string,
-      dateOfBirth: new Date(birthday as string),
       avatarPath: selectedImage as string,
     });
   }
@@ -95,7 +94,7 @@ export default function Avatar() {
         </PopPressable>
       </View>
       <PopPressable
-        onPress={handleCreateUser}
+        onPress={handleUpdateUser}
         disabled={!selectedImage || userMutation.isPending}
         style={[
           styles.button,

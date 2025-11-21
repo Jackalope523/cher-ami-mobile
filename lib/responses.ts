@@ -35,7 +35,7 @@ export interface UserDTO {
   avatarTimestamp: Date;
   firstName: string;
   lastName: string;
-  dateOfBirth: Date;
+  dateOfBirth?: Date;
   joinDate: Date;
   recipients: RecipientItem[];
 }

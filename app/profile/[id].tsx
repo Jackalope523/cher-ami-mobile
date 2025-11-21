@@ -1,4 +1,4 @@
-import BirthdayIcon from '@/assets/icons/cake.svg';
+import CalendarIcon from '@/assets/icons/calendar.svg';
 import Error from '@/components/Error';
 import Loading from '@/components/Loading';
 import {
@@ -87,12 +87,12 @@ export default function Profile() {
         </Text>
         <Text style={[textStyles.heading3, styles.about]}>About</Text>
         <View style={styles.birthdayContainer}>
-          <BirthdayIcon height={24} width={24} />
+          <CalendarIcon height={24} width={24} color={'#242832'} />
           <Text style={[textStyles.body, styles.about]}>
-            {`Born on ${data.dateOfBirth.getDate()} ${data.dateOfBirth.toLocaleString(
+            {`Joined on ${data.joinDate.getDate()} ${data.joinDate.toLocaleString(
               'default',
               { month: 'short' },
-            )} ${data.dateOfBirth.getFullYear()}`}
+            )} ${data.joinDate.getFullYear()}`}
           </Text>
         </View>
       </View>

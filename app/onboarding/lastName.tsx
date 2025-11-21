@@ -57,7 +57,7 @@ export default function LastName() {
       <PopPressable
         onPress={() => {
           router.push({
-            pathname: '/onboarding/birthday',
+            pathname: '/onboarding/avatar',
             params: { firstName, lastName },
           });
         }}

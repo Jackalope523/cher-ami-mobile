@@ -46,8 +46,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     async function loadAsync() {
-      setToken(await getItemAsync('token'));
-      setOnboarded((await getItemAsync('Onboarded')) === 'true');
+      const token = await getItemAsync('token');
+      const onboarded = (await getItemAsync('Onboarded')) === 'true';
+
+      setToken(onboarded ? token : null);
+      setOnboarded(onboarded);
       setLoaded(true);
     }
 
