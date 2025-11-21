@@ -178,7 +178,11 @@ export default function Manage() {
             <UserItem
               key={x.id}
               text={x.firstName}
-              imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
+              imageSource={
+                x.avatarPath
+                  ? x.avatarPath + `?timestamp=${x.avatarTimestamp}`
+                  : undefined
+              }
               tag={'(You)'}
               showTag={x.id === userQuery.data.id}
               onPress={() =>

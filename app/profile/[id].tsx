@@ -1,4 +1,5 @@
 import CalendarIcon from '@/assets/icons/calendar.svg';
+import PlusIcon from '@/assets/icons/plus.svg';
 import Error from '@/components/Error';
 import Loading from '@/components/Loading';
 import {
@@ -30,6 +31,7 @@ export default function Profile() {
       showToastMessage('Upload success!', ToastMessageType.Success);
       queryClient.invalidateQueries({ queryKey: ['User', 'Self'] });
       queryClient.invalidateQueries({ queryKey: ['User', Number(id)] });
+      queryClient.invalidateQueries({ queryKey: ['Circle'] });
     },
     (error) => {
       console.error('Upload failed:', error);
@@ -76,11 +78,17 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <View>
-        <PopPressable onPress={pickImageAsync}>
-          <NetworkImage
-            style={styles.avatar}
-            source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
-          />
+        <PopPressable style={styles.avatarContainer} onPress={pickImageAsync}>
+          {data.avatarPath ? (
+            <NetworkImage
+              style={styles.avatar}
+              source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
+            />
+          ) : (
+            <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
+              <PlusIcon height={48} width={48} color={'#868581'} />
+            </View>
+          )}
         </PopPressable>
         <Text style={[textStyles.heading2, styles.name]}>
           {`${data.firstName} ${data.lastName}`}
@@ -109,13 +117,21 @@ const styles = StyleSheet.create({
     paddingBottom: Spacings.xl,
   },
 
-  avatar: {
+  avatarContainer: {
     height: 96,
     width: 96,
     borderRadius: 48,
     alignSelf: 'center',
     marginBottom: Spacings.sm,
     marginTop: Spacings.xxl,
+  },
+
+  avatar: {
+    height: 96,
+    width: 96,
+    borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   name: {

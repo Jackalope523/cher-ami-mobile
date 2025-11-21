@@ -4,8 +4,8 @@ export interface UserItem {
   id: number;
   firstName: string;
   lastName: string;
-  avatarPath: string;
-  avatarTimestamp: Date; 
+  avatarPath?: string;
+  avatarTimestamp?: Date; 
 }
 
 export interface RecipientItem {
@@ -31,8 +31,8 @@ export interface CircleDTO {
 
 export interface UserDTO {
   id: number;
-  avatarPath: string;
-  avatarTimestamp: Date;
+  avatarPath?: string;
+  avatarTimestamp?: Date;
   firstName: string;
   lastName: string;
   dateOfBirth?: Date;

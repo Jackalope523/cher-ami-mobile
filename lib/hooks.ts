@@ -258,12 +258,14 @@ export function useUpdateUserMutation(onSuccess?:() => void , onError?: (error: 
           formData.append('DateOfBirth', request.dateOfBirth.toISOString().split("T")[0]);
         }
         
-        formData.append('Avatar', {
-          uri: request.avatarPath,
-          type: 'image/jpeg',
-          name: 'avatar.jpg',
-        } as any);
-  
+        if (request.avatarPath) {
+          formData.append('Avatar', {
+            uri: request.avatarPath,
+            type: 'image/jpeg',
+            name: 'avatar.jpg',
+          } as any);
+        }
+       
         const response = await api.put(
           '/user', 
           formData, 

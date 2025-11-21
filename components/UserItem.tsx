@@ -1,3 +1,4 @@
+import UserIcon from '@/assets/icons/user.svg';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { StyleSheet, Text, View } from 'react-native';
@@ -13,7 +14,7 @@ interface UserItemProps {
 }
 
 export default function UserItem({
-  imageSource = '',
+  imageSource,
   text = 'John Doe',
   tag = '(You)',
   showTag = false,
@@ -21,7 +22,21 @@ export default function UserItem({
 }: UserItemProps) {
   return (
     <PopPressable style={styles.contributorContainer} onPress={onPress}>
-      <NetworkImage source={imageSource} style={styles.image} />
+      {imageSource ? (
+        <NetworkImage style={styles.image} source={imageSource} />
+      ) : (
+        <View
+          style={[
+            styles.image,
+            {
+              backgroundColor: '#F4F1EA',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+          ]}>
+          <UserIcon height={24} width={24} color={'#868581'} />
+        </View>
+      )}
       <View style={{ columnGap: Spacings.sm, flexDirection: 'row' }}>
         <Text style={textStyles.labelLargeBlack}>{text}</Text>
         {showTag && <Text style={textStyles.labelLargeGrey}>{tag}</Text>}

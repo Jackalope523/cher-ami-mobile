@@ -1,4 +1,5 @@
 import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
+import UserIcon from '@/assets/icons/user.svg';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetSelfQuery, useGetUserQuery } from '@/lib/hooks';
@@ -53,13 +54,27 @@ export default function Post({ post }: PostProps) {
             columnGap: Spacings.md,
             alignItems: 'center',
           }}>
-          <NetworkImage
-            source={
-              userQuery.data.avatarPath +
-              `?timestamp=${userQuery.data.avatarTimestamp}`
-            }
-            style={{ height: 48, width: 48, borderRadius: 24 }}
-          />
+          {userQuery.data.avatarPath ? (
+            <NetworkImage
+              style={{ height: 48, width: 48, borderRadius: 24 }}
+              source={
+                userQuery.data.avatarPath +
+                `?timestamp=${userQuery.data.avatarTimestamp}`
+              }
+            />
+          ) : (
+            <View
+              style={{
+                height: 48,
+                width: 48,
+                borderRadius: 24,
+                backgroundColor: '#F4F1EA',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <UserIcon height={24} width={24} color={'#868581'} />
+            </View>
+          )}
           <View>
             <Text
               style={

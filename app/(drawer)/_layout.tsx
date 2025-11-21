@@ -2,6 +2,7 @@ import GalleryIcon from '@/assets/icons/gallery-vertical.svg';
 import LogoutIcon from '@/assets/icons/log-out.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
 import SettingsIcon from '@/assets/icons/settings.svg';
+import UserIcon from '@/assets/icons/user.svg';
 import PersonIconOrange from '@/assets/icons/users-round.svg';
 import { useAuth } from '@/components/AuthProvider';
 import Error from '@/components/Error';
@@ -64,17 +65,31 @@ export default function Layout() {
               paddingLeft: Spacings.lg,
               marginBottom: Spacings.xl,
             }}>
-            <NetworkImage
-              source={
-                selfQuery.data.avatarPath +
-                `?timestamp=${selfQuery.data.avatarTimestamp}`
-              }
-              style={{
-                height: 48,
-                width: 48,
-                borderRadius: 24,
-              }}
-            />
+            {selfQuery.data.avatarPath ? (
+              <NetworkImage
+                source={
+                  selfQuery.data.avatarPath +
+                  `?timestamp=${selfQuery.data.avatarTimestamp}`
+                }
+                style={{
+                  height: 48,
+                  width: 48,
+                  borderRadius: 24,
+                }}
+              />
+            ) : (
+              <View
+                style={{
+                  height: 48,
+                  width: 48,
+                  borderRadius: 24,
+                  backgroundColor: '#F4F1EA',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <UserIcon height={24} width={24} color={'#868581'} />
+              </View>
+            )}
             <Text
               style={
                 textStyles.heading4
