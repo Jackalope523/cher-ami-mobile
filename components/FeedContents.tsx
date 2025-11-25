@@ -26,7 +26,6 @@ export default function FeedContents() {
       pathname: '/post/create',
       params: {
         issueTitle: data?.pages[0].issueTitle,
-        postCount: data?.pages[0].posts.length,
       },
     });
   }

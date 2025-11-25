@@ -28,7 +28,7 @@ import { TextInput } from 'react-native-gesture-handler';
 export default function Create() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
-  const { issueTitle, postCount } = useLocalSearchParams();
+  const { issueTitle } = useLocalSearchParams();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
@@ -106,10 +106,7 @@ export default function Create() {
       <View>
         {!keyboardVisible && (
           <View>
-            <PostCounter
-              issueTitle={issueTitle as string}
-              numberOfPosts={parseInt(postCount as string, 10)}
-            />
+            <PostCounter issueTitle={issueTitle as string} />
             <PopPressable
               style={styles.imageContainer}
               onPress={pickImageAsync}>
