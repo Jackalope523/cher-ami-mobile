@@ -5,7 +5,6 @@ import DialogueModalProvider from '@/components/modals/DialogueModalProvider';
 import DrawerModalProvider from '@/components/modals/DrawerModalProvider';
 import ToastMessageProvider from '@/components/modals/ToastMessageProvider';
 import { textStyles } from '@/constants/TextStyles';
-import { usePingMutation } from '@/lib/hooks';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
@@ -15,20 +14,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  const pingMutation = usePingMutation();
   const { isLoaded, getToken, getOnboarded } = useAuth();
 
   useEffect(() => {
-    pingMutation.mutate();
-  }, []);
-
-  useEffect(() => {
-    if (isLoaded() && pingMutation.isSuccess) {
-      setTimeout(() => {
-        SplashScreen.hide();
-      }, 500);
+    if (isLoaded()) {
+      SplashScreen.hide();
     }
-  }, [isLoaded, pingMutation.isSuccess]);
+  }, [isLoaded]);
 
   if (!isLoaded()) {
     return null;

@@ -47,8 +47,8 @@ export default function ReportPostContents({
           textStyles.body,
           { textAlign: 'center', marginBottom: Spacings.xxl },
         ]}>
-        Once the report is filed, our team will review the post and take
-        appropriate action.
+        Once you submit, our team will review the reported post within 24h and
+        take appropriate action. We will let you know our decision by email.
       </Text>
       <PopPressable
         disabled={mutation.isPending}
