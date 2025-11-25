@@ -15,5 +15,5 @@ export function formatPhotoDate(date: Date) {
       ? 'rd'
       : 'th';
 
-  return `Photo taken on ${month} ${day}${suffix}, ${year}`;
+  return `Photo uploaded on ${month} ${day}${suffix}, ${year}`;
 }

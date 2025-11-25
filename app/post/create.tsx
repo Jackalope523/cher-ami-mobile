@@ -38,6 +38,7 @@ export default function Create() {
     () => {
       showToastMessage('Upload success!', ToastMessageType.Success);
       queryClient.invalidateQueries({ queryKey: ['FeedPages'] });
+      queryClient.invalidateQueries({ queryKey: ['Count'] });
     },
     (error) => {
       console.error('Upload failed:', error);

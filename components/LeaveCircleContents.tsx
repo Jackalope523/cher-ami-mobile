@@ -4,22 +4,20 @@ import { useGetCircleQuery, useLeaveCircleMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
+import { useDialogueModal } from './modals/DialogueModalProvider';
 import {
   ToastMessageType,
   useToastMessage,
 } from './modals/ToastMessageProvider';
 import PopPressable from './PopPressable';
 
-interface LeaveCircleContentsProps {
-  dismissModal?: () => void;
-}
+interface LeaveCircleContentsProps {}
 
-export default function LeaveCircleContents({
-  dismissModal = () => {},
-}: LeaveCircleContentsProps) {
+export default function LeaveCircleContents({}: LeaveCircleContentsProps) {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const { data } = useGetCircleQuery();
+  const { dismissDialogue } = useDialogueModal();
   const mutation = useLeaveCircleMutation(
     async () => {
       await queryClient.invalidateQueries({ queryKey: ['Circle'] });
@@ -34,7 +32,7 @@ export default function LeaveCircleContents({
 
   function handleDelete() {
     mutation.mutate();
-    dismissModal();
+    dismissDialogue();
   }
 
   return (
@@ -70,7 +68,7 @@ export default function LeaveCircleContents({
         <Text style={textStyles.buttonTextBlack}>Leave</Text>
       </PopPressable>
       <PopPressable
-        onPress={dismissModal}
+        onPress={dismissDialogue}
         style={{
           paddingVertical: Spacings.md,
           alignItems: 'center',

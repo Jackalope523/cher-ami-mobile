@@ -1,13 +1,13 @@
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useDeleteUserMutation } from '@/lib/hooks';
-import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import { useAuth } from './AuthProvider';
 import Error from './Error';
 import Loading from './Loading';
+import { useDialogueModal } from './modals/DialogueModalProvider';
 import {
   ToastMessageType,
   useToastMessage,
@@ -15,27 +15,23 @@ import {
 import PopPressable from './PopPressable';
 import TextInput from './TextInput';
 
-interface DeleteAccountContentsProps {
-  dismissModal?: () => void;
-}
+interface DeleteAccountContentsProps {}
 
-export default function DeleteAccountContents({
-  dismissModal = () => {},
-}: DeleteAccountContentsProps) {
+export default function DeleteAccountContents({}: DeleteAccountContentsProps) {
   const showToastMessage = useToastMessage();
   const [text, setText] = useState('');
-  const queryClient = useQueryClient();
+  const { dismissDialogue } = useDialogueModal();
   const { deleteToken, updateOnboarded } = useAuth();
   const deleteAccountMutation = useDeleteUserMutation(
     () => {
       showToastMessage('Accound Deleted', ToastMessageType.Success);
       updateOnboarded(false);
       deleteToken();
-      dismissModal();
+      dismissDialogue();
     },
     () => {
       showToastMessage('Network error. Try again.', ToastMessageType.Error);
-      dismissModal();
+      dismissDialogue();
     },
   );
 
@@ -108,7 +104,7 @@ export default function DeleteAccountContents({
         <Text style={textStyles.buttonTextBlack}>Delete</Text>
       </PopPressable>
       <PopPressable
-        onPress={dismissModal}
+        onPress={dismissDialogue}
         style={{
           paddingVertical: Spacings.md,
           alignItems: 'center',

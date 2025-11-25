@@ -25,8 +25,8 @@ export default function Verify() {
       updateToken(response.token);
       updateOnboarded(response.onboarded);
     },
-    (error) => {
-      showToast('Failed to verify. Try again.', ToastMessageType.Error);
+    (_) => {
+      showToast('Network error. Try again.', ToastMessageType.Error);
     },
   );
 

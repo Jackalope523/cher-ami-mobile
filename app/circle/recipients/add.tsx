@@ -44,8 +44,7 @@ export default function AddRecipient() {
       router.back();
     },
     (error) => {
-      console.error('Failed to add recipient:', error);
-      showToastMessage('Failed to add recipient.', ToastMessageType.Error);
+      showToastMessage('Network error. Try again.', ToastMessageType.Error);
     },
   );
 

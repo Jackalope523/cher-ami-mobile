@@ -3,7 +3,7 @@ import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
 import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, EmailVerifyRequest, IdRequest, ImageRequest, JoinCircleRequest, RecipientRequest, TokenRequest, UpdateRecipientRequest, UpdateUserRequest } from './requests';
-import { CircleDTO, CodeResponse, FeedPageResponse, LoginResponse, RecipientDTO, UserDTO } from './responses';
+import { CircleDTO, CodeResponse, FeedPageResponse, LoginResponse, RecipientDTO, UserDTO, UserItem } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
   const savedCallback = useRef(callback);
@@ -28,8 +28,32 @@ export function usePingMutation() {
   
   return useMutation<void, AxiosError>({
     mutationFn: async () => {
-      await api.get('/ping', {timeout: 60000});
+      await api.post('/ping', {timeout: 60000});
     },
+  });
+}
+
+export function usePostCountQuery() {
+  const api = useAPI();
+
+  return useQuery<number, AxiosError>({
+    queryKey: ['PostCount'],
+    queryFn: async () => {
+      const response = await api.get('/issue/posts/count');
+      return response.data;
+    }  
+  });
+}
+
+export function useBlockedUsersQuery() {
+  const api = useAPI();
+
+  return useQuery<UserItem[], AxiosError>({
+    queryKey: ['BlockedUsers'],
+    queryFn: async () => {
+      const response = await api.get('/users/blocked');
+      return response.data;
+    }  
   });
 }
 
@@ -131,7 +155,7 @@ export function useDeletePostMutation(onSuccess?: () => void,   onError?: (error
 
   return useMutation<void, AxiosError, IdRequest>({
     mutationFn: async (request) => {
-      await api.delete(`/posts/${request.Id}`,);
+      await api.delete(`/posts/${request.Id}`);
     },
     onSuccess,
     onError
@@ -400,7 +424,31 @@ export function useReportPostMutation(onSuccess?:() => void , onError?: (error: 
 
   return useMutation<void, AxiosError, IdRequest>({
       mutationFn: async (request: IdRequest) => {
-        await api.post(`/posts/${request.Id}/report`, request)
+        await api.post(`/posts/${request.Id}/report`)
+      },
+      onSuccess: onSuccess,
+      onError: onError,
+    });
+}
+
+export function useBlockUserMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError, IdRequest>({
+      mutationFn: async (request: IdRequest) => {
+        await api.post(`/users/${request.Id}/block`);
+      },
+      onSuccess: onSuccess,
+      onError: onError,
+    });
+}
+
+export function useUnblockUserMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<void, AxiosError, IdRequest>({
+      mutationFn: async (request: IdRequest) => {
+        await api.delete(`/users/${request.Id}/block`);
       },
       onSuccess: onSuccess,
       onError: onError,

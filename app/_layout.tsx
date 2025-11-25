@@ -110,6 +110,7 @@ function RootNavigator() {
             name="onboarding/circleHeader"
             options={{ title: '' }}
           />
+          <Stack.Screen name="blocked" options={{ title: 'Blocked Users' }} />
         </Stack.Protected>
       </Stack.Protected>
     </Stack>

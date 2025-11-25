@@ -192,10 +192,7 @@ export default function FeedContents() {
   function renderListHeader() {
     return (
       <View>
-        <PostCounter
-          numberOfPosts={data?.pages[0].posts.length}
-          issueTitle={data?.pages[0].issueTitle}
-        />
+        <PostCounter issueTitle={data?.pages[0].issueTitle} />
         {data?.pages[0].posts.length === 0 && (
           <View style={styles.toast}>
             <Text

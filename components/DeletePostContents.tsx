@@ -4,6 +4,7 @@ import { useDeletePostMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { StyleSheet, Text, View } from 'react-native';
 import PopPressable from './PopPressable';
+import { useDialogueModal } from './modals/DialogueModalProvider';
 import {
   ToastMessageType,
   useToastMessage,
@@ -11,24 +12,24 @@ import {
 
 interface DeletePostContentsProps {
   postId: number;
-  dismissModal?: () => void;
 }
 
 export default function DeletePostContents({
   postId,
-  dismissModal = () => {},
 }: DeletePostContentsProps) {
   const showToast = useToastMessage();
+  const { dismissDialogue } = useDialogueModal();
   const queryClient = useQueryClient();
   const mutation = useDeletePostMutation(
     () => {
       showToast('Post deleted.', ToastMessageType.Success);
       queryClient.invalidateQueries({ queryKey: ['FeedPages'] });
-      dismissModal();
+      queryClient.invalidateQueries({ queryKey: ['PostCount'] });
+      dismissDialogue();
     },
     () => {
       showToast('Failed to delete post.', ToastMessageType.Error);
-      dismissModal();
+      dismissDialogue();
     },
   );
 
@@ -69,7 +70,7 @@ export default function DeletePostContents({
         <Text style={textStyles.buttonTextBlack}>Delete</Text>
       </PopPressable>
       <PopPressable
-        onPress={dismissModal}
+        onPress={dismissDialogue}
         style={{
           paddingVertical: Spacings.md,
           alignItems: 'center',

@@ -1,7 +1,10 @@
 import CalendarIcon from '@/assets/icons/calendar.svg';
-import PlusIcon from '@/assets/icons/plus.svg';
+import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
+import { default as PlusIcon } from '@/assets/icons/plus.svg';
+import BlockUserContents from '@/components/BlockUserContents';
 import Error from '@/components/Error';
 import Loading from '@/components/Loading';
+import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
 import {
   ToastMessageType,
   useToastMessage,
@@ -15,16 +18,19 @@ import { UserDTO } from '@/lib/responses';
 import { useQueryClient } from '@tanstack/react-query';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { launchImageLibraryAsync } from 'expo-image-picker';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function Profile() {
   const { id } = useLocalSearchParams();
+  const navigation = useNavigation();
   const queryClient = useQueryClient();
   const isSelf =
     queryClient.getQueryData<UserDTO>(['User', 'Self'])?.id === Number(id);
   const { data, status } = useGetUserQuery(Number(id));
   const showToastMessage = useToastMessage();
+  const { displayDialogue, dismissDialogue } = useDialogueModal();
 
   const uploadMutation = useUpdateAvatarMutation(
     () => {
@@ -39,27 +45,40 @@ export default function Profile() {
     },
   );
 
+  useEffect(() => {
+    if (!isSelf) {
+      navigation.setOptions({
+        headerRight: () => (
+          <PopPressable
+            onPress={() => {
+              displayDialogue(<BlockUserContents userId={Number(id)} />);
+            }}>
+            <MenuIcon height={24} width={24} color={'#C15F3C'} />
+          </PopPressable>
+        ),
+      });
+    }
+  }, [data, displayDialogue, id, isSelf, navigation]);
+
   async function pickImageAsync() {
-    if (isSelf) {
-      let result = await launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
+    let result = await launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const image = await ImageManipulator.manipulate(
+        result.assets[0].uri,
+      ).renderAsync();
+      const jpgImage = await image.saveAsync({
+        format: SaveFormat.JPEG,
       });
 
-      if (!result.canceled) {
-        const image = await ImageManipulator.manipulate(
-          result.assets[0].uri,
-        ).renderAsync();
-        const jpgImage = await image.saveAsync({
-          format: SaveFormat.JPEG,
-        });
-
-        uploadMutation.mutate({
-          imageUri: jpgImage.uri,
-        });
-      }
+      uploadMutation.mutate({
+        imageUri: jpgImage.uri,
+      });
     }
   }
 
@@ -78,7 +97,10 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <View>
-        <PopPressable style={styles.avatarContainer} onPress={pickImageAsync}>
+        <PopPressable
+          style={styles.avatarContainer}
+          onPress={pickImageAsync}
+          disabled={!isSelf}>
           {data.avatarPath ? (
             <NetworkImage
               style={styles.avatar}

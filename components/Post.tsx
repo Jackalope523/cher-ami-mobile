@@ -5,6 +5,7 @@ import { textStyles } from '@/constants/TextStyles';
 import { useGetSelfQuery, useGetUserQuery } from '@/lib/hooks';
 import { FeedPost } from '@/lib/responses';
 import { formatPhotoDate } from '@/lib/utility';
+import { router } from 'expo-router';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import DeletePostContents from './DeletePostContents';
 import { useDialogueModal } from './modals/DialogueModalProvider';
@@ -17,19 +18,15 @@ type PostProps = {
 };
 
 export default function Post({ post }: PostProps) {
-  const { displayDialogue, dismissDialogue } = useDialogueModal();
+  const { displayDialogue } = useDialogueModal();
   const userQuery = useGetUserQuery(post.authorId);
   const selfQuery = useGetSelfQuery();
 
   function handlePostSettings(postId: number) {
     if (post.authorId === selfQuery.data?.id) {
-      displayDialogue(
-        <DeletePostContents dismissModal={dismissDialogue} postId={postId} />,
-      );
+      displayDialogue(<DeletePostContents postId={postId} />);
     } else {
-      displayDialogue(
-        <ReportPostContents dismissModal={dismissDialogue} postId={postId} />,
-      );
+      displayDialogue(<ReportPostContents postId={postId} />);
     }
   }
 
@@ -54,32 +51,48 @@ export default function Post({ post }: PostProps) {
             columnGap: Spacings.md,
             alignItems: 'center',
           }}>
-          {userQuery.data.avatarPath ? (
-            <NetworkImage
-              style={{ height: 48, width: 48, borderRadius: 24 }}
-              source={
-                userQuery.data.avatarPath +
-                `?timestamp=${userQuery.data.avatarTimestamp}`
-              }
-            />
-          ) : (
-            <View
-              style={{
-                height: 48,
-                width: 48,
-                borderRadius: 24,
-                backgroundColor: '#F4F1EA',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <UserIcon height={24} width={24} color={'#868581'} />
-            </View>
-          )}
+          <PopPressable
+            onPress={() =>
+              router.push({
+                pathname: '/profile/[id]',
+                params: { id: post.authorId },
+              })
+            }>
+            {userQuery.data.avatarPath ? (
+              <NetworkImage
+                style={{ height: 48, width: 48, borderRadius: 24 }}
+                source={
+                  userQuery.data.avatarPath +
+                  `?timestamp=${userQuery.data.avatarTimestamp}`
+                }
+              />
+            ) : (
+              <View
+                style={{
+                  height: 48,
+                  width: 48,
+                  borderRadius: 24,
+                  backgroundColor: '#F4F1EA',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <UserIcon height={24} width={24} color={'#868581'} />
+              </View>
+            )}
+          </PopPressable>
           <View>
-            <Text
-              style={
-                textStyles.labelLargeBlack
-              }>{`${userQuery.data.firstName} ${userQuery.data.lastName}`}</Text>
+            <PopPressable
+              onPress={() =>
+                router.push({
+                  pathname: '/profile/[id]',
+                  params: { id: post.authorId },
+                })
+              }>
+              <Text
+                style={
+                  textStyles.labelLargeBlack
+                }>{`${userQuery.data.firstName} ${userQuery.data.lastName}`}</Text>
+            </PopPressable>
             <Text style={textStyles.captionMedium}>
               {formatPhotoDate(post.photoDate)}
             </Text>

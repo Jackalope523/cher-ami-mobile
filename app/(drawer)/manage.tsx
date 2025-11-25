@@ -64,7 +64,7 @@ export default function Manage() {
   }
 
   function handleCircleSettings() {
-    displayDialogue(<LeaveCircleContents dismissModal={dismissDialogue} />);
+    displayDialogue(<LeaveCircleContents />);
   }
 
   async function pickImageAsync() {

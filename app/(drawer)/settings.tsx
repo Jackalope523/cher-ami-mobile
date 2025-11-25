@@ -1,3 +1,4 @@
+import BlockIcon from '@/assets/icons/block.svg';
 import Chevron from '@/assets/icons/chevron-right.svg';
 import PrivacyPolicyIcon from '@/assets/icons/file-key.svg';
 import TermsOfServiceIcon from '@/assets/icons/scroll.svg';
@@ -9,6 +10,7 @@ import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { openURL } from 'expo-linking';
+import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function Settings() {
@@ -45,9 +47,18 @@ export default function Settings() {
       <View style={styles.optionsContainer}>
         <PopPressable
           onPress={() => {
-            displayDialogue(
-              <DeleteAccountContents dismissModal={dismissDialogue} />,
-            );
+            router.push('/blocked');
+          }}
+          style={styles.option}>
+          <View style={styles.optionLabel}>
+            <BlockIcon height={24} width={24} color={'#B05637'} />
+            <Text style={textStyles.buttonTextOrange}>Blocked Users</Text>
+          </View>
+          <Chevron height={24} width={24} color={'#B05637'} />
+        </PopPressable>
+        <PopPressable
+          onPress={() => {
+            displayDialogue(<DeleteAccountContents />);
           }}
           style={styles.option}>
           <View style={styles.optionLabel}>

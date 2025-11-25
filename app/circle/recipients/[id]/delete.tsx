@@ -89,10 +89,7 @@ export default function DeleteRecipient() {
               borderColor: '#ECEDEF',
             },
           ]}>
-          <Text
-            style={[textStyles.buttonTextWhite, false && { color: '#A8ABB3' }]}>
-            Cancel
-          </Text>
+          <Text style={textStyles.buttonTextWhite}>Cancel</Text>
         </PopPressable>
       </View>
     </SafeAreaView>

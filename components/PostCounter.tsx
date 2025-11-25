@@ -1,5 +1,6 @@
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { usePostCountQuery } from '@/lib/hooks';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   interpolateColor,
@@ -10,17 +11,17 @@ import Animated, {
 
 type PostCounterProps = {
   issueTitle?: string | null | undefined;
-  numberOfPosts?: number;
   maxPosts?: number;
 };
 
 export default function PostCounter({
   issueTitle = 'Issue 1',
-  numberOfPosts = 0,
   maxPosts = 20,
 }: PostCounterProps) {
+  const { data } = usePostCountQuery();
+
   const progress = useDerivedValue(() => {
-    return withTiming((100 * numberOfPosts) / maxPosts, { duration: 500 });
+    return data ? withTiming((100 * data) / maxPosts, { duration: 500 }) : 0;
   });
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -40,7 +41,7 @@ export default function PostCounter({
       <View style={styles.issueStateInfo}>
         <Text style={textStyles.labelLargeBlack}>{issueTitle}</Text>
         <Text style={textStyles.labelLargeBlack}>
-          {numberOfPosts}/{maxPosts} posts
+          {data}/{maxPosts} posts
         </Text>
       </View>
 
