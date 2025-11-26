@@ -3,7 +3,7 @@ import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
 import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, EmailVerifyRequest, IdRequest, ImageRequest, JoinCircleRequest, RecipientRequest, TokenRequest, UpdateRecipientRequest, UpdateUserRequest } from './requests';
-import { CircleDTO, CodeResponse, FeedPageResponse, LoginResponse, RecipientDTO, UserDTO, UserItem } from './responses';
+import { CircleDTO, CodeResponse, CreateSetupIntentResponse, FeedPageResponse, LoginResponse, RecipientDTO, UserDTO, UserItem } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
   const savedCallback = useRef(callback);
@@ -156,6 +156,19 @@ export function useDeletePostMutation(onSuccess?: () => void,   onError?: (error
   return useMutation<void, AxiosError, IdRequest>({
     mutationFn: async (request) => {
       await api.delete(`/posts/${request.Id}`);
+    },
+    onSuccess,
+    onError
+  });
+}
+
+export function useCreateSetupIntentMutation(onSuccess?: (response: CreateSetupIntentResponse) => void,   onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+
+  return useMutation<CreateSetupIntentResponse, AxiosError, void>({
+    mutationFn: async () => {
+      const response = await api.post<CreateSetupIntentResponse>(`/stripe/setup-intents`);
+      return response.data;
     },
     onSuccess,
     onError
