@@ -1,4 +1,4 @@
-import { deleteItemAsync, getItemAsync, setItemAsync } from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   createContext,
   ReactNode,
@@ -12,7 +12,7 @@ interface AuthProviderProps {
 }
 
 interface AuthInterface {
-  isLoaded: () => boolean;
+  loaded: boolean;
   getToken: () => string | null;
   updateToken: (token: string) => void;
   deleteToken: () => void;
@@ -30,7 +30,7 @@ export const useAuth = () => {
   }
 
   return {
-    isLoaded: context.isLoaded,
+    loaded: context.loaded,
     getToken: context.getToken,
     updateToken: context.updateToken,
     deleteToken: context.deleteToken,
@@ -46,8 +46,10 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     async function loadAsync() {
-      const token = await getItemAsync('token');
-      const onboarded = (await getItemAsync('Onboarded')) === 'true';
+      // const token = await getItemAsync('token');
+      // const onboarded = (await getItemAsync('Onboarded')) === 'true';
+      const token = await AsyncStorage.getItem('token');
+      const onboarded = (await AsyncStorage.getItem('Onboarded')) === 'true';
 
       setToken(onboarded ? token : null);
       setOnboarded(onboarded);
@@ -57,22 +59,20 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     loadAsync();
   }, []);
 
-  function isLoaded() {
-    return loaded;
-  }
-
   function getToken() {
     return token;
   }
 
   function updateToken(token: string) {
     setToken(token);
-    setItemAsync('token', token);
+    // setItemAsync('token', token);
+    AsyncStorage.setItem('token', token);
   }
 
   function deleteToken() {
     setToken(null);
-    deleteItemAsync('token');
+    // deleteItemAsync('token');
+    AsyncStorage.removeItem('token');
   }
 
   function getOnboarded() {
@@ -81,13 +81,14 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   function updateOnboarded(value: boolean) {
     setOnboarded(value);
-    setItemAsync('Onboarded', value.toString());
+    //setItemAsync('Onboarded', value.toString());
+    AsyncStorage.setItem('Onboarded', value.toString());
   }
 
   return (
     <AuthContext.Provider
       value={{
-        isLoaded,
+        loaded,
         getToken,
         updateToken,
         deleteToken,

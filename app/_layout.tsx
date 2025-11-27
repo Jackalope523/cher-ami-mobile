@@ -14,15 +14,15 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  const { isLoaded, getToken, getOnboarded } = useAuth();
+  const { loaded, getToken, getOnboarded } = useAuth();
 
   useEffect(() => {
-    if (isLoaded()) {
+    if (loaded) {
       SplashScreen.hide();
     }
-  }, [isLoaded]);
+  }, [loaded]);
 
-  if (!isLoaded()) {
+  if (!loaded) {
     return null;
   }
 
