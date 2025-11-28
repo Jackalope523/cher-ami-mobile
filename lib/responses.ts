@@ -80,3 +80,10 @@ export interface LoginResponse {
 export interface CodeResponse {
   code: string;
 }
+
+export interface CreateSetupIntentResponse {
+  clientSecret: string;
+  returnURL: string;
+  merchantDisplayName: string;
+  allowsDelayedPaymentMethods: boolean;
+}

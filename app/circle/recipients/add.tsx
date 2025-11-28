@@ -12,7 +12,11 @@ import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useAddRecipientMutation } from '@/lib/hooks';
+import {
+  useAddRecipientMutation,
+  useCreateSetupIntentMutation,
+} from '@/lib/hooks';
+import { CreateSetupIntentResponse } from '@/lib/responses';
 import { SetupParams, useStripe } from '@stripe/stripe-react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
@@ -25,6 +29,8 @@ export default function AddRecipient() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [paymentSheetProps, setPaymentSheetProps] =
+    useState<CreateSetupIntentResponse>();
 
   const [avatar, setAvatar] = useState('');
   const [title, setTitle] = useState('');
@@ -48,23 +54,61 @@ export default function AddRecipient() {
     },
   );
 
-  useEffect(() => {
-    const initializePaymentSheet = async () => {
-      const params: SetupParams = {
-        paymentIntentClientSecret: '',
-        returnURL: 'stripe-example://payment-sheet',
-        allowsDelayedPaymentMethods: true,
-        merchantDisplayName: 'Hollow Inc',
-      };
+  const createSetupIntentMutation = useCreateSetupIntentMutation(
+    (response) => {
+      setPaymentSheetProps(response);
+    },
+    (error) => {},
+  );
 
-      const { error } = await initPaymentSheet(params);
-      if (error) {
-        // Handle error
+  useEffect(() => {
+    createSetupIntentMutation.mutate();
+  }, []);
+
+  useEffect(() => {
+    async function initializePaymentSheet() {
+      if (paymentSheetProps) {
+        const params: SetupParams = {
+          paymentIntentClientSecret: paymentSheetProps.clientSecret,
+          returnURL: paymentSheetProps.returnURL,
+          allowsDelayedPaymentMethods:
+            paymentSheetProps.allowsDelayedPaymentMethods,
+          merchantDisplayName: paymentSheetProps.merchantDisplayName,
+        };
+
+        const { error } = await initPaymentSheet(params);
+
+        if (error) {
+          showToastMessage('Network error. Try again.', ToastMessageType.Error);
+        }
+      } else {
+        const params: SetupParams = {
+          paymentIntentClientSecret: '',
+          returnURL: 'cherami://',
+          allowsDelayedPaymentMethods: true,
+          merchantDisplayName: 'Cher Ami',
+        };
+
+        const { error } = await initPaymentSheet(params);
+
+        if (error) {
+          showToastMessage('Network error. Try again.', ToastMessageType.Error);
+        }
       }
-    };
+    }
 
     initializePaymentSheet();
-  }, [initPaymentSheet]);
+  }, [initPaymentSheet, paymentSheetProps, showToastMessage]);
+
+  const openPaymentSheet = async () => {
+    const { error } = await presentPaymentSheet();
+
+    if (error) {
+      console.log(`Error code: ${error.code}`, error.message);
+    } else {
+      console.log('Success', 'Your order is confirmed!');
+    }
+  };
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -81,17 +125,18 @@ export default function AddRecipient() {
   }, []);
 
   function buttonDisabled() {
-    return (
-      avatar === '' ||
-      firstName === '' ||
-      lastName === '' ||
-      street === '' ||
-      city === '' ||
-      provinceOrState === '' ||
-      postalCode === '' ||
-      country === '' ||
-      addRecipientMutation.isPending
-    );
+    // return (
+    //   avatar === '' ||
+    //   firstName === '' ||
+    //   lastName === '' ||
+    //   street === '' ||
+    //   city === '' ||
+    //   provinceOrState === '' ||
+    //   postalCode === '' ||
+    //   country === '' ||
+    //   addRecipientMutation.isPending
+    // );
+    return false;
   }
 
   async function pickImageAsync() {
@@ -115,19 +160,20 @@ export default function AddRecipient() {
   }
 
   function handleAdd() {
-    addRecipientMutation.mutate({
-      avatarUri: avatar,
-      avatarName: 'avatar.jpg',
-      title: title,
-      firstName: firstName,
-      lastName: lastName,
-      unitNumber: unitNumber,
-      street: street,
-      city: city,
-      provinceOrState: provinceOrState,
-      postalCode: postalCode,
-      country: country,
-    });
+    openPaymentSheet();
+    // addRecipientMutation.mutate({
+    //   avatarUri: avatar,
+    //   avatarName: 'avatar.jpg',
+    //   title: title,
+    //   firstName: firstName,
+    //   lastName: lastName,
+    //   unitNumber: unitNumber,
+    //   street: street,
+    //   city: city,
+    //   provinceOrState: provinceOrState,
+    //   postalCode: postalCode,
+    //   country: country,
+    // });
   }
 
   return (

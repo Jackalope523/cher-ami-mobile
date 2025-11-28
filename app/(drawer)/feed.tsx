@@ -25,6 +25,8 @@ export default function Feed() {
     return <Loading />;
   }
 
+  console.log(circleQuery.data);
+
   if (!circleQuery.data) {
     return <JoinOrCreateCircle />;
   }
