@@ -45,6 +45,30 @@ export function usePostCountQuery() {
   });
 }
 
+export function useCheckPaymentMethodsQuery() {
+  const api = useAPI();
+
+  return useQuery<boolean, AxiosError>({
+    queryKey: ['HasPaymentMethod'],
+    queryFn: async () => {
+      const response = await api.get('/stripe/payment-methods/check');
+      return response.data;
+    }  
+  });
+}
+
+export function useGetPriceQuery() {
+  const api = useAPI();
+
+  return useQuery<number, AxiosError>({
+    queryKey: ['Price'],
+    queryFn: async () => {
+      const response = await api.get('/recipient/price');
+      return response.data;
+    }  
+  });
+}
+
 export function useBlockedUsersQuery() {
   const api = useAPI();
 
@@ -510,7 +534,11 @@ export function useAddRecipientMutation(onSuccess?: () => void,   onError?: (err
       formData.append('Title', request.title);
       formData.append('FirstName', request.firstName);
       formData.append('LastName', request.lastName);
-      formData.append('UnitNumber', request.unitNumber);
+
+      if (request.unitNumber) {
+        formData.append('UnitNumber', request.unitNumber);
+      }
+      
       formData.append('Street', request.street);
       formData.append('City', request.city);
       formData.append('ProvinceOrState', request.provinceOrState);

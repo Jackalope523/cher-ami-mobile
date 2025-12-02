@@ -10,7 +10,11 @@ import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetRecipientQuery, useUpdateRecipientMutation } from '@/lib/hooks';
+import {
+  useGetPriceQuery,
+  useGetRecipientQuery,
+  useUpdateRecipientMutation,
+} from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
@@ -24,6 +28,7 @@ export default function EditRecipient() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const getPriceQuery = useGetPriceQuery();
   const showToastMessage = useToastMessage();
   const { data, status } = useGetRecipientQuery(Number(id));
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -115,6 +120,7 @@ export default function EditRecipient() {
       ).renderAsync();
       const jpgImage = await image.saveAsync({
         format: SaveFormat.JPEG,
+        compress: 0.5,
       });
 
       setAvatar(jpgImage.uri);
@@ -159,15 +165,15 @@ export default function EditRecipient() {
     }
   }
 
-  if (status === 'error') {
+  if (status === 'error' || getPriceQuery.isError) {
     return <Error />;
   }
 
-  if (status === 'pending') {
+  if (status === 'pending' || getPriceQuery.isLoading) {
     return <Loading />;
   }
 
-  if (!data) {
+  if (!data || !getPriceQuery.data) {
     return null;
   }
 
@@ -266,7 +272,7 @@ export default function EditRecipient() {
           editable={false}
         />
       </View>
-      {/* <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
+      <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
       <View style={styles.summaryItemList}>
         <View style={styles.summaryItem}>
           <Text style={textStyles.labelLargeBlack}>Renewal</Text>
@@ -287,13 +293,16 @@ export default function EditRecipient() {
         <View style={styles.divider} />
         <View style={styles.summaryItem}>
           <Text style={textStyles.labelSmall}>Total</Text>
-          <Text style={textStyles.labelSmall}>$12,00</Text>
+          <Text style={textStyles.labelSmall}>
+            {' '}
+            ${getPriceQuery.data / 100}.00
+          </Text>
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>
           *Monthly subscription that charges you every month, starting October
           1.
         </Text>
-      </View> */}
+      </View>
       <PopPressable
         onPress={handleSaveChanges}
         disabled={buttonDisabled()}

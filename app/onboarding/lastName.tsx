@@ -84,10 +84,10 @@ export default function LastName() {
 
       <PopPressable
         onPress={handleUpdateUser}
-        disabled={!lastName}
+        disabled={!lastName || userMutation.isPending}
         style={[
           styles.button,
-          !lastName && {
+          (!lastName || userMutation.isPending) && {
             backgroundColor: '#ECEDEF',
             borderColor: '#ECEDEF',
           },
@@ -95,7 +95,7 @@ export default function LastName() {
         <Text
           style={[
             textStyles.buttonTextWhite,
-            !lastName && { color: '#A8ABB3' },
+            (!lastName || userMutation.isPending) && { color: '#A8ABB3' },
           ]}>
           Continue
         </Text>

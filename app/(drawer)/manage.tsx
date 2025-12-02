@@ -1,3 +1,4 @@
+import CreditCardIcon from '@/assets/icons/credit-card.svg';
 import SettingsIcon from '@/assets/icons/log-out.svg';
 import PlusIcon from '@/assets/icons/plus.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
@@ -17,6 +18,7 @@ import UserItem from '@/components/UserItem';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
+  useCheckPaymentMethodsQuery,
   useGetCircleQuery,
   useGetSelfQuery,
   useUpdateHeaderMutation,
@@ -36,8 +38,9 @@ export default function Manage() {
   const queryClient = useQueryClient();
   const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
+  const checkPaymentMethodsQuery = useCheckPaymentMethodsQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
-  const { displayDialogue, dismissDialogue } = useDialogueModal();
+  const { displayDialogue } = useDialogueModal();
   const [scrolling, setScrolling] = useState(false);
 
   const uploadMutation = useUpdateHeaderMutation(
@@ -61,6 +64,14 @@ export default function Manage() {
     displayBottomSheet(
       <InviteModalContents dismissModal={dismissBottomSheetModal} />,
     );
+  }
+
+  function handleAddRecipient() {
+    if (checkPaymentMethodsQuery.data) {
+      router.push('/circle/recipients/add');
+    } else {
+      router.push('/billing/add');
+    }
   }
 
   function handleCircleSettings() {
@@ -89,15 +100,27 @@ export default function Manage() {
     }
   }
 
-  if (circleQuery.isError || userQuery.isError) {
+  if (
+    circleQuery.isError ||
+    userQuery.isError ||
+    checkPaymentMethodsQuery.isError
+  ) {
     return <Error />;
   }
 
-  if (circleQuery.isLoading || userQuery.isLoading) {
+  if (
+    circleQuery.isLoading ||
+    userQuery.isLoading ||
+    checkPaymentMethodsQuery.isLoading
+  ) {
     return <Loading />;
   }
 
-  if (!circleQuery.data || !userQuery.data) {
+  if (
+    !circleQuery.data ||
+    !userQuery.data ||
+    checkPaymentMethodsQuery.data === undefined
+  ) {
     return null;
   }
 
@@ -183,8 +206,7 @@ export default function Manage() {
                   ? x.avatarPath + `?timestamp=${x.avatarTimestamp}`
                   : undefined
               }
-              tag={'(You)'}
-              showTag={x.id === userQuery.data.id}
+              tagLeft={x.id === userQuery.data.id ? '(You)' : undefined}
               onPress={() =>
                 router.push({
                   pathname: '/profile/[id]',
@@ -207,7 +229,7 @@ export default function Manage() {
         </View>
 
         <PopPressable
-          onPress={() => router.push('/circle/recipients/add')}
+          onPress={handleAddRecipient}
           style={{
             borderRadius: 12,
             borderWidth: 2,
@@ -241,8 +263,9 @@ export default function Manage() {
                     params: { id: x.id },
                   });
               }}
-              tag={'(Edit)'}
-              showTag={x.managerId === userQuery.data.id}
+              tagRight={
+                x.managerId === userQuery.data.id ? '(Edit)' : undefined
+              }
             />
           ))}
         </View>
@@ -261,7 +284,7 @@ export default function Manage() {
             justifyContent: 'center',
             padding: Spacings.lgmd,
           }}>
-          {/* <PopPressable
+          <PopPressable
             onPress={() => router.push('/billing/manage')}
             style={{
               flexDirection: 'row',
@@ -274,8 +297,8 @@ export default function Manage() {
               columnGap: Spacings.sm,
             }}>
             <CreditCardIcon height={24} width={24} color={'#FFFFFF'} />
-            <Text style={textStyles.buttonTextWhite}>Manage Billing</Text>
-          </PopPressable> */}
+            <Text style={textStyles.buttonTextWhite}>Billing</Text>
+          </PopPressable>
           <PopPressable
             onPress={handleCircleSettings}
             style={{
@@ -289,7 +312,7 @@ export default function Manage() {
               columnGap: Spacings.sm,
             }}>
             <SettingsIcon height={24} width={24} color={'#FFFFFF'} />
-            <Text style={textStyles.buttonTextWhite}>Leave Circle</Text>
+            <Text style={textStyles.buttonTextWhite}>Leave</Text>
           </PopPressable>
         </Animated.View>
       )}

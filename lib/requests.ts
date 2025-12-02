@@ -64,7 +64,7 @@ export interface RecipientRequest {
   title: string;
   firstName: string;
   lastName: string;
-  unitNumber: string;
+  unitNumber?: string;
   street: string;
   city: string;
   provinceOrState: string;

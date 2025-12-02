@@ -97,6 +97,12 @@ function RootNavigator() {
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name="billing/add"
+            options={{
+              headerShown: false,
+            }}
+          />
           <Stack.Screen name="onboarding/circleName" options={{ title: '' }} />
           <Stack.Screen
             name="onboarding/circleHeader"

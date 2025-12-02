@@ -2,8 +2,8 @@ import PlusIcon from '@/assets/icons/plus.svg';
 import { useEffect, useState } from 'react';
 import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
 
-import { ScrollView } from 'react-native-gesture-handler';
-
+import Error from '@/components/Error';
+import Loading from '@/components/Loading';
 import {
   ToastMessageType,
   useToastMessage,
@@ -12,31 +12,25 @@ import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import {
-  useAddRecipientMutation,
-  useCreateSetupIntentMutation,
-} from '@/lib/hooks';
-import { CreateSetupIntentResponse } from '@/lib/responses';
-import { SetupParams, useStripe } from '@stripe/stripe-react-native';
+import { useAddRecipientMutation, useGetPriceQuery } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router } from 'expo-router';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function AddRecipient() {
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
+  const getPriceQuery = useGetPriceQuery();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [paymentSheetProps, setPaymentSheetProps] =
-    useState<CreateSetupIntentResponse>();
 
   const [avatar, setAvatar] = useState('');
   const [title, setTitle] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [unitNumber, setUnitNumber] = useState('');
+  const [unitNumber, setUnitNumber] = useState<string>();
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
   const [provinceOrState, setProvinceOrState] = useState('');
@@ -50,65 +44,10 @@ export default function AddRecipient() {
       router.back();
     },
     (error) => {
+      console.log(error.message);
       showToastMessage('Network error. Try again.', ToastMessageType.Error);
     },
   );
-
-  const createSetupIntentMutation = useCreateSetupIntentMutation(
-    (response) => {
-      setPaymentSheetProps(response);
-    },
-    (error) => {},
-  );
-
-  useEffect(() => {
-    createSetupIntentMutation.mutate();
-  }, []);
-
-  useEffect(() => {
-    async function initializePaymentSheet() {
-      if (paymentSheetProps) {
-        const params: SetupParams = {
-          paymentIntentClientSecret: paymentSheetProps.clientSecret,
-          returnURL: paymentSheetProps.returnURL,
-          allowsDelayedPaymentMethods:
-            paymentSheetProps.allowsDelayedPaymentMethods,
-          merchantDisplayName: paymentSheetProps.merchantDisplayName,
-        };
-
-        const { error } = await initPaymentSheet(params);
-
-        if (error) {
-          showToastMessage('Network error. Try again.', ToastMessageType.Error);
-        }
-      } else {
-        const params: SetupParams = {
-          paymentIntentClientSecret: '',
-          returnURL: 'cherami://',
-          allowsDelayedPaymentMethods: true,
-          merchantDisplayName: 'Cher Ami',
-        };
-
-        const { error } = await initPaymentSheet(params);
-
-        if (error) {
-          showToastMessage('Network error. Try again.', ToastMessageType.Error);
-        }
-      }
-    }
-
-    initializePaymentSheet();
-  }, [initPaymentSheet, paymentSheetProps, showToastMessage]);
-
-  const openPaymentSheet = async () => {
-    const { error } = await presentPaymentSheet();
-
-    if (error) {
-      console.log(`Error code: ${error.code}`, error.message);
-    } else {
-      console.log('Success', 'Your order is confirmed!');
-    }
-  };
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -125,18 +64,17 @@ export default function AddRecipient() {
   }, []);
 
   function buttonDisabled() {
-    // return (
-    //   avatar === '' ||
-    //   firstName === '' ||
-    //   lastName === '' ||
-    //   street === '' ||
-    //   city === '' ||
-    //   provinceOrState === '' ||
-    //   postalCode === '' ||
-    //   country === '' ||
-    //   addRecipientMutation.isPending
-    // );
-    return false;
+    return (
+      avatar === '' ||
+      firstName === '' ||
+      lastName === '' ||
+      street === '' ||
+      city === '' ||
+      provinceOrState === '' ||
+      postalCode === '' ||
+      country === '' ||
+      addRecipientMutation.isPending
+    );
   }
 
   async function pickImageAsync() {
@@ -153,6 +91,7 @@ export default function AddRecipient() {
       ).renderAsync();
       const jpgImage = await image.saveAsync({
         format: SaveFormat.JPEG,
+        compress: 0.5,
       });
 
       setAvatar(jpgImage.uri);
@@ -160,20 +99,31 @@ export default function AddRecipient() {
   }
 
   function handleAdd() {
-    openPaymentSheet();
-    // addRecipientMutation.mutate({
-    //   avatarUri: avatar,
-    //   avatarName: 'avatar.jpg',
-    //   title: title,
-    //   firstName: firstName,
-    //   lastName: lastName,
-    //   unitNumber: unitNumber,
-    //   street: street,
-    //   city: city,
-    //   provinceOrState: provinceOrState,
-    //   postalCode: postalCode,
-    //   country: country,
-    // });
+    addRecipientMutation.mutate({
+      avatarUri: avatar,
+      avatarName: 'avatar.jpg',
+      title: title,
+      firstName: firstName,
+      lastName: lastName,
+      unitNumber: unitNumber,
+      street: street,
+      city: city,
+      provinceOrState: provinceOrState,
+      postalCode: postalCode,
+      country: country,
+    });
+  }
+
+  if (getPriceQuery.isError) {
+    return <Error />;
+  }
+
+  if (getPriceQuery.isLoading) {
+    return <Loading />;
+  }
+
+  if (!getPriceQuery.data) {
+    return null;
   }
 
   return (
@@ -271,38 +221,36 @@ export default function AddRecipient() {
           editable={false}
         />
       </View>
-      {/* <Text style={[textStyles.heading3, styles.sectionHeader]}>
-            Summary
+      <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
+      <View style={styles.summaryItemList}>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>Renewal</Text>
+          <Text style={textStyles.labelSmall}>Monthly</Text>
+        </View>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>1 Magazine</Text>
+          <Text style={textStyles.labelSmall}>Monthly</Text>
+        </View>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>Delivery</Text>
+          <Text style={textStyles.labelSmall}>FREE</Text>
+        </View>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>Estimated sales tax</Text>
+          <Text style={textStyles.labelSmall}>---</Text>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelSmall}>Total</Text>
+          <Text style={textStyles.labelSmall}>
+            ${getPriceQuery.data / 100}.00
           </Text>
-          <View style={styles.summaryItemList}>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>Renewal</Text>
-              <Text style={textStyles.labelSmall}>Monthly</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>1 Magazine</Text>
-              <Text style={textStyles.labelSmall}>Monthly</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>Delivery</Text>
-              <Text style={textStyles.labelSmall}>FREE</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>
-                Estimated sales tax
-              </Text>
-              <Text style={textStyles.labelSmall}>---</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelSmall}>Total</Text>
-              <Text style={textStyles.labelSmall}>$12,00</Text>
-            </View>
-            <Text style={[textStyles.caption, styles.disclaimer]}>
-              *Monthly subscription that charges you every month, starting
-              October 1.
-            </Text>
-          </View> */}
+        </View>
+        <Text style={[textStyles.caption, styles.disclaimer]}>
+          *Monthly subscription that charges you every month, starting October
+          1.
+        </Text>
+      </View>
       <PopPressable
         onPress={handleAdd}
         disabled={buttonDisabled()}
