@@ -28,7 +28,7 @@ export interface UpdateUserRequest {
 
 export interface UpdateRecipientRequest {
   id: number;
-  avatarPath?: string;
+  avatarPath: string | null;
   title: string;
   firstName: string;
   lastName: string;
@@ -37,7 +37,7 @@ export interface UpdateRecipientRequest {
   provinceOrState: string;
   postalCode: string;
   country: string;
-  unitNumber: string;
+  unitNumber: string | null;
 }
 
 
@@ -64,7 +64,7 @@ export interface RecipientRequest {
   title: string;
   firstName: string;
   lastName: string;
-  unitNumber: string;
+  unitNumber: string|null;
   street: string;
   city: string;
   provinceOrState: string;

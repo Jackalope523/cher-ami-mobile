@@ -335,7 +335,10 @@ export function useUpdateRecipientMutation(onSuccess?:() => void , onError?: (er
         formData.append('ProvinceOrState', request.provinceOrState);
         formData.append('PostalCode', request.postalCode);
         formData.append('Country', request.country);
-        formData.append('UnitNumber', request.unitNumber);
+
+        if (request.unitNumber) {
+          formData.append('UnitNumber', request.unitNumber);
+        }
 
         if (request.avatarPath) {
           formData.append('Avatar', {
@@ -497,7 +500,11 @@ export function useAddRecipientMutation(onSuccess?: () => void,   onError?: (err
       formData.append('Title', request.title);
       formData.append('FirstName', request.firstName);
       formData.append('LastName', request.lastName);
-      formData.append('UnitNumber', request.unitNumber);
+
+      if (request.unitNumber) {
+        formData.append('UnitNumber', request.unitNumber);
+      }
+
       formData.append('Street', request.street);
       formData.append('City', request.city);
       formData.append('ProvinceOrState', request.provinceOrState);

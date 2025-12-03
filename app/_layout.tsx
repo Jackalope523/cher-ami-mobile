@@ -1,5 +1,6 @@
 import APIProvider from '@/components/APIProvider';
 import AuthProvider, { useAuth } from '@/components/AuthProvider';
+import ImagePickerProvider from '@/components/ImagePickerProvider';
 import BottomSheetModalProvider from '@/components/modals/BottomSheetModalProvider';
 import DialogueModalProvider from '@/components/modals/DialogueModalProvider';
 import DrawerModalProvider from '@/components/modals/DrawerModalProvider';
@@ -115,21 +116,23 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <AuthProvider>
           <APIProvider>
-            <ToastMessageProvider>
-              <BottomSheetModalProvider>
-                <DialogueModalProvider>
-                  <DrawerModalProvider>
-                    {/* JACKALOPE: Get this from the key store. */}
-                    <StripeProvider
-                      publishableKey={
-                        'pk_test_51RxlM1ARYKi6NXMeRhx7XC2Rjjv7tbG84PRxlKpGX8JlRFtQKoTbVpUHXx9JLc784nyVEBu2lePJJdVJ68h2jGtn00jSaBvtFe'
-                      }>
-                      <RootNavigator />
-                    </StripeProvider>
-                  </DrawerModalProvider>
-                </DialogueModalProvider>
-              </BottomSheetModalProvider>
-            </ToastMessageProvider>
+            <ImagePickerProvider>
+              <ToastMessageProvider>
+                <BottomSheetModalProvider>
+                  <DialogueModalProvider>
+                    <DrawerModalProvider>
+                      {/* JACKALOPE: Get this from the key store. */}
+                      <StripeProvider
+                        publishableKey={
+                          'pk_test_51RxlM1ARYKi6NXMeRhx7XC2Rjjv7tbG84PRxlKpGX8JlRFtQKoTbVpUHXx9JLc784nyVEBu2lePJJdVJ68h2jGtn00jSaBvtFe'
+                        }>
+                        <RootNavigator />
+                      </StripeProvider>
+                    </DrawerModalProvider>
+                  </DialogueModalProvider>
+                </BottomSheetModalProvider>
+              </ToastMessageProvider>
+            </ImagePickerProvider>
           </APIProvider>
         </AuthProvider>
       </SafeAreaProvider>

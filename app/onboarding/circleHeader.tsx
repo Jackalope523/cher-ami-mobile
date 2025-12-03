@@ -1,4 +1,5 @@
 import PlusIcon from '@/assets/icons/plus.svg';
+import { useImagePicker } from '@/components/ImagePickerProvider';
 import {
   ToastMessageType,
   useToastMessage,
@@ -9,8 +10,6 @@ import { textStyles } from '@/constants/TextStyles';
 import { useCreateCircleMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
@@ -19,6 +18,7 @@ export default function CircleHeader() {
   const { circleName } = useLocalSearchParams();
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
+  const pickImageAsync = useImagePicker();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const circleMutation = useCreateCircleMutation(
     () => {
@@ -32,30 +32,24 @@ export default function CircleHeader() {
     },
   );
 
-  async function pickImageAsync() {
-    let result = await launchImageLibraryAsync({
+  function pickImage() {
+    pickImageAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [372, 186],
-      quality: 1,
+      aspect: [2, 1],
+    }).then((x) => {
+      setSelectedImage(x);
     });
-
-    if (!result.canceled) {
-      const image = await ImageManipulator.manipulate(
-        result.assets[0].uri,
-      ).renderAsync();
-      const jpgImage = await image.saveAsync({
-        format: SaveFormat.JPEG,
-      });
-
-      setSelectedImage(jpgImage.uri);
-    }
   }
 
   function handleCreateCircle() {
+    if (!selectedImage) {
+      throw new Error('Selected image is null.');
+    }
+
     circleMutation.mutate({
       title: circleName as string,
-      imageUri: selectedImage as string,
+      imageUri: selectedImage,
     });
   }
 
@@ -75,7 +69,7 @@ export default function CircleHeader() {
           ]}>
           Add a header image for your circle.
         </Text>
-        <PopPressable style={styles.imageContainer} onPress={pickImageAsync}>
+        <PopPressable style={styles.imageContainer} onPress={pickImage}>
           {selectedImage ? (
             <Image source={selectedImage} style={styles.image} />
           ) : (
@@ -84,7 +78,7 @@ export default function CircleHeader() {
                 backgroundColor: '#F4F1EA',
                 borderRadius: 32,
                 width: Dimensions.get('window').width - 40,
-                aspectRatio: 744 / 496,
+                aspectRatio: 2 / 1,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
@@ -130,7 +124,7 @@ const styles = StyleSheet.create({
 
   image: {
     width: Dimensions.get('window').width - 40,
-    aspectRatio: 744 / 496,
+    aspectRatio: 2 / 1,
     borderRadius: 32,
   },
 

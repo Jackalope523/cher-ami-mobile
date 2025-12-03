@@ -1,4 +1,5 @@
 import PlusIcon from '@/assets/icons/plus.svg';
+import { useImagePicker } from '@/components/ImagePickerProvider';
 import {
   ToastMessageType,
   useToastMessage,
@@ -11,8 +12,6 @@ import { useAddPostMutation } from '@/lib/hooks';
 import { formatPhotoDate } from '@/lib/utility';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -28,6 +27,7 @@ import { TextInput } from 'react-native-gesture-handler';
 export default function Create() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
+  const pickImageAsync = useImagePicker();
   const { issueTitle } = useLocalSearchParams();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -60,6 +60,16 @@ export default function Create() {
     };
   }, []);
 
+  function pickImage() {
+    pickImageAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [372, 259],
+    }).then((x) => {
+      setSelectedImage(x);
+    });
+  }
+
   function handlePost() {
     if (selectedImage) {
       uploadMutation.mutate({
@@ -69,26 +79,6 @@ export default function Create() {
         imageName: 'image.jpg',
       });
       router.back();
-    }
-  }
-
-  async function pickImageAsync() {
-    let result = await launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [372, 259],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const image = await ImageManipulator.manipulate(
-        result.assets[0].uri,
-      ).renderAsync();
-      const jpgImage = await image.saveAsync({
-        format: SaveFormat.JPEG,
-      });
-
-      setSelectedImage(jpgImage.uri);
     }
   }
 
@@ -107,9 +97,7 @@ export default function Create() {
         {!keyboardVisible && (
           <View>
             <PostCounter issueTitle={issueTitle as string} />
-            <PopPressable
-              style={styles.imageContainer}
-              onPress={pickImageAsync}>
+            <PopPressable style={styles.imageContainer} onPress={pickImage}>
               {selectedImage ? (
                 <Image source={selectedImage} style={styles.image} />
               ) : (
@@ -118,7 +106,7 @@ export default function Create() {
                     backgroundColor: '#F4F1EA',
                     borderRadius: 32,
                     width: Dimensions.get('window').width - 40,
-                    aspectRatio: 744 / 496,
+                    aspectRatio: 372 / 259,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
@@ -199,7 +187,7 @@ const styles = StyleSheet.create({
 
   image: {
     width: Dimensions.get('window').width - 40,
-    aspectRatio: 744 / 496,
+    aspectRatio: 372 / 259,
     borderRadius: 32,
   },
 

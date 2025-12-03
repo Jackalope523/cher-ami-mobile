@@ -2,6 +2,7 @@ import SettingsIcon from '@/assets/icons/log-out.svg';
 import PlusIcon from '@/assets/icons/plus.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
 import Error from '@/components/Error';
+import { useImagePicker } from '@/components/ImagePickerProvider';
 import InviteModalContents from '@/components/InviteModalContents';
 import LeaveCircleContents from '@/components/LeaveCircleContents';
 import Loading from '@/components/Loading';
@@ -22,8 +23,6 @@ import {
   useUpdateHeaderMutation,
 } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
@@ -34,6 +33,7 @@ export default function Manage() {
   const showToastMessage = useToastMessage();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const pickImageAsync = useImagePicker();
   const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
@@ -67,26 +67,18 @@ export default function Manage() {
     displayDialogue(<LeaveCircleContents />);
   }
 
-  async function pickImageAsync() {
-    let result = await launchImageLibraryAsync({
+  function pickImage() {
+    pickImageAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [372, 186],
-      quality: 1,
+      aspect: [2, 1],
+    }).then((x) => {
+      if (x) {
+        uploadMutation.mutate({
+          imageUri: x,
+        });
+      }
     });
-
-    if (!result.canceled) {
-      const image = await ImageManipulator.manipulate(
-        result.assets[0].uri,
-      ).renderAsync();
-      const jpgImage = await image.saveAsync({
-        format: SaveFormat.JPEG,
-      });
-
-      uploadMutation.mutate({
-        imageUri: jpgImage.uri,
-      });
-    }
   }
 
   if (circleQuery.isError || userQuery.isError) {
@@ -110,7 +102,7 @@ export default function Manage() {
         onMomentumScrollEnd={() => setScrolling(false)}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}>
-        <PopPressable onPress={pickImageAsync}>
+        <PopPressable onPress={pickImage}>
           <NetworkImage
             source={
               circleQuery.data.headerPath +
@@ -118,7 +110,7 @@ export default function Manage() {
             }
             style={{
               width: Dimensions.get('window').width - 40,
-              aspectRatio: 744 / 496,
+              aspectRatio: 2 / 1,
               borderRadius: 32,
               marginHorizontal: 20,
               marginVertical: Spacings.xl,

@@ -28,7 +28,7 @@ export default function NetworkImage({ style, ...props }: ImageProps) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          uri: 'https://app-cherami-prod.azurewebsites.net' + imagePath,
+          uri: 'https://app-cherami-staging.azurewebsites.net' + imagePath,
         }}
       />
     </View>
