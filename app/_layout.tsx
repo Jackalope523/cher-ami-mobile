@@ -1,11 +1,17 @@
 import APIProvider from '@/components/APIProvider';
 import AuthProvider, { useAuth } from '@/components/AuthProvider';
+import Error from '@/components/Error';
 import ImagePickerProvider from '@/components/ImagePickerProvider';
+import Loading from '@/components/Loading';
 import BottomSheetModalProvider from '@/components/modals/BottomSheetModalProvider';
 import DialogueModalProvider from '@/components/modals/DialogueModalProvider';
 import DrawerModalProvider from '@/components/modals/DrawerModalProvider';
-import ToastMessageProvider from '@/components/modals/ToastMessageProvider';
+import ToastMessageProvider, {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import { textStyles } from '@/constants/TextStyles';
+import { usePingMutation } from '@/lib/hooks';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
@@ -16,6 +22,18 @@ SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
   const { loaded, getToken, getOnboarded } = useAuth();
+  const showToastMessage = useToastMessage();
+  const pingMutation = usePingMutation(
+    () => {},
+    (error) => {
+      console.log(error);
+      showToastMessage('Unable to connect to server.', ToastMessageType.Error);
+    },
+  );
+
+  useEffect(() => {
+    pingMutation.mutate();
+  }, []);
 
   useEffect(() => {
     if (loaded) {
@@ -25,6 +43,14 @@ function RootNavigator() {
 
   if (!loaded) {
     return null;
+  }
+
+  if (pingMutation.isError) {
+    return <Error />;
+  }
+
+  if (pingMutation.isPending) {
+    return <Loading />;
   }
 
   return (
