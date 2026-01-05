@@ -74,6 +74,12 @@ function RootNavigator() {
             }}
           />
           <Stack.Screen
+            name="billing/add"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
             name="billing/manage"
             options={{
               title: 'Manage Billing',
@@ -93,12 +99,6 @@ function RootNavigator() {
           />
           <Stack.Screen
             name="circle/recipients/[id]/delete"
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="billing/add"
             options={{
               headerShown: false,
             }}
