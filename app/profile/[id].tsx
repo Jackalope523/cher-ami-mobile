@@ -3,6 +3,7 @@ import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
 import { default as PlusIcon } from '@/assets/icons/plus.svg';
 import BlockUserContents from '@/components/BlockUserContents';
 import Error from '@/components/Error';
+import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
 import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
 import {
@@ -16,8 +17,6 @@ import { textStyles } from '@/constants/TextStyles';
 import { useGetUserQuery, useUpdateAvatarMutation } from '@/lib/hooks';
 import { UserDTO } from '@/lib/responses';
 import { useQueryClient } from '@tanstack/react-query';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { launchImageLibraryAsync } from 'expo-image-picker';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -26,6 +25,7 @@ export default function Profile() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const pickImageAsync = useImagePicker();
   const isSelf =
     queryClient.getQueryData<UserDTO>(['User', 'Self'])?.id === Number(id);
   const { data, status } = useGetUserQuery(Number(id));
@@ -60,26 +60,18 @@ export default function Profile() {
     }
   }, [data, displayDialogue, id, isSelf, navigation]);
 
-  async function pickImageAsync() {
-    let result = await launchImageLibraryAsync({
+  function pickImage() {
+    pickImageAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+    }).then((x) => {
+      if (x) {
+        uploadMutation.mutate({
+          imageUri: x,
+        });
+      }
     });
-
-    if (!result.canceled) {
-      const image = await ImageManipulator.manipulate(
-        result.assets[0].uri,
-      ).renderAsync();
-      const jpgImage = await image.saveAsync({
-        format: SaveFormat.JPEG,
-      });
-
-      uploadMutation.mutate({
-        imageUri: jpgImage.uri,
-      });
-    }
   }
 
   if (status === 'error') {
@@ -99,7 +91,7 @@ export default function Profile() {
       <View>
         <PopPressable
           style={styles.avatarContainer}
-          onPress={pickImageAsync}
+          onPress={pickImage}
           disabled={!isSelf}>
           {data.avatarPath ? (
             <NetworkImage

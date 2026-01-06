@@ -2,6 +2,9 @@ import PlusIcon from '@/assets/icons/plus.svg';
 import { useEffect, useState } from 'react';
 import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
 
+import { ScrollView } from 'react-native-gesture-handler';
+
+import { useImagePicker } from '@/components/ImagePickerProvider';
 import Error from '@/components/Error';
 import Loading from '@/components/Loading';
 import {
@@ -15,22 +18,21 @@ import { textStyles } from '@/constants/TextStyles';
 import { useAddRecipientMutation, useGetPriceQuery } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router } from 'expo-router';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function AddRecipient() {
   const showToastMessage = useToastMessage();
+  const pickImageAsync = useImagePicker();
   const queryClient = useQueryClient();
   const getPriceQuery = useGetPriceQuery();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
-  const [avatar, setAvatar] = useState('');
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [unitNumber, setUnitNumber] = useState<string>();
+  const [unitNumber, setUnitNumber] = useState<string | null>(null);
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
   const [provinceOrState, setProvinceOrState] = useState('');
@@ -65,7 +67,7 @@ export default function AddRecipient() {
 
   function buttonDisabled() {
     return (
-      avatar === '' ||
+      avatar === null ||
       firstName === '' ||
       lastName === '' ||
       street === '' ||
@@ -77,28 +79,21 @@ export default function AddRecipient() {
     );
   }
 
-  async function pickImageAsync() {
-    let result = await launchImageLibraryAsync({
+  function pickImage() {
+    pickImageAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+    }).then((x) => {
+      setAvatar(x);
     });
-
-    if (!result.canceled) {
-      const image = await ImageManipulator.manipulate(
-        result.assets[0].uri,
-      ).renderAsync();
-      const jpgImage = await image.saveAsync({
-        format: SaveFormat.JPEG,
-        compress: 0.5,
-      });
-
-      setAvatar(jpgImage.uri);
-    }
   }
 
   function handleAdd() {
+    if (!avatar) {
+      throw new Error('Avatar is null.');
+    }
+
     addRecipientMutation.mutate({
       avatarUri: avatar,
       avatarName: 'avatar.jpg',
@@ -136,7 +131,7 @@ export default function AddRecipient() {
       ]}
       overScrollMode="never"
       showsVerticalScrollIndicator={false}>
-      <PopPressable style={styles.avatarContainer} onPress={pickImageAsync}>
+      <PopPressable style={styles.avatarContainer} onPress={pickImage}>
         {avatar ? (
           <Image source={avatar} style={styles.avatar} />
         ) : (
@@ -180,7 +175,7 @@ export default function AddRecipient() {
         <TextInput
           title={'Unit number'}
           maxLength={15}
-          value={unitNumber}
+          value={unitNumber ?? ''}
           onChangeText={setUnitNumber}
         />
         <TextInput

@@ -1,4 +1,5 @@
 import { useAPI } from '@/components/APIProvider';
+import { ToastMessageType, useToastMessage } from '@/components/modals/ToastMessageProvider';
 import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
@@ -23,13 +24,31 @@ export function useInterval(callback: () => void, delay: number) {
   }, [delay]);
 }
 
-export function usePingMutation() {
+export function usePingMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
   const api = useAPI();
-  
+  const showToastMessage = useToastMessage();
+
   return useMutation<void, AxiosError>({
     mutationFn: async () => {
-      await api.post('/ping', {timeout: 60000});
+      let response;
+      for (let i = 0; i < 3; i++) {
+        response = await api.get('/ping', { timeout: 60000 });
+
+        if (response.status === 202) {
+          showToastMessage("Connecting to server...", ToastMessageType.Informational)
+          await new Promise(resolve => setTimeout(resolve, 30000));
+        }
+        else if (response.status === 204) {
+          return;
+        }
+        else {
+          throw new Error("Ping response was not 202 or 204.");
+        }
+      }
+      throw new Error("Server took too long to start up.");
     },
+    onSuccess,
+    onError
   });
 }
 
@@ -372,7 +391,10 @@ export function useUpdateRecipientMutation(onSuccess?:() => void , onError?: (er
         formData.append('ProvinceOrState', request.provinceOrState);
         formData.append('PostalCode', request.postalCode);
         formData.append('Country', request.country);
-        formData.append('UnitNumber', request.unitNumber);
+
+        if (request.unitNumber) {
+          formData.append('UnitNumber', request.unitNumber);
+        }
 
         if (request.avatarPath) {
           formData.append('Avatar', {
@@ -538,6 +560,7 @@ export function useAddRecipientMutation(onSuccess?: () => void,   onError?: (err
       if (request.unitNumber) {
         formData.append('UnitNumber', request.unitNumber);
       }
+
       
       formData.append('Street', request.street);
       formData.append('City', request.city);

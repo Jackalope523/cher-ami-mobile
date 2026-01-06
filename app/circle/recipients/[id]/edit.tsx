@@ -1,5 +1,6 @@
 import TrashIcon from '@/assets/icons/trash.svg';
 import Error from '@/components/Error';
+import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
 import {
   ToastMessageType,
@@ -17,8 +18,6 @@ import {
 } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
@@ -28,6 +27,7 @@ export default function EditRecipient() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const pickImageAsync = useImagePicker();
   const getPriceQuery = useGetPriceQuery();
   const showToastMessage = useToastMessage();
   const { data, status } = useGetRecipientQuery(Number(id));
@@ -47,11 +47,11 @@ export default function EditRecipient() {
     },
   );
 
-  const [avatar, setAvatar] = useState('');
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [unitNumber, setUnitNumber] = useState('');
+  const [unitNumber, setUnitNumber] = useState<string | null>(null);
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
   const [provinceOrState, setProvinceOrState] = useState('');
@@ -106,25 +106,14 @@ export default function EditRecipient() {
     };
   }, []);
 
-  async function pickImageAsync() {
-    let result = await launchImageLibraryAsync({
+  function pickImage() {
+    pickImageAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+    }).then((x) => {
+      setAvatar(x);
     });
-
-    if (!result.canceled) {
-      const image = await ImageManipulator.manipulate(
-        result.assets[0].uri,
-      ).renderAsync();
-      const jpgImage = await image.saveAsync({
-        format: SaveFormat.JPEG,
-        compress: 0.5,
-      });
-
-      setAvatar(jpgImage.uri);
-    }
   }
 
   function buttonDisabled() {
@@ -160,7 +149,7 @@ export default function EditRecipient() {
         postalCode,
         country,
         unitNumber,
-        avatarPath: avatar !== data.avatarPath ? avatar : undefined,
+        avatarPath: avatar !== data.avatarPath ? avatar : null,
       });
     }
   }
@@ -187,7 +176,7 @@ export default function EditRecipient() {
       ]}
       overScrollMode="never"
       showsVerticalScrollIndicator={false}>
-      <PopPressable onPress={pickImageAsync}>
+      <PopPressable onPress={pickImage}>
         {avatar !== data.avatarPath ? (
           <Image style={styles.avatar} source={avatar} />
         ) : (
@@ -231,7 +220,7 @@ export default function EditRecipient() {
         <TextInput
           title={'Unit number'}
           maxLength={15}
-          value={unitNumber}
+          value={unitNumber ?? ''}
           onChangeText={setUnitNumber}
         />
         <TextInput
