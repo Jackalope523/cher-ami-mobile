@@ -5,6 +5,8 @@ import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { useImagePicker } from '@/components/ImagePickerProvider';
+import Error from '@/components/Error';
+import Loading from '@/components/Loading';
 import {
   ToastMessageType,
   useToastMessage,
@@ -13,17 +15,17 @@ import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useAddRecipientMutation } from '@/lib/hooks';
-import { SetupParams, useStripe } from '@stripe/stripe-react-native';
+import { useAddRecipientMutation, useGetPriceQuery } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function AddRecipient() {
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const showToastMessage = useToastMessage();
   const pickImageAsync = useImagePicker();
   const queryClient = useQueryClient();
+  const getPriceQuery = useGetPriceQuery();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const [avatar, setAvatar] = useState<string | null>(null);
@@ -44,27 +46,10 @@ export default function AddRecipient() {
       router.back();
     },
     (error) => {
+      console.log(error.message);
       showToastMessage('Network error. Try again.', ToastMessageType.Error);
     },
   );
-
-  useEffect(() => {
-    const initializePaymentSheet = async () => {
-      const params: SetupParams = {
-        paymentIntentClientSecret: '',
-        returnURL: 'stripe-example://payment-sheet',
-        allowsDelayedPaymentMethods: true,
-        merchantDisplayName: 'Hollow Inc',
-      };
-
-      const { error } = await initPaymentSheet(params);
-      if (error) {
-        // Handle error
-      }
-    };
-
-    initializePaymentSheet();
-  }, [initPaymentSheet]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -122,6 +107,18 @@ export default function AddRecipient() {
       postalCode: postalCode,
       country: country,
     });
+  }
+
+  if (getPriceQuery.isError) {
+    return <Error />;
+  }
+
+  if (getPriceQuery.isLoading) {
+    return <Loading />;
+  }
+
+  if (!getPriceQuery.data) {
+    return null;
   }
 
   return (
@@ -219,38 +216,36 @@ export default function AddRecipient() {
           editable={false}
         />
       </View>
-      {/* <Text style={[textStyles.heading3, styles.sectionHeader]}>
-            Summary
+      <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
+      <View style={styles.summaryItemList}>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>Renewal</Text>
+          <Text style={textStyles.labelSmall}>Monthly</Text>
+        </View>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>1 Magazine</Text>
+          <Text style={textStyles.labelSmall}>Monthly</Text>
+        </View>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>Delivery</Text>
+          <Text style={textStyles.labelSmall}>FREE</Text>
+        </View>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>Estimated sales tax</Text>
+          <Text style={textStyles.labelSmall}>---</Text>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelSmall}>Total</Text>
+          <Text style={textStyles.labelSmall}>
+            ${getPriceQuery.data / 100}.00
           </Text>
-          <View style={styles.summaryItemList}>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>Renewal</Text>
-              <Text style={textStyles.labelSmall}>Monthly</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>1 Magazine</Text>
-              <Text style={textStyles.labelSmall}>Monthly</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>Delivery</Text>
-              <Text style={textStyles.labelSmall}>FREE</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>
-                Estimated sales tax
-              </Text>
-              <Text style={textStyles.labelSmall}>---</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelSmall}>Total</Text>
-              <Text style={textStyles.labelSmall}>$12,00</Text>
-            </View>
-            <Text style={[textStyles.caption, styles.disclaimer]}>
-              *Monthly subscription that charges you every month, starting
-              October 1.
-            </Text>
-          </View> */}
+        </View>
+        <Text style={[textStyles.caption, styles.disclaimer]}>
+          *Monthly subscription that charges you every month, starting October
+          1.
+        </Text>
+      </View>
       <PopPressable
         onPress={handleAdd}
         disabled={buttonDisabled()}

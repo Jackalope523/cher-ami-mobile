@@ -5,22 +5,24 @@ import PopPressable from '@/components/PopPressable';
 import UserItem from '@/components/UserItem';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetSelfQuery } from '@/lib/hooks';
+import { useGetPriceQuery, useGetSelfQuery } from '@/lib/hooks';
+import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-export default function ManageBilling() {
-  const { data, status } = useGetSelfQuery();
+export default function Manage() {
+  const getSelfQuery = useGetSelfQuery();
+  const getPriceQuery = useGetPriceQuery();
 
-  if (status === 'error') {
+  if (getSelfQuery.isError || getPriceQuery.isError) {
     return <Error />;
   }
 
-  if (status === 'pending') {
+  if (getSelfQuery.isLoading || getPriceQuery.isLoading) {
     return <Loading />;
   }
 
-  if (!data) {
+  if (!getSelfQuery.data || !getPriceQuery.data) {
     return null;
   }
 
@@ -36,13 +38,12 @@ export default function ManageBilling() {
         {"You're currently paying for the following recipients."}
       </Text>
       <View style={styles.userList}>
-        {data.recipients.map((x) => (
+        {getSelfQuery.data.recipients.map((x) => (
           <UserItem
             key={x.id}
             text={`${x.firstName} ${x.lastName}`}
             imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
-            tag={'(Yours)'}
-            showTag
+            tagRight={`$${getPriceQuery.data / 100}.00`}
           />
         ))}
       </View>
@@ -50,11 +51,15 @@ export default function ManageBilling() {
       <View style={styles.priceTotal}>
         <Text style={textStyles.labelSmall}>Total</Text>
         <Text style={textStyles.labelSmall}>
-          ${data?.recipients.length * 12}.00
+          ${(getSelfQuery.data.recipients.length * getPriceQuery.data) / 100}.00
         </Text>
       </View>
       <Text style={textStyles.heading3}>Billing details</Text>
-      <PopPressable onPress={() => {}} style={styles.button}>
+      <PopPressable
+        onPress={() => {
+          router.push('/billing/add');
+        }}
+        style={styles.button}>
         <Text style={textStyles.buttonTextOrange}>Configure Billing</Text>
         <CreditCardIcon height={24} width={24} color={'#B05637'} />
       </PopPressable>

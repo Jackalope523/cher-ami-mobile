@@ -102,7 +102,7 @@ export default function Index() {
       });
     },
     (error) => {
-      console.log(error);
+      console.log(error.message);
       showToast('Failed to log in. Try again.', ToastMessageType.Error);
     },
   );

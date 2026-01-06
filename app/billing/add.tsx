@@ -1,81 +1,94 @@
-import { StyleSheet, Text, View } from 'react-native';
-
+import Mouse from '@/assets/images/mouse.png';
 import Error from '@/components/Error';
-import Loading from '@/components/Loading';
 import {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
-import NetworkImage from '@/components/NetworkImage';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useDeleteRecipientMutation, useGetRecipientQuery } from '@/lib/hooks';
+import { useCreateSetupIntentMutation } from '@/lib/hooks';
+import { SetupParams, useStripe } from '@stripe/stripe-react-native';
 import { useQueryClient } from '@tanstack/react-query';
-import { router, useLocalSearchParams } from 'expo-router';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function DeleteRecipient() {
+export default function AddBilling() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
-  const { id } = useLocalSearchParams();
-  const { data, status } = useGetRecipientQuery(Number(id));
-  const mutation = useDeleteRecipientMutation(
-    () => {
-      showToastMessage(
-        'Successfully removed recipient.',
-        ToastMessageType.Success,
-      );
-      queryClient.invalidateQueries({ queryKey: ['Circle'] });
-      router.replace('/(drawer)/manage');
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [buttonDisabled, setButtonDisabled] = useState(false);
+
+  const createSetupIntentMutation = useCreateSetupIntentMutation(
+    async (response) => {
+      const params: SetupParams = {
+        setupIntentClientSecret: response.clientSecret,
+        returnURL: response.returnURL,
+        allowsDelayedPaymentMethods: response.allowsDelayedPaymentMethods,
+        merchantDisplayName: response.merchantDisplayName,
+      };
+      const { error: initError } = await initPaymentSheet(params);
+
+      if (!initError) {
+        const { error: presentError } = await presentPaymentSheet();
+
+        if (!presentError) {
+          setButtonDisabled(false);
+          queryClient.invalidateQueries({ queryKey: ['HasPaymentMethod'] });
+          router.replace('/circle/recipients/add');
+        }
+        setButtonDisabled(false);
+      } else {
+        setButtonDisabled(false);
+        showToastMessage('Network error. Try again.', ToastMessageType.Error);
+      }
     },
-    () => {
-      showToastMessage('Failed to remove recipient.', ToastMessageType.Error);
+    (_) => {
+      setButtonDisabled(false);
+      showToastMessage('Network error. Try again.', ToastMessageType.Error);
     },
   );
 
-  if (status === 'error') {
+  if (createSetupIntentMutation.isError) {
     return <Error />;
-  }
-
-  if (status === 'pending') {
-    return <Loading />;
-  }
-
-  if (!data) {
-    return null;
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <View>
         <Text style={[textStyles.heading1, styles.screenHeader]}>
-          Remove recipient?
+          Add Payment Method
         </Text>
-        <NetworkImage
-          style={styles.avatar}
-          source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
-        />
-        <Text style={[textStyles.heading2, styles.recipientName]}>
-          {`${data.firstName} ${data.lastName}`}
-        </Text>
+
+        <View style={{ alignItems: 'center', paddingVertical: Spacings.xxl }}>
+          <Image
+            source={Mouse}
+            style={{
+              aspectRatio: 71 / 73,
+              width: '100%',
+              maxHeight: 73,
+              maxWidth: 71,
+            }}
+          />
+        </View>
+
         <Text style={textStyles.body}>
-          By removing {`${data.firstName} ${data.lastName}`} from the
-          recipients, they will{' '}
-          <Text style={[textStyles.body, { fontWeight: 'bold' }]}>
-            stop receiving
-          </Text>{' '}
-          print-out magazines.
+          In order to add recipients to your circle you must provide a payment
+          method.
         </Text>
       </View>
       <View style={styles.buttonContainer}>
         <PopPressable
+          disabled={buttonDisabled}
           onPress={() => {
-            mutation.mutate({ Id: Number(id) });
+            setButtonDisabled(true);
+            createSetupIntentMutation.mutate();
           }}
-          disabled={mutation.isPending}
           style={[styles.removeButton]}>
-          <Text style={textStyles.buttonTextBlack}>Remove</Text>
+          <Text style={textStyles.buttonTextBlack}>Add</Text>
         </PopPressable>
         <PopPressable
           onPress={() => {

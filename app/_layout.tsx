@@ -101,6 +101,12 @@ function RootNavigator() {
             }}
           />
           <Stack.Screen
+            name="billing/add"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
             name="billing/manage"
             options={{
               title: 'Manage Billing',
