@@ -1,11 +1,6 @@
 import PlusIcon from '@/assets/icons/plus.svg';
-import { useEffect, useState } from 'react';
-import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
-
-import { ScrollView } from 'react-native-gesture-handler';
-
-import { useImagePicker } from '@/components/ImagePickerProvider';
 import Error from '@/components/Error';
+import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
 import {
   ToastMessageType,
@@ -19,8 +14,9 @@ import { useAddRecipientMutation, useGetPriceQuery } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-
 export default function AddRecipient() {
   const showToastMessage = useToastMessage();
   const pickImageAsync = useImagePicker();
@@ -91,7 +87,7 @@ export default function AddRecipient() {
 
   function handleAdd() {
     if (!avatar) {
-      throw new Error('Avatar is null.');
+      throw new globalThis.Error('Avatar is null.');
     }
 
     addRecipientMutation.mutate({
