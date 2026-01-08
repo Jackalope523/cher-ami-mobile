@@ -19,8 +19,8 @@ import UserItem from '@/components/UserItem';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
-  useCheckPaymentMethodsQuery,
   useGetCircleQuery,
+  useGetPaymentMethodQuery,
   useGetSelfQuery,
   useUpdateHeaderMutation,
 } from '@/lib/hooks';
@@ -38,7 +38,7 @@ export default function Manage() {
   const pickImageAsync = useImagePicker();
   const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
-  const checkPaymentMethodsQuery = useCheckPaymentMethodsQuery();
+  const checkPaymentMethodsQuery = useGetPaymentMethodQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
   const { displayDialogue } = useDialogueModal();
   const [scrolling, setScrolling] = useState(false);

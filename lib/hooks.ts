@@ -1,10 +1,11 @@
 import { useAPI } from '@/components/APIProvider';
 import { ToastMessageType, useToastMessage } from '@/components/modals/ToastMessageProvider';
+import { SetupParams, useStripe } from '@stripe/stripe-react-native';
 import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
 import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, EmailVerifyRequest, IdRequest, ImageRequest, JoinCircleRequest, RecipientRequest, TokenRequest, UpdateRecipientRequest, UpdateUserRequest } from './requests';
-import { CircleDTO, CodeResponse, CreateSetupIntentResponse, FeedPageResponse, LoginResponse, RecipientDTO, UserDTO, UserItem } from './responses';
+import { CardDTO, CircleDTO, CodeResponse, FeedPageResponse, LoginResponse, RecipientDTO, SetupIntentResponse, UserDTO, UserItem } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
   const savedCallback = useRef(callback);
@@ -64,18 +65,6 @@ export function usePostCountQuery() {
   });
 }
 
-export function useCheckPaymentMethodsQuery() {
-  const api = useAPI();
-
-  return useQuery<boolean, AxiosError>({
-    queryKey: ['HasPaymentMethod'],
-    queryFn: async () => {
-      const response = await api.get('/stripe/payment-methods/check');
-      return response.data;
-    }  
-  });
-}
-
 export function useGetPriceQuery() {
   const api = useAPI();
 
@@ -120,6 +109,19 @@ export function useGetSelfQuery() {
     queryFn: async () => {
       const response = await api.get<UserDTO>('/user');
       return response.data;
+    }, 
+  });
+}
+
+export function useGetPaymentMethodQuery() {
+  const api = useAPI();
+ 
+  return useQuery<CardDTO | null, AxiosError>({
+    queryKey: ['PaymentMethod'],
+    queryFn: async () => {
+      const response = await api.get<CardDTO[]>('/payment-methods');
+
+      return response.data[0] ?? null;
     }, 
   });
 }
@@ -205,13 +207,74 @@ export function useDeletePostMutation(onSuccess?: () => void,   onError?: (error
   });
 }
 
-export function useCreateSetupIntentMutation(onSuccess?: (response: CreateSetupIntentResponse) => void,   onError?: (error: AxiosError) => void) {
+export function useRemovePaymentMethodMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
   const api = useAPI();
 
-  return useMutation<CreateSetupIntentResponse, AxiosError, void>({
+  return useMutation<void, AxiosError, void>({
     mutationFn: async () => {
-      const response = await api.post<CreateSetupIntentResponse>(`/stripe/setup-intents`);
-      return response.data;
+      await api.delete("/payment-method");
+    },
+    onSuccess,
+    onError
+  });
+}
+
+export function useAddPaymentMethodMutation(onSuccess?: (response: boolean) => void,   onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+
+  return useMutation<boolean, AxiosError, void>({
+    mutationFn: async () => {
+      const response = await api.post<SetupIntentResponse>("/payment-method");
+
+      const params: SetupParams = {
+        setupIntentClientSecret: response.data.clientSecret,
+        returnURL: response.data.returnURL,
+        allowsDelayedPaymentMethods: response.data.allowsDelayedPaymentMethods,
+        merchantDisplayName: response.data.merchantDisplayName,
+      };
+      
+      const { error: initError } = await initPaymentSheet(params);
+
+      if (!initError) {
+        const { error: presentError } = await presentPaymentSheet();
+      
+        return presentError === undefined;
+      } 
+      else {
+        throw new Error("Error when initializing the payment sheet.");
+      }
+    },
+    onSuccess,
+    onError
+  });
+}
+
+export function useUpdatePaymentMethodMutation(onSuccess?: (response: boolean) => void,   onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+
+  return useMutation<boolean, AxiosError, void>({
+    mutationFn: async () => {
+      const response = await api.patch<SetupIntentResponse>("/payment-method");
+
+      const params: SetupParams = {
+        setupIntentClientSecret: response.data.clientSecret,
+        returnURL: response.data.returnURL,
+        allowsDelayedPaymentMethods: response.data.allowsDelayedPaymentMethods,
+        merchantDisplayName: response.data.merchantDisplayName,
+      };
+      
+      const { error: initError } = await initPaymentSheet(params);
+
+      if (!initError) {
+        const { error: presentError } = await presentPaymentSheet();
+      
+        return presentError === undefined;
+      } 
+      else {
+        throw new Error("Error when initializing the payment sheet.");
+      }
     },
     onSuccess,
     onError

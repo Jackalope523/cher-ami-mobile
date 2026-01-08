@@ -11,6 +11,7 @@ import Animated, {
 export default function PopPressable({
   children,
   onPress,
+  disabled,
   ...props
 }: PressableProps) {
   const scale = useSharedValue(1);
@@ -20,6 +21,8 @@ export default function PopPressable({
   }));
 
   function handlePress(event: PressableEvent | null | undefined) {
+    if (disabled) return;
+
     scale.value = withTiming(1.03, { duration: 100 }, () => {
       scale.value = withTiming(1, { duration: 100 }, () => {
         if (onPress && event) runOnJS(onPress)(event);
@@ -29,7 +32,7 @@ export default function PopPressable({
 
   return (
     <Animated.View style={pop}>
-      <Pressable onPress={handlePress} {...props}>
+      <Pressable onPress={handlePress} disabled={disabled} {...props}>
         {children}
       </Pressable>
     </Animated.View>

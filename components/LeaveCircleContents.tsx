@@ -11,9 +11,7 @@ import {
 } from './modals/ToastMessageProvider';
 import PopPressable from './PopPressable';
 
-interface LeaveCircleContentsProps {}
-
-export default function LeaveCircleContents({}: LeaveCircleContentsProps) {
+export default function LeaveCircleContents() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const { data } = useGetCircleQuery();
