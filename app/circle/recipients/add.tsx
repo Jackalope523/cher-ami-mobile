@@ -88,7 +88,7 @@ export default function AddRecipient() {
 
   function handleAdd() {
     if (!avatar) {
-      throw new Error('Avatar is null.');
+      throw new globalThis.Error('Avatar is null.');
     }
 
     addRecipientMutation.mutate({
