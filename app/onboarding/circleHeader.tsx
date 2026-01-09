@@ -28,7 +28,7 @@ export default function CircleHeader() {
     },
     (error) => {
       console.log(error);
-      showToastMessage('Failed to create circle.', ToastMessageType.Error);
+      showToastMessage('Network error. Try again.', ToastMessageType.Error);
     },
   );
 
