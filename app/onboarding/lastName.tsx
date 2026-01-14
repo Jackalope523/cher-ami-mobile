@@ -79,6 +79,10 @@ export default function LastName() {
           value={lastName}
           onChangeText={setLastName}
           containerStyle={{ marginBottom: Spacings.md }}
+          autoCapitalize="words"
+          autoCorrect={true}
+          textContentType="familyName"
+          autoComplete="name-family"
         />
       </View>
 

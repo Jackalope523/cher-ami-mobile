@@ -1,4 +1,5 @@
 import GalleryIcon from '@/assets/icons/gallery-vertical.svg';
+import HelpIcon from '@/assets/icons/help.svg';
 import LogoutIcon from '@/assets/icons/log-out.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
 import SettingsIcon from '@/assets/icons/settings.svg';
@@ -16,6 +17,7 @@ import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
+import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { Dimensions, Text, View } from 'react-native';
@@ -108,7 +110,7 @@ export default function Layout() {
               paddingLeft: Spacings.lg,
             }}>
             <GalleryIcon height={24} width={24} />
-            <Text style={textStyles.buttonTextOrange}>Feed</Text>
+            <Text style={textStyles.buttonTextOrange}>My Feed</Text>
           </PopPressable>
           <PopPressable
             disabled={!circleQuery.data}
@@ -133,12 +135,27 @@ export default function Layout() {
                   ? textStyles.buttonTextOrange
                   : textStyles.buttonTextGrey
               }>
-              Circle
+              My Circle
             </Text>
           </PopPressable>
         </View>
 
         <View>
+          <PopPressable
+            onPress={() => {
+              openURL('https://www.thecherami.com/help');
+            }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              columnGap: Spacings.sm,
+              paddingVertical: Spacings.md,
+              marginBottom: Spacings.md,
+              paddingLeft: Spacings.lg,
+            }}>
+            <HelpIcon height={24} width={24} color={'#B05637'} />
+            <Text style={textStyles.buttonTextOrange}>Help</Text>
+          </PopPressable>
           <PopPressable
             onPress={() => {
               router.navigate('/settings');

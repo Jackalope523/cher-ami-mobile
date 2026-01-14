@@ -166,6 +166,14 @@ export default function Manage() {
           </View>
         </View>
 
+        <Text
+          style={[
+            textStyles.body,
+            { marginBottom: Spacings.md, marginHorizontal: 20 },
+          ]}>
+          Invite family and friends to view and post to the circle!
+        </Text>
+
         <PopPressable
           onPress={handleInvite}
           style={{
@@ -178,6 +186,7 @@ export default function Manage() {
             flexDirection: 'row',
             columnGap: Spacings.sm,
             marginHorizontal: 20,
+            marginBottom: Spacings.lg,
           }}>
           <Text style={textStyles.buttonTextOrange}>Invite to Circle</Text>
           <PlusIcon height={24} width={24} color={'#B05637'} />
@@ -186,8 +195,8 @@ export default function Manage() {
         <View
           style={{
             rowGap: Spacings.lg,
-            marginVertical: Spacings.lg,
             marginHorizontal: 20,
+            marginBottom: Spacings.xl,
           }}>
           {circleQuery.data.contributors.map((x) => (
             <UserItem
@@ -213,12 +222,19 @@ export default function Manage() {
           style={{
             flexDirection: 'row',
             marginHorizontal: 20,
-            paddingVertical: Spacings.sm,
             alignItems: 'center',
             marginBottom: Spacings.md,
           }}>
           <Text style={textStyles.heading3}>Recipients</Text>
         </View>
+
+        <Text
+          style={[
+            textStyles.body,
+            { marginBottom: Spacings.md, marginHorizontal: 20 },
+          ]}>
+          Recipients will recieve a physical magazine each month.
+        </Text>
 
         <PopPressable
           onPress={handleAddRecipient}

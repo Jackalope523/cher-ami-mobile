@@ -61,9 +61,12 @@ export default function Verify() {
           <Text style={[textStyles.heading1, { marginBottom: Spacings.md }]}>
             Verification
           </Text>
-          <Text style={[textStyles.body, { marginBottom: Spacings.xxl }]}>
+          <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
             Please enter the code we sent to your email{' '}
             <Text style={{ fontWeight: 'bold' }}>{email}</Text>
+          </Text>
+          <Text style={[textStyles.body, { marginBottom: Spacings.xxl }]}>
+            Can&apos;t find it? Check your spam folder.
           </Text>
         </Pressable>
 

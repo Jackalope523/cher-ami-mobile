@@ -145,71 +145,99 @@ export default function AddRecipient() {
       </Text>
       <View style={styles.textInputs}>
         <TextInput
-          title={'Title'}
+          title="Title"
           maxLength={25}
           value={title}
           onChangeText={setTitle}
+          keyboardType="default"
+          autoCapitalize="words"
+          autoCorrect={false}
+          textContentType="namePrefix"
+          autoComplete="off"
         />
         <TextInput
-          title={'First name'}
+          title="First Name"
           maxLength={100}
           value={firstName}
           onChangeText={setFirstName}
+          autoCapitalize="words"
+          textContentType="givenName"
+          autoComplete="name-given"
         />
         <TextInput
-          title={'Last name'}
+          title="Last Name"
           maxLength={100}
           value={lastName}
           onChangeText={setLastName}
+          autoCapitalize="words"
+          textContentType="familyName"
+          autoComplete="name-family"
         />
         <TextInput
-          title={'Street address'}
+          title="Street Address"
           maxLength={150}
           value={street}
           onChangeText={setStreet}
+          keyboardType="default"
+          autoCapitalize="words"
+          autoCorrect={true}
+          textContentType="streetAddressLine1"
+          autoComplete="street-address"
         />
         <TextInput
-          title={'Unit number'}
+          title="Unit Number"
           maxLength={15}
           value={unitNumber ?? ''}
           onChangeText={setUnitNumber}
+          autoCapitalize="characters"
+          autoCorrect={false}
+          textContentType="none"
+          autoComplete="off"
         />
         <TextInput
-          title={'City'}
+          title="City"
           maxLength={50}
           value={city}
           onChangeText={setCity}
+          autoCapitalize="words"
+          textContentType="addressCity"
         />
-        <View
-          style={{
-            flexDirection: 'row',
-            columnGap: 20,
-          }}>
+        <View style={{ flexDirection: 'row', columnGap: 20 }}>
           <TextInput
-            title={'State'}
+            title="State"
             maxLength={50}
             value={provinceOrState}
             onChangeText={setProvinceOrState}
+            autoCapitalize="words"
+            textContentType="addressState"
             containerStyle={{
               width: Dimensions.get('window').width / 2 - 20 - 10,
             }}
           />
           <TextInput
-            title={'ZIP code'}
+            title="ZIP code"
             maxLength={20}
             value={postalCode}
             onChangeText={setPostalCode}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            textContentType="postalCode"
+            autoComplete="postal-code"
             containerStyle={{
               width: Dimensions.get('window').width / 2 - 20 - 10,
             }}
           />
         </View>
         <TextInput
-          title={'Country'}
+          title="Country"
           maxLength={56}
           value={country}
           onChangeText={setCountry}
           editable={false}
+          selectTextOnFocus={false}
+          keyboardType="default"
+          autoCapitalize="words"
+          autoCorrect={false}
         />
       </View>
       <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>

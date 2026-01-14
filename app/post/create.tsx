@@ -9,7 +9,6 @@ import PostCounter from '@/components/PostCounter';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useAddPostMutation } from '@/lib/hooks';
-import { formatPhotoDate } from '@/lib/utility';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -114,17 +113,6 @@ export default function Create() {
                 </View>
               )}
             </PopPressable>
-
-            <Text
-              style={[
-                textStyles.captionMedium,
-                {
-                  paddingLeft: 20,
-                  paddingBottom: 32,
-                },
-              ]}>
-              {formatPhotoDate(new Date())}
-            </Text>
           </View>
         )}
 
@@ -194,7 +182,8 @@ const styles = StyleSheet.create({
   imageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Spacings.mdsm,
+    paddingTop: Spacings.mdsm,
+    paddingBottom: 32,
   },
 
   button: {

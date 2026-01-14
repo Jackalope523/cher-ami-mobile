@@ -49,6 +49,7 @@ export default function CircleName() {
           maxLength={100}
           value={circleName}
           onChangeText={setCircleName}
+          autoCapitalize="words"
           containerStyle={{ marginBottom: Spacings.md }}
         />
       </View>

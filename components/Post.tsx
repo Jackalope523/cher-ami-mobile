@@ -4,7 +4,6 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetSelfQuery, useGetUserQuery } from '@/lib/hooks';
 import { FeedPost } from '@/lib/responses';
-import { formatPhotoDate } from '@/lib/utility';
 import { router } from 'expo-router';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import DeletePostContents from './DeletePostContents';
@@ -80,23 +79,23 @@ export default function Post({ post }: PostProps) {
               </View>
             )}
           </PopPressable>
-          <View>
-            <PopPressable
-              onPress={() =>
-                router.push({
-                  pathname: '/profile/[id]',
-                  params: { id: post.authorId },
-                })
-              }>
-              <Text
-                style={
-                  textStyles.labelLargeBlack
-                }>{`${userQuery.data.firstName} ${userQuery.data.lastName}`}</Text>
-            </PopPressable>
-            <Text style={textStyles.captionMedium}>
+          {/* <View> */}
+          <PopPressable
+            onPress={() =>
+              router.push({
+                pathname: '/profile/[id]',
+                params: { id: post.authorId },
+              })
+            }>
+            <Text
+              style={
+                textStyles.labelLargeBlack
+              }>{`${userQuery.data.firstName} ${userQuery.data.lastName}`}</Text>
+          </PopPressable>
+          {/* <Text style={textStyles.captionMedium}>
               {formatPhotoDate(post.photoDate)}
-            </Text>
-          </View>
+            </Text> */}
+          {/* </View> */}
         </View>
 
         <PopPressable

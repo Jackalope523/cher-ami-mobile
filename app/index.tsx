@@ -267,6 +267,9 @@ export default function Index() {
           value={email}
           onChangeText={setEmail}
           containerStyle={{ width: '100%' }}
+          keyboardType="email-address"
+          textContentType="emailAddress"
+          autoComplete="email"
         />
       </View>
 
