@@ -261,9 +261,7 @@ export default function AddRecipient() {
         <View style={styles.divider} />
         <View style={styles.summaryItem}>
           <Text style={textStyles.labelSmall}>Total</Text>
-          <Text style={textStyles.labelSmall}>
-            ${getPriceQuery.data / 100}.00
-          </Text>
+          <Text style={textStyles.labelSmall}>${getPriceQuery.data / 100}</Text>
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>
           *Monthly subscription that charges you every month, starting October

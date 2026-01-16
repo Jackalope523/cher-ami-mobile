@@ -95,7 +95,7 @@ export default function Manage() {
             key={x.id}
             text={`${x.firstName} ${x.lastName}`}
             imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
-            tagRight={`$${getPriceQuery.data / 100}.00`}
+            tagRight={`$${getPriceQuery.data / 100}`}
           />
         ))}
       </View>
@@ -103,7 +103,7 @@ export default function Manage() {
       <View style={styles.priceTotal}>
         <Text style={textStyles.labelSmall}>Total</Text>
         <Text style={textStyles.labelSmall}>
-          ${(getSelfQuery.data.recipients.length * getPriceQuery.data) / 100}.00
+          ${(getSelfQuery.data.recipients.length * getPriceQuery.data) / 100}
         </Text>
       </View>
       <Text style={textStyles.heading3}>Billing details</Text>

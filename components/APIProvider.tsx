@@ -25,7 +25,7 @@ export const useAPI = () => {
 };
 
 const api = axios.create({
-  baseURL: 'https://app-cherami-staging.azurewebsites.net',
+  baseURL: 'https://app-cherami-prod.azurewebsites.net',
   timeout: 3000,
   transformResponse: [
     ...(axios.defaults.transformResponse as any),
@@ -84,7 +84,10 @@ export default function APIProvider({ children }: APIProviderProps) {
       const staleToken = api.interceptors.response.use(
         (response) => response,
         (error) => {
-          if (error.response?.status === 401) {
+          if (
+            error.response?.status === 401 ||
+            error.response?.status === 500
+          ) {
             deleteToken();
             router.replace('/');
           }

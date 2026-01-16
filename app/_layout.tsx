@@ -83,8 +83,6 @@ function RootNavigator() {
         <Stack.Protected guard={!getOnboarded()}>
           <Stack.Screen name="onboarding/firstName" options={{ title: '' }} />
           <Stack.Screen name="onboarding/lastName" options={{ title: '' }} />
-          <Stack.Screen name="onboarding/birthday" options={{ title: '' }} />
-          <Stack.Screen name="onboarding/avatar" options={{ title: '' }} />
         </Stack.Protected>
         <Stack.Protected guard={getOnboarded() ?? false}>
           <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
@@ -156,7 +154,7 @@ export default function RootLayout() {
                       {/* JACKALOPE: Get this from the key store. */}
                       <StripeProvider
                         publishableKey={
-                          'pk_test_51RxlM1ARYKi6NXMeRhx7XC2Rjjv7tbG84PRxlKpGX8JlRFtQKoTbVpUHXx9JLc784nyVEBu2lePJJdVJ68h2jGtn00jSaBvtFe'
+                          'pk_live_51RxlLoAAKZ0DCoddiYjT5r0l7YCbBd4dLkf1FejYMAKLQeCU3ghSreuwAKdMBJFdxt9V3bMd1cvy1EwTsXWu0ZTy00wwQab38P'
                         }>
                         <RootNavigator />
                       </StripeProvider>

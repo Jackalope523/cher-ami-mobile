@@ -20,7 +20,7 @@ export default function RemovePaymentMethodContents() {
   const removePaymentMethodMutation = useRemovePaymentMethodMutation(
     async () => {
       await queryClient.invalidateQueries({ queryKey: ['PaymentMethod'] });
-      showToastMessage('Successfully removed card.', ToastMessageType.Success);
+      showToastMessage('Card removed.', ToastMessageType.Success);
     },
     (error) => {
       console.log(error);

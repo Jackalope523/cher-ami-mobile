@@ -312,7 +312,7 @@ export default function EditRecipient() {
           <Text style={textStyles.labelSmall}>Total</Text>
           <Text style={textStyles.labelSmall}>
             {' '}
-            ${getPriceQuery.data / 100}.00
+            ${getPriceQuery.data / 100}
           </Text>
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>

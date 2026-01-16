@@ -37,6 +37,7 @@ export interface UserDTO {
   lastName: string;
   dateOfBirth?: Date;
   joinDate: Date;
+  isBillingExempt: boolean;
   recipients: RecipientItem[];
 }
 

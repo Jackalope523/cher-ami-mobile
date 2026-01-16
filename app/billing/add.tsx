@@ -19,11 +19,12 @@ export default function AddBilling() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const [buttonDisabled, setButtonDisabled] = useState(false);
-  const createSetupIntentMutation = useAddPaymentMethodMutation(
+  const addPaymentMethodMutation = useAddPaymentMethodMutation(
     (gotPaymentDetails) => {
       setButtonDisabled(false);
       if (gotPaymentDetails) {
         showToastMessage('Card added!', ToastMessageType.Success);
+        queryClient.invalidateQueries({ queryKey: ['PaymentMethod'] });
         router.replace('/circle/recipients/add');
       }
     },
@@ -33,7 +34,7 @@ export default function AddBilling() {
     },
   );
 
-  if (createSetupIntentMutation.isError) {
+  if (addPaymentMethodMutation.isError) {
     return <Error />;
   }
 
@@ -66,7 +67,7 @@ export default function AddBilling() {
           disabled={buttonDisabled}
           onPress={() => {
             setButtonDisabled(true);
-            createSetupIntentMutation.mutate();
+            addPaymentMethodMutation.mutate();
           }}
           style={[styles.removeButton]}>
           <Text style={textStyles.buttonTextBlack}>Add</Text>

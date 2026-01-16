@@ -38,7 +38,7 @@ export default function Manage() {
   const pickImageAsync = useImagePicker();
   const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
-  const checkPaymentMethodsQuery = useGetPaymentMethodQuery();
+  const getPaymentMethodQuery = useGetPaymentMethodQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
   const { displayDialogue } = useDialogueModal();
   const [scrolling, setScrolling] = useState(false);
@@ -67,7 +67,8 @@ export default function Manage() {
   }
 
   function handleAddRecipient() {
-    if (checkPaymentMethodsQuery.data) {
+    console.log(getPaymentMethodQuery.data !== null);
+    if (getPaymentMethodQuery.data || userQuery.data?.isBillingExempt) {
       router.push('/circle/recipients/add');
     } else {
       router.push('/billing/add');
@@ -95,7 +96,7 @@ export default function Manage() {
   if (
     circleQuery.isError ||
     userQuery.isError ||
-    checkPaymentMethodsQuery.isError
+    getPaymentMethodQuery.isError
   ) {
     return <Error />;
   }
@@ -103,7 +104,7 @@ export default function Manage() {
   if (
     circleQuery.isLoading ||
     userQuery.isLoading ||
-    checkPaymentMethodsQuery.isLoading
+    getPaymentMethodQuery.isLoading
   ) {
     return <Loading />;
   }
@@ -111,7 +112,7 @@ export default function Manage() {
   if (
     !circleQuery.data ||
     !userQuery.data ||
-    checkPaymentMethodsQuery.data === undefined
+    getPaymentMethodQuery.data === undefined
   ) {
     return null;
   }
