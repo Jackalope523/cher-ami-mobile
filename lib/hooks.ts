@@ -1,6 +1,6 @@
 import { useAPI } from '@/components/APIProvider';
 import { ToastMessageType, useToastMessage } from '@/components/modals/ToastMessageProvider';
-import { SetupParams, useStripe } from '@stripe/stripe-react-native';
+import { AppearanceParams, SetupParams, useStripe } from '@stripe/stripe-react-native';
 import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
@@ -223,6 +223,25 @@ export function useAddPaymentMethodMutation(onSuccess?: (response: boolean) => v
   const api = useAPI();
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
+  const appearance: AppearanceParams = {
+    colors: {
+      primary: '#B05637',
+      background: '#FCFBF8',
+      componentBackground: '#FCFBF8',
+      componentBorder: '#DEDBD5',
+      componentDivider: '#DEDBD5',
+      placeholderText: '#868581',
+      primaryText: '#242832',
+      secondaryText: '#242832',
+      error: '#F47A70',
+    },
+    shapes: {
+      borderRadius: 12,
+      borderWidth: 2,
+    },
+  };
+
+
   return useMutation<boolean, AxiosError, void>({
     mutationFn: async () => {
       const response = await api.post<SetupIntentResponse>("/payment-method");
@@ -232,13 +251,14 @@ export function useAddPaymentMethodMutation(onSuccess?: (response: boolean) => v
         returnURL: response.data.returnURL,
         allowsDelayedPaymentMethods: response.data.allowsDelayedPaymentMethods,
         merchantDisplayName: response.data.merchantDisplayName,
+        appearance: appearance,
       };
       
       const { error: initError } = await initPaymentSheet(params);
 
       if (!initError) {
         const { error: presentError } = await presentPaymentSheet();
-      
+    
         return presentError === undefined;
       } 
       else {
