@@ -1,9 +1,11 @@
 import { useAPI } from '@/components/APIProvider';
+import { ToastMessageType, useToastMessage } from '@/components/modals/ToastMessageProvider';
+import { SetupParams, useStripe } from '@stripe/stripe-react-native';
 import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
 import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, EmailVerifyRequest, IdRequest, ImageRequest, JoinCircleRequest, RecipientRequest, TokenRequest, UpdateRecipientRequest, UpdateUserRequest } from './requests';
-import { CircleDTO, CodeResponse, CreateSetupIntentResponse, FeedPageResponse, LoginResponse, RecipientDTO, UserDTO, UserItem } from './responses';
+import { CardDTO, CircleDTO, CodeResponse, FeedPageResponse, LoginResponse, RecipientDTO, SetupIntentResponse, UserDTO, UserItem } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
   const savedCallback = useRef(callback);
@@ -23,13 +25,31 @@ export function useInterval(callback: () => void, delay: number) {
   }, [delay]);
 }
 
-export function usePingMutation() {
+export function usePingMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
   const api = useAPI();
-  
+  const showToastMessage = useToastMessage();
+
   return useMutation<void, AxiosError>({
     mutationFn: async () => {
-      await api.post('/ping', {timeout: 60000});
+      let response;
+      for (let i = 0; i < 3; i++) {
+        response = await api.get('/ping', { timeout: 60000 });
+
+        if (response.status === 202) {
+          showToastMessage("Connecting to server...", ToastMessageType.Informational)
+          await new Promise(resolve => setTimeout(resolve, 30000));
+        }
+        else if (response.status === 204) {
+          return;
+        }
+        else {
+          throw new Error("Ping response was not 202 or 204.");
+        }
+      }
+      throw new Error("Server took too long to start up.");
     },
+    onSuccess,
+    onError
   });
 }
 
@@ -40,6 +60,18 @@ export function usePostCountQuery() {
     queryKey: ['PostCount'],
     queryFn: async () => {
       const response = await api.get('/issue/posts/count');
+      return response.data;
+    }  
+  });
+}
+
+export function useGetPriceQuery() {
+  const api = useAPI();
+
+  return useQuery<number, AxiosError>({
+    queryKey: ['Price'],
+    queryFn: async () => {
+      const response = await api.get('/recipient/price');
       return response.data;
     }  
   });
@@ -77,6 +109,19 @@ export function useGetSelfQuery() {
     queryFn: async () => {
       const response = await api.get<UserDTO>('/user');
       return response.data;
+    }, 
+  });
+}
+
+export function useGetPaymentMethodQuery() {
+  const api = useAPI();
+ 
+  return useQuery<CardDTO | null, AxiosError>({
+    queryKey: ['PaymentMethod'],
+    queryFn: async () => {
+      const response = await api.get<CardDTO[]>('/payment-methods');
+
+      return response.data[0] ?? null;
     }, 
   });
 }
@@ -162,13 +207,74 @@ export function useDeletePostMutation(onSuccess?: () => void,   onError?: (error
   });
 }
 
-export function useCreateSetupIntentMutation(onSuccess?: (response: CreateSetupIntentResponse) => void,   onError?: (error: AxiosError) => void) {
+export function useRemovePaymentMethodMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
   const api = useAPI();
 
-  return useMutation<CreateSetupIntentResponse, AxiosError, void>({
+  return useMutation<void, AxiosError, void>({
     mutationFn: async () => {
-      const response = await api.post<CreateSetupIntentResponse>(`/stripe/setup-intents`);
-      return response.data;
+      await api.delete("/payment-method");
+    },
+    onSuccess,
+    onError
+  });
+}
+
+export function useAddPaymentMethodMutation(onSuccess?: (response: boolean) => void,   onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+
+  return useMutation<boolean, AxiosError, void>({
+    mutationFn: async () => {
+      const response = await api.post<SetupIntentResponse>("/payment-method");
+
+      const params: SetupParams = {
+        setupIntentClientSecret: response.data.clientSecret,
+        returnURL: response.data.returnURL,
+        allowsDelayedPaymentMethods: response.data.allowsDelayedPaymentMethods,
+        merchantDisplayName: response.data.merchantDisplayName,
+      };
+      
+      const { error: initError } = await initPaymentSheet(params);
+
+      if (!initError) {
+        const { error: presentError } = await presentPaymentSheet();
+      
+        return presentError === undefined;
+      } 
+      else {
+        throw new Error("Error when initializing the payment sheet.");
+      }
+    },
+    onSuccess,
+    onError
+  });
+}
+
+export function useUpdatePaymentMethodMutation(onSuccess?: (response: boolean) => void,   onError?: (error: AxiosError) => void) {
+  const api = useAPI();
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+
+  return useMutation<boolean, AxiosError, void>({
+    mutationFn: async () => {
+      const response = await api.patch<SetupIntentResponse>("/payment-method");
+
+      const params: SetupParams = {
+        setupIntentClientSecret: response.data.clientSecret,
+        returnURL: response.data.returnURL,
+        allowsDelayedPaymentMethods: response.data.allowsDelayedPaymentMethods,
+        merchantDisplayName: response.data.merchantDisplayName,
+      };
+      
+      const { error: initError } = await initPaymentSheet(params);
+
+      if (!initError) {
+        const { error: presentError } = await presentPaymentSheet();
+      
+        return presentError === undefined;
+      } 
+      else {
+        throw new Error("Error when initializing the payment sheet.");
+      }
     },
     onSuccess,
     onError
@@ -348,7 +454,10 @@ export function useUpdateRecipientMutation(onSuccess?:() => void , onError?: (er
         formData.append('ProvinceOrState', request.provinceOrState);
         formData.append('PostalCode', request.postalCode);
         formData.append('Country', request.country);
-        formData.append('UnitNumber', request.unitNumber);
+
+        if (request.unitNumber) {
+          formData.append('UnitNumber', request.unitNumber);
+        }
 
         if (request.avatarPath) {
           formData.append('Avatar', {
@@ -510,7 +619,12 @@ export function useAddRecipientMutation(onSuccess?: () => void,   onError?: (err
       formData.append('Title', request.title);
       formData.append('FirstName', request.firstName);
       formData.append('LastName', request.lastName);
-      formData.append('UnitNumber', request.unitNumber);
+
+      if (request.unitNumber) {
+        formData.append('UnitNumber', request.unitNumber);
+      }
+
+      
       formData.append('Street', request.street);
       formData.append('City', request.city);
       formData.append('ProvinceOrState', request.provinceOrState);

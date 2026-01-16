@@ -1,7 +1,9 @@
+import CreditCardIcon from '@/assets/icons/credit-card.svg';
 import SettingsIcon from '@/assets/icons/log-out.svg';
 import PlusIcon from '@/assets/icons/plus.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
 import Error from '@/components/Error';
+import { useImagePicker } from '@/components/ImagePickerProvider';
 import InviteModalContents from '@/components/InviteModalContents';
 import LeaveCircleContents from '@/components/LeaveCircleContents';
 import Loading from '@/components/Loading';
@@ -18,12 +20,11 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
   useGetCircleQuery,
+  useGetPaymentMethodQuery,
   useGetSelfQuery,
   useUpdateHeaderMutation,
 } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
@@ -34,10 +35,12 @@ export default function Manage() {
   const showToastMessage = useToastMessage();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const pickImageAsync = useImagePicker();
   const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
+  const checkPaymentMethodsQuery = useGetPaymentMethodQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
-  const { displayDialogue, dismissDialogue } = useDialogueModal();
+  const { displayDialogue } = useDialogueModal();
   const [scrolling, setScrolling] = useState(false);
 
   const uploadMutation = useUpdateHeaderMutation(
@@ -63,41 +66,53 @@ export default function Manage() {
     );
   }
 
+  function handleAddRecipient() {
+    if (checkPaymentMethodsQuery.data) {
+      router.push('/circle/recipients/add');
+    } else {
+      router.push('/billing/add');
+    }
+  }
+
   function handleCircleSettings() {
     displayDialogue(<LeaveCircleContents />);
   }
 
-  async function pickImageAsync() {
-    let result = await launchImageLibraryAsync({
+  function pickImage() {
+    pickImageAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [372, 186],
-      quality: 1,
+      aspect: [2, 1],
+    }).then((x) => {
+      if (x) {
+        uploadMutation.mutate({
+          imageUri: x,
+        });
+      }
     });
-
-    if (!result.canceled) {
-      const image = await ImageManipulator.manipulate(
-        result.assets[0].uri,
-      ).renderAsync();
-      const jpgImage = await image.saveAsync({
-        format: SaveFormat.JPEG,
-      });
-
-      uploadMutation.mutate({
-        imageUri: jpgImage.uri,
-      });
-    }
   }
 
-  if (circleQuery.isError || userQuery.isError) {
+  if (
+    circleQuery.isError ||
+    userQuery.isError ||
+    checkPaymentMethodsQuery.isError
+  ) {
     return <Error />;
   }
 
-  if (circleQuery.isLoading || userQuery.isLoading) {
+  if (
+    circleQuery.isLoading ||
+    userQuery.isLoading ||
+    checkPaymentMethodsQuery.isLoading
+  ) {
     return <Loading />;
   }
 
-  if (!circleQuery.data || !userQuery.data) {
+  if (
+    !circleQuery.data ||
+    !userQuery.data ||
+    checkPaymentMethodsQuery.data === undefined
+  ) {
     return null;
   }
 
@@ -110,7 +125,7 @@ export default function Manage() {
         onMomentumScrollEnd={() => setScrolling(false)}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}>
-        <PopPressable onPress={pickImageAsync}>
+        <PopPressable onPress={pickImage}>
           <NetworkImage
             source={
               circleQuery.data.headerPath +
@@ -118,7 +133,7 @@ export default function Manage() {
             }
             style={{
               width: Dimensions.get('window').width - 40,
-              aspectRatio: 744 / 496,
+              aspectRatio: 2 / 1,
               borderRadius: 32,
               marginHorizontal: 20,
               marginVertical: Spacings.xl,
@@ -151,6 +166,14 @@ export default function Manage() {
           </View>
         </View>
 
+        <Text
+          style={[
+            textStyles.body,
+            { marginBottom: Spacings.md, marginHorizontal: 20 },
+          ]}>
+          Invite family and friends to view and post to the circle!
+        </Text>
+
         <PopPressable
           onPress={handleInvite}
           style={{
@@ -163,6 +186,7 @@ export default function Manage() {
             flexDirection: 'row',
             columnGap: Spacings.sm,
             marginHorizontal: 20,
+            marginBottom: Spacings.lg,
           }}>
           <Text style={textStyles.buttonTextOrange}>Invite to Circle</Text>
           <PlusIcon height={24} width={24} color={'#B05637'} />
@@ -171,8 +195,8 @@ export default function Manage() {
         <View
           style={{
             rowGap: Spacings.lg,
-            marginVertical: Spacings.lg,
             marginHorizontal: 20,
+            marginBottom: Spacings.xl,
           }}>
           {circleQuery.data.contributors.map((x) => (
             <UserItem
@@ -183,8 +207,7 @@ export default function Manage() {
                   ? x.avatarPath + `?timestamp=${x.avatarTimestamp}`
                   : undefined
               }
-              tag={'(You)'}
-              showTag={x.id === userQuery.data.id}
+              tagLeft={x.id === userQuery.data.id ? '(You)' : undefined}
               onPress={() =>
                 router.push({
                   pathname: '/profile/[id]',
@@ -199,15 +222,22 @@ export default function Manage() {
           style={{
             flexDirection: 'row',
             marginHorizontal: 20,
-            paddingVertical: Spacings.sm,
             alignItems: 'center',
             marginBottom: Spacings.md,
           }}>
           <Text style={textStyles.heading3}>Recipients</Text>
         </View>
 
+        <Text
+          style={[
+            textStyles.body,
+            { marginBottom: Spacings.md, marginHorizontal: 20 },
+          ]}>
+          Recipients will recieve a physical magazine each month.
+        </Text>
+
         <PopPressable
-          onPress={() => router.push('/circle/recipients/add')}
+          onPress={handleAddRecipient}
           style={{
             borderRadius: 12,
             borderWidth: 2,
@@ -241,8 +271,9 @@ export default function Manage() {
                     params: { id: x.id },
                   });
               }}
-              tag={'(Edit)'}
-              showTag={x.managerId === userQuery.data.id}
+              tagRight={
+                x.managerId === userQuery.data.id ? '(Edit)' : undefined
+              }
             />
           ))}
         </View>
@@ -261,7 +292,7 @@ export default function Manage() {
             justifyContent: 'center',
             padding: Spacings.lgmd,
           }}>
-          {/* <PopPressable
+          <PopPressable
             onPress={() => router.push('/billing/manage')}
             style={{
               flexDirection: 'row',
@@ -274,8 +305,8 @@ export default function Manage() {
               columnGap: Spacings.sm,
             }}>
             <CreditCardIcon height={24} width={24} color={'#FFFFFF'} />
-            <Text style={textStyles.buttonTextWhite}>Manage Billing</Text>
-          </PopPressable> */}
+            <Text style={textStyles.buttonTextWhite}>Billing</Text>
+          </PopPressable>
           <PopPressable
             onPress={handleCircleSettings}
             style={{
@@ -289,7 +320,7 @@ export default function Manage() {
               columnGap: Spacings.sm,
             }}>
             <SettingsIcon height={24} width={24} color={'#FFFFFF'} />
-            <Text style={textStyles.buttonTextWhite}>Leave Circle</Text>
+            <Text style={textStyles.buttonTextWhite}>Leave</Text>
           </PopPressable>
         </Animated.View>
       )}

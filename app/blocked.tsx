@@ -111,8 +111,8 @@ export default function Blocked() {
                 ? x.avatarPath + `?timestamp=${x.avatarTimestamp}`
                 : undefined
             }
-            tag={'(Unblock)'}
-            showTag={true}
+            tagLeft={'(Unblock)'}
+            showTagLeft={true}
             onPress={() =>
               displayDialogue(<UnblockUserContents userId={x.id} />)
             }

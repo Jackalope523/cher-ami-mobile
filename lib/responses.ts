@@ -40,6 +40,12 @@ export interface UserDTO {
   recipients: RecipientItem[];
 }
 
+export interface CardDTO {
+  id: string,
+  displayBrand: string,
+  last4: string,
+}
+
 export interface RecipientDTO {
   id: number;
   managerId: number;
@@ -81,7 +87,7 @@ export interface CodeResponse {
   code: string;
 }
 
-export interface CreateSetupIntentResponse {
+export interface SetupIntentResponse {
   clientSecret: string;
   returnURL: string;
   merchantDisplayName: string;

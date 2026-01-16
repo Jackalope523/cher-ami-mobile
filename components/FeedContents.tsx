@@ -41,44 +41,32 @@ export default function FeedContents() {
 
   function mapDateToText(date: Date): string {
     const now = new Date();
-
     const diffTime = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffSeconds = Math.floor(diffTime / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
 
-    // Days
-    if (diffDays === 0) return 'Today';
+    if (diffMinutes < 1) return 'Just Now';
+    if (diffMinutes < 60) return `${diffMinutes} Minutes Ago`;
+    if (diffHours < 24) return `${diffHours} Hours Ago`;
+
     if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} Days Ago`;
 
-    // Weeks
     const diffWeeks = Math.floor(diffDays / 7);
-    if (diffWeeks === 0) return 'This Week';
     if (diffWeeks === 1) return 'Last Week';
+    if (diffWeeks < 4) return `${diffWeeks} Weeks Ago`;
 
-    // Months
-    const diffMonths =
+    let diffMonths =
       (now.getFullYear() - date.getFullYear()) * 12 +
       (now.getMonth() - date.getMonth());
     if (diffMonths === 0) return 'This Month';
     if (diffMonths === 1) return 'Last Month';
-    if (diffMonths === 2) return 'Two Months Ago';
-    if (diffMonths === 3) return 'Three Months Ago';
-    if (diffMonths === 4) return 'Four Months Ago';
-    if (diffMonths === 5) return 'Five Months Ago';
-    if (diffMonths === 6) return 'Six Months Ago';
-    if (diffMonths === 7) return 'Seven Months Ago';
-    if (diffMonths === 8) return 'Eight Months Ago';
-    if (diffMonths === 9) return 'Nine Months Ago';
-    if (diffMonths === 10) return 'Ten Months Ago';
-    if (diffMonths === 11) return 'Eleven Months Ago';
+    if (diffMonths < 12) return `${diffMonths} Months Ago`;
 
-    // Years
     const diffYears = now.getFullYear() - date.getFullYear();
     if (diffYears === 1) return 'Last Year';
-    if (diffYears === 2) return 'Two Years Ago';
-    if (diffYears === 3) return 'Three Years Ago';
-    if (diffYears === 4) return 'Four Years Ago';
-    if (diffYears === 5) return 'Five Years Ago';
-
     return `${diffYears} Years Ago`;
   }
 
@@ -156,6 +144,7 @@ export default function FeedContents() {
               {date.toLocaleString('en-US', {
                 month: 'long',
                 year: 'numeric',
+                timeZone: 'UTC',
               })}
             </Text>
           </View>

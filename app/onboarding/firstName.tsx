@@ -50,6 +50,10 @@ export default function FirstName() {
           value={firstName}
           onChangeText={setFirstName}
           containerStyle={{ marginBottom: Spacings.md }}
+          keyboardType="default"
+          autoCapitalize="words"
+          textContentType="givenName" // iOS
+          autoComplete="name-given" // Android
         />
       </View>
 

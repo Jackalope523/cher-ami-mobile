@@ -1,5 +1,6 @@
 import TrashIcon from '@/assets/icons/trash.svg';
 import Error from '@/components/Error';
+import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
 import {
   ToastMessageType,
@@ -10,11 +11,13 @@ import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetRecipientQuery, useUpdateRecipientMutation } from '@/lib/hooks';
+import {
+  useGetPriceQuery,
+  useGetRecipientQuery,
+  useUpdateRecipientMutation,
+} from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
@@ -24,6 +27,8 @@ export default function EditRecipient() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const pickImageAsync = useImagePicker();
+  const getPriceQuery = useGetPriceQuery();
   const showToastMessage = useToastMessage();
   const { data, status } = useGetRecipientQuery(Number(id));
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -42,11 +47,11 @@ export default function EditRecipient() {
     },
   );
 
-  const [avatar, setAvatar] = useState('');
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [unitNumber, setUnitNumber] = useState('');
+  const [unitNumber, setUnitNumber] = useState<string | null>(null);
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
   const [provinceOrState, setProvinceOrState] = useState('');
@@ -101,24 +106,14 @@ export default function EditRecipient() {
     };
   }, []);
 
-  async function pickImageAsync() {
-    let result = await launchImageLibraryAsync({
+  function pickImage() {
+    pickImageAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+    }).then((x) => {
+      setAvatar(x);
     });
-
-    if (!result.canceled) {
-      const image = await ImageManipulator.manipulate(
-        result.assets[0].uri,
-      ).renderAsync();
-      const jpgImage = await image.saveAsync({
-        format: SaveFormat.JPEG,
-      });
-
-      setAvatar(jpgImage.uri);
-    }
   }
 
   function buttonDisabled() {
@@ -154,20 +149,20 @@ export default function EditRecipient() {
         postalCode,
         country,
         unitNumber,
-        avatarPath: avatar !== data.avatarPath ? avatar : undefined,
+        avatarPath: avatar !== data.avatarPath ? avatar : null,
       });
     }
   }
 
-  if (status === 'error') {
+  if (status === 'error' || getPriceQuery.isError) {
     return <Error />;
   }
 
-  if (status === 'pending') {
+  if (status === 'pending' || getPriceQuery.isLoading) {
     return <Loading />;
   }
 
-  if (!data) {
+  if (!data || !getPriceQuery.data) {
     return null;
   }
 
@@ -181,7 +176,7 @@ export default function EditRecipient() {
       ]}
       overScrollMode="never"
       showsVerticalScrollIndicator={false}>
-      <PopPressable onPress={pickImageAsync}>
+      <PopPressable onPress={pickImage}>
         {avatar !== data.avatarPath ? (
           <Image style={styles.avatar} source={avatar} />
         ) : (
@@ -199,74 +194,102 @@ export default function EditRecipient() {
       </Text>
       <View style={styles.textInputs}>
         <TextInput
-          title={'Title'}
+          title="Title"
           maxLength={25}
           value={title}
           onChangeText={setTitle}
+          keyboardType="default"
+          autoCapitalize="words"
+          autoCorrect={false}
+          textContentType="namePrefix"
+          autoComplete="off"
         />
         <TextInput
-          title={'First name'}
+          title="First Name"
           maxLength={100}
           value={firstName}
           onChangeText={setFirstName}
+          autoCapitalize="words"
+          textContentType="givenName"
+          autoComplete="name-given"
         />
         <TextInput
-          title={'Last name'}
+          title="Last Name"
           maxLength={100}
           value={lastName}
           onChangeText={setLastName}
+          autoCapitalize="words"
+          textContentType="familyName"
+          autoComplete="name-family"
         />
         <TextInput
-          title={'Street address'}
+          title="Street Address"
           maxLength={150}
           value={street}
           onChangeText={setStreet}
+          keyboardType="default"
+          autoCapitalize="words"
+          autoCorrect={true}
+          textContentType="streetAddressLine1"
+          autoComplete="street-address"
         />
         <TextInput
-          title={'Unit number'}
+          title="Unit Number"
           maxLength={15}
-          value={unitNumber}
+          value={unitNumber ?? ''}
           onChangeText={setUnitNumber}
+          autoCapitalize="characters"
+          autoCorrect={false}
+          textContentType="none"
+          autoComplete="off"
         />
         <TextInput
-          title={'City'}
+          title="City"
           maxLength={50}
           value={city}
           onChangeText={setCity}
+          autoCapitalize="words"
+          textContentType="addressCity"
         />
-        <View
-          style={{
-            flexDirection: 'row',
-            columnGap: 20,
-          }}>
+        <View style={{ flexDirection: 'row', columnGap: 20 }}>
           <TextInput
-            title={'State'}
+            title="State"
             maxLength={50}
             value={provinceOrState}
             onChangeText={setProvinceOrState}
+            autoCapitalize="words"
+            textContentType="addressState"
             containerStyle={{
               width: Dimensions.get('window').width / 2 - 20 - 10,
             }}
           />
           <TextInput
-            title={'ZIP code'}
+            title="ZIP code"
             maxLength={20}
             value={postalCode}
             onChangeText={setPostalCode}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            textContentType="postalCode"
+            autoComplete="postal-code"
             containerStyle={{
               width: Dimensions.get('window').width / 2 - 20 - 10,
             }}
           />
         </View>
         <TextInput
-          title={'Country'}
+          title="Country"
           maxLength={56}
           value={country}
           onChangeText={setCountry}
           editable={false}
+          selectTextOnFocus={false}
+          keyboardType="default"
+          autoCapitalize="words"
+          autoCorrect={false}
         />
       </View>
-      {/* <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
+      <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
       <View style={styles.summaryItemList}>
         <View style={styles.summaryItem}>
           <Text style={textStyles.labelLargeBlack}>Renewal</Text>
@@ -287,13 +310,16 @@ export default function EditRecipient() {
         <View style={styles.divider} />
         <View style={styles.summaryItem}>
           <Text style={textStyles.labelSmall}>Total</Text>
-          <Text style={textStyles.labelSmall}>$12,00</Text>
+          <Text style={textStyles.labelSmall}>
+            {' '}
+            ${getPriceQuery.data / 100}.00
+          </Text>
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>
           *Monthly subscription that charges you every month, starting October
           1.
         </Text>
-      </View> */}
+      </View>
       <PopPressable
         onPress={handleSaveChanges}
         disabled={buttonDisabled()}
