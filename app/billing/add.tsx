@@ -7,8 +7,7 @@ import {
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useCreateSetupIntentMutation } from '@/lib/hooks';
-import { SetupParams, useStripe } from '@stripe/stripe-react-native';
+import { useAddPaymentMethodMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -19,31 +18,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function AddBilling() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [buttonDisabled, setButtonDisabled] = useState(false);
-
-  const createSetupIntentMutation = useCreateSetupIntentMutation(
-    async (response) => {
-      const params: SetupParams = {
-        setupIntentClientSecret: response.clientSecret,
-        returnURL: response.returnURL,
-        allowsDelayedPaymentMethods: response.allowsDelayedPaymentMethods,
-        merchantDisplayName: response.merchantDisplayName,
-      };
-      const { error: initError } = await initPaymentSheet(params);
-
-      if (!initError) {
-        const { error: presentError } = await presentPaymentSheet();
-
-        if (!presentError) {
-          setButtonDisabled(false);
-          queryClient.invalidateQueries({ queryKey: ['HasPaymentMethod'] });
-          router.replace('/circle/recipients/add');
-        }
-        setButtonDisabled(false);
-      } else {
-        setButtonDisabled(false);
-        showToastMessage('Network error. Try again.', ToastMessageType.Error);
+  const createSetupIntentMutation = useAddPaymentMethodMutation(
+    (gotPaymentDetails) => {
+      setButtonDisabled(false);
+      if (gotPaymentDetails) {
+        queryClient.invalidateQueries({ queryKey: ['HasPaymentMethod'] });
+        router.replace('/circle/recipients/add');
       }
     },
     (_) => {
