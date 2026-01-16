@@ -1,4 +1,4 @@
-import Mouse from '@/assets/images/mouse.png';
+import ChairMouse from '@/assets/images/chair-mouse.png';
 import Error from '@/components/Error';
 import {
   ToastMessageType,
@@ -23,7 +23,7 @@ export default function AddBilling() {
     (gotPaymentDetails) => {
       setButtonDisabled(false);
       if (gotPaymentDetails) {
-        queryClient.invalidateQueries({ queryKey: ['HasPaymentMethod'] });
+        showToastMessage('Card added!', ToastMessageType.Success);
         router.replace('/circle/recipients/add');
       }
     },
@@ -41,24 +41,24 @@ export default function AddBilling() {
     <SafeAreaView style={styles.container}>
       <View>
         <Text style={[textStyles.heading1, styles.screenHeader]}>
-          Add Payment Method
+          Payment Method Required
         </Text>
 
         <View style={{ alignItems: 'center', paddingVertical: Spacings.xxl }}>
           <Image
-            source={Mouse}
+            source={ChairMouse}
             style={{
-              aspectRatio: 71 / 73,
+              aspectRatio: 1,
               width: '100%',
-              maxHeight: 73,
-              maxWidth: 71,
+              maxHeight: 73 * 2,
+              maxWidth: 71 * 2,
             }}
           />
         </View>
 
-        <Text style={textStyles.body}>
+        <Text style={[textStyles.body, { textAlign: 'center' }]}>
           In order to add recipients to your circle you must provide a payment
-          method.
+          method. Don&apos;t worry, you can remove it at any time.
         </Text>
       </View>
       <View style={styles.buttonContainer}>
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   },
 
   screenHeader: {
-    alignSelf: 'center',
+    textAlign: 'center',
   },
 
   recipientName: {
