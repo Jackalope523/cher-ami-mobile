@@ -52,7 +52,8 @@ export default function RemovePaymentMethodContents() {
           textStyles.heading3,
           { textAlign: 'center', marginBottom: Spacings.md },
         ]}>
-        {getSelfQuery.data.recipients.length === 0
+        {getSelfQuery.data.recipients.length === 0 ||
+        getSelfQuery.data.isBillingExempt
           ? 'Remove Card?'
           : 'Removal Blocked'}
       </Text>
@@ -61,24 +62,26 @@ export default function RemovePaymentMethodContents() {
           textStyles.body,
           { textAlign: 'center', marginBottom: Spacings.xxl },
         ]}>
-        {getSelfQuery.data.recipients.length === 0
-          ? 'Are you sure you want to remove this card? This action cannot be undone.'
+        {getSelfQuery.data.recipients.length === 0 ||
+        getSelfQuery.data.isBillingExempt
+          ? 'Are you sure you want to remove this card?'
           : 'Unable to remove card while you have active recipients. Please remove them first.'}
       </Text>
-      {getSelfQuery.data.recipients.length === 0 && (
+      {(getSelfQuery.data.recipients.length === 0 ||
+        getSelfQuery.data.isBillingExempt) && (
         <PopPressable
           onPress={handleDelete}
           style={{
-            backgroundColor: '#F47A70',
+            backgroundColor: '#C15F3C',
             paddingVertical: Spacings.md,
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: 14,
             borderWidth: 2,
-            borderColor: '#F47A70',
+            borderColor: '#C15F3C',
             marginBottom: Spacings.mdsm,
           }}>
-          <Text style={textStyles.buttonTextBlack}>Remove</Text>
+          <Text style={textStyles.buttonTextWhite}>Remove</Text>
         </PopPressable>
       )}
       <PopPressable
