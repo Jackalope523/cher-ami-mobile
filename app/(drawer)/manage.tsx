@@ -67,7 +67,6 @@ export default function Manage() {
   }
 
   function handleAddRecipient() {
-    console.log(getPaymentMethodQuery.data !== null);
     if (getPaymentMethodQuery.data || userQuery.data?.isBillingExempt) {
       router.push('/circle/recipients/add');
     } else {

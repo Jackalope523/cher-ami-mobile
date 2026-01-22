@@ -90,7 +90,7 @@ export interface CodeResponse {
 
 export interface SetupIntentResponse {
   clientSecret: string;
-  returnURL: string;
+  customerId: string;
   merchantDisplayName: string;
   allowsDelayedPaymentMethods: boolean;
 }

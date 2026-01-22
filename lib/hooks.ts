@@ -231,6 +231,7 @@ export function useAddPaymentMethodMutation(onSuccess?: (response: boolean) => v
       componentBorder: '#DEDBD5',
       componentDivider: '#DEDBD5',
       placeholderText: '#868581',
+      componentText: '#242832',
       primaryText: '#242832',
       secondaryText: '#242832',
       error: '#F47A70',
@@ -241,16 +242,16 @@ export function useAddPaymentMethodMutation(onSuccess?: (response: boolean) => v
     },
   };
 
-
   return useMutation<boolean, AxiosError, void>({
     mutationFn: async () => {
       const response = await api.post<SetupIntentResponse>("/payment-method");
 
       const params: SetupParams = {
         setupIntentClientSecret: response.data.clientSecret,
-        returnURL: response.data.returnURL,
+        customerId: response.data.customerId,
         allowsDelayedPaymentMethods: response.data.allowsDelayedPaymentMethods,
         merchantDisplayName: response.data.merchantDisplayName,
+        // returnURL: makeRedirectUri({ scheme: 'cherami' }),
         appearance: appearance,
       };
       
@@ -274,15 +275,36 @@ export function useUpdatePaymentMethodMutation(onSuccess?: (response: boolean) =
   const api = useAPI();
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
+  const appearance: AppearanceParams = {
+    colors: {
+      primary: '#B05637',
+      background: '#FCFBF8',
+      componentBackground: '#FCFBF8',
+      componentBorder: '#DEDBD5',
+      componentDivider: '#DEDBD5',
+      placeholderText: '#868581',
+      componentText: '#242832',
+      primaryText: '#242832',
+      secondaryText: '#242832',
+      error: '#F47A70',
+    },
+    shapes: {
+      borderRadius: 12,
+      borderWidth: 2,
+    },
+  };
+
   return useMutation<boolean, AxiosError, void>({
     mutationFn: async () => {
       const response = await api.patch<SetupIntentResponse>("/payment-method");
 
       const params: SetupParams = {
         setupIntentClientSecret: response.data.clientSecret,
-        returnURL: response.data.returnURL,
+        customerId: response.data.customerId,
         allowsDelayedPaymentMethods: response.data.allowsDelayedPaymentMethods,
         merchantDisplayName: response.data.merchantDisplayName,
+        // returnURL: makeRedirectUri({ scheme: 'cherami' }),
+        appearance: appearance,
       };
       
       const { error: initError } = await initPaymentSheet(params);
