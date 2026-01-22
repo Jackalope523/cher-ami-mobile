@@ -62,9 +62,9 @@ export default function Profile() {
 
   function pickImage() {
     pickImageAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
+      height: 96,
+      width: 96,
+      cropping: true,
     }).then((x) => {
       if (x) {
         uploadMutation.mutate({

@@ -34,9 +34,9 @@ export default function CircleHeader() {
 
   function pickImage() {
     pickImageAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [2, 1],
+      width: 2 * 186,
+      height: 186,
+      cropping: true,
     }).then((x) => {
       setSelectedImage(x);
     });

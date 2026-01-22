@@ -1,13 +1,13 @@
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { ImagePickerOptions, launchImageLibraryAsync } from 'expo-image-picker';
 import { createContext, ReactNode, useContext } from 'react';
+import { openPicker, Options } from 'react-native-image-crop-picker';
 
 interface ImagePickerProviderProps {
   children: ReactNode;
 }
 
 interface ImagePickerInterface {
-  pickImageAsync: (options?: ImagePickerOptions) => Promise<string | null>;
+  pickImageAsync: (options: Options) => Promise<string | null>;
 }
 
 const ImagePickerContext = createContext<ImagePickerInterface | null>(null);
@@ -27,12 +27,12 @@ export const useImagePicker = () => {
 export default function ImagePickerProvider({
   children,
 }: ImagePickerProviderProps) {
-  async function pickImageAsync(options?: ImagePickerOptions) {
-    let result = await launchImageLibraryAsync(options);
+  async function pickImageAsync(options: Options) {
+    try {
+      const result = await openPicker(options);
 
-    if (!result.canceled) {
       const image = await ImageManipulator.manipulate(
-        result.assets[0].uri,
+        result.path,
       ).renderAsync();
       const jpgImage = await image.saveAsync({
         format: SaveFormat.JPEG,
@@ -40,7 +40,7 @@ export default function ImagePickerProvider({
       });
 
       return jpgImage.uri;
-    } else {
+    } catch {
       return null;
     }
   }

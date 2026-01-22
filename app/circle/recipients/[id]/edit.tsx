@@ -108,9 +108,9 @@ export default function EditRecipient() {
 
   function pickImage() {
     pickImageAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
+      height: 96,
+      width: 96,
+      cropping: true,
     }).then((x) => {
       setAvatar(x);
     });

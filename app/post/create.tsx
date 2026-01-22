@@ -61,11 +61,13 @@ export default function Create() {
 
   function pickImage() {
     pickImageAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [372, 259],
+      width: 372,
+      height: 259,
+      cropping: true,
     }).then((x) => {
-      setSelectedImage(x);
+      if (x !== null) {
+        setSelectedImage(x);
+      }
     });
   }
 
