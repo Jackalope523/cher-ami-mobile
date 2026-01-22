@@ -1,4 +1,4 @@
-import ChairMouse from '@/assets/images/chair-mouse.png';
+import Chipmunk from '@/assets/images/chipmunk.png';
 import Error from '@/components/Error';
 import {
   ToastMessageType,
@@ -42,24 +42,24 @@ export default function AddBilling() {
     <SafeAreaView style={styles.container}>
       <View>
         <Text style={[textStyles.heading1, styles.screenHeader]}>
-          Payment Method Required
+          Add payment method
         </Text>
 
         <View style={{ alignItems: 'center', paddingVertical: Spacings.xxl }}>
           <Image
-            source={ChairMouse}
+            source={Chipmunk}
             style={{
-              aspectRatio: 1,
-              width: '100%',
-              maxHeight: 73 * 2,
-              maxWidth: 71 * 2,
+              aspectRatio: 57 / 64,
+              width: '60%',
+              maxHeight: 320,
+              maxWidth: 285,
             }}
           />
         </View>
 
         <Text style={[textStyles.body, { textAlign: 'center' }]}>
-          In order to add recipients to your circle you must provide a payment
-          method. Don&apos;t worry, you can remove it at any time.
+          In order to add recipients to your circle you must{' '}
+          <Text style={{ fontWeight: 'bold' }}>provide a payment method.</Text>
         </Text>
       </View>
       <View style={styles.buttonContainer}>
@@ -70,7 +70,7 @@ export default function AddBilling() {
             addPaymentMethodMutation.mutate();
           }}
           style={[styles.removeButton]}>
-          <Text style={textStyles.buttonTextBlack}>Add</Text>
+          <Text style={textStyles.buttonTextWhite}>Continue</Text>
         </PopPressable>
         <PopPressable
           onPress={() => {
@@ -78,7 +78,7 @@ export default function AddBilling() {
           }}
           disabled={false}
           style={styles.cancelButton}>
-          <Text style={textStyles.buttonTextWhite}>Cancel</Text>
+          <Text style={textStyles.buttonTextBlack}>Cancel</Text>
         </PopPressable>
       </View>
     </SafeAreaView>
@@ -118,10 +118,10 @@ const styles = StyleSheet.create({
   removeButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#C15F3C',
     borderRadius: 14,
     borderWidth: 2,
-    borderColor: '#242832',
+    borderColor: '#C15F3C',
     paddingVertical: Spacings.md,
     paddingHorizontal: Spacings.lg,
   },
@@ -129,10 +129,10 @@ const styles = StyleSheet.create({
   cancelButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#C15F3C',
+    backgroundColor: '#FFFFFF',
     borderRadius: 14,
     borderWidth: 2,
-    borderColor: '#C15F3C',
+    borderColor: '#242832',
     paddingVertical: Spacings.md,
     paddingHorizontal: Spacings.lg,
   },

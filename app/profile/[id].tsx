@@ -1,6 +1,7 @@
 import CalendarIcon from '@/assets/icons/calendar.svg';
 import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
-import { default as PlusIcon } from '@/assets/icons/plus.svg';
+import PlusIcon from '@/assets/icons/plus.svg';
+import PersonIcon from '@/assets/icons/user-round.svg';
 import BlockUserContents from '@/components/BlockUserContents';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
@@ -100,7 +101,11 @@ export default function Profile() {
             />
           ) : (
             <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
-              <PlusIcon height={48} width={48} color={'#868581'} />
+              {isSelf ? (
+                <PlusIcon height={48} width={48} color={'#868581'} />
+              ) : (
+                <PersonIcon height={48} width={48} color={'#868581'} />
+              )}
             </View>
           )}
         </PopPressable>

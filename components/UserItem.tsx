@@ -18,10 +18,13 @@ export default function UserItem({
   text = 'John Doe',
   tagLeft,
   tagRight,
-  onPress = () => {},
+  onPress,
 }: UserItemProps) {
   return (
-    <PopPressable style={styles.contributorContainer} onPress={onPress}>
+    <PopPressable
+      style={styles.contributorContainer}
+      onPress={onPress}
+      disabled={onPress === undefined}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         {imageSource ? (
           <NetworkImage style={styles.image} source={imageSource} />

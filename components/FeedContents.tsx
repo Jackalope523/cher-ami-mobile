@@ -17,17 +17,29 @@ import { useEffect } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
 import Error from './Error';
 import Loading from './Loading';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from './modals/ToastMessageProvider';
 
 export default function FeedContents() {
   const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
+  const showToastMessage = useToastMessage();
 
   function handleCreatePost() {
-    router.push({
-      pathname: '/post/create',
-      params: {
-        issueTitle: data?.pages[0].issueTitle,
-      },
-    });
+    if (data?.pages[0].posts.length === 20) {
+      showToastMessage(
+        "This month's issue is complete!",
+        ToastMessageType.Informational,
+      );
+    } else {
+      router.push({
+        pathname: '/post/create',
+        params: {
+          issueTitle: data?.pages[0].issueTitle,
+        },
+      });
+    }
   }
 
   useEffect(() => {

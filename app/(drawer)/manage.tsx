@@ -264,13 +264,16 @@ export default function Manage() {
               key={x.id}
               text={x.firstName}
               imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
-              onPress={() => {
-                if (x.managerId === userQuery.data.id)
-                  router.push({
-                    pathname: '/circle/recipients/[id]/edit',
-                    params: { id: x.id },
-                  });
-              }}
+              onPress={
+                x.managerId === userQuery.data.id
+                  ? () => {
+                      router.push({
+                        pathname: '/circle/recipients/[id]/edit',
+                        params: { id: x.id },
+                      });
+                    }
+                  : undefined
+              }
               tagRight={
                 x.managerId === userQuery.data.id ? '(Edit)' : undefined
               }

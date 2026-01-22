@@ -40,7 +40,7 @@ export default function ImagePickerProvider({
       });
 
       return jpgImage.uri;
-    } catch {
+    } catch (e: unknown) {
       return null;
     }
   }
