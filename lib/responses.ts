@@ -1,11 +1,11 @@
-import { IssueSchedule } from "./enums";
+import { IssueSchedule } from './enums';
 
 export interface UserItem {
   id: number;
   firstName: string;
   lastName: string;
-  avatarPath?: string;
-  avatarTimestamp?: Date; 
+  avatarPath: string | null;
+  avatarTimestamp: Date | null;
 }
 
 export interface RecipientItem {
@@ -13,14 +13,14 @@ export interface RecipientItem {
   managerId: number;
   firstName: string;
   lastName: string;
-  avatarPath: string;
-  avatarTimestamp: Date; 
+  avatarPath: string | null;
+  avatarTimestamp: Date | null;
 }
 
 export interface CircleDTO {
   id: number;
   headerPath: string;
-  headerTimestamp: Date; 
+  headerTimestamp: Date;
   title: string;
   inviteCode: string;
   dateCreated: Date;
@@ -31,28 +31,26 @@ export interface CircleDTO {
 
 export interface UserDTO {
   id: number;
-  avatarPath?: string;
-  avatarTimestamp?: Date;
+  avatarPath: string | null;
+  avatarTimestamp: Date | null;
   firstName: string;
   lastName: string;
-  dateOfBirth?: Date;
   joinDate: Date;
   isBillingExempt: boolean;
   recipients: RecipientItem[];
 }
 
 export interface CardDTO {
-  id: string,
-  displayBrand: string,
-  last4: string,
+  id: string;
+  displayBrand: string;
+  last4: string;
 }
 
 export interface RecipientDTO {
   id: number;
   managerId: number;
-  avatarPath: string;
-  avatarTimestamp: Date;
-  title: string;
+  avatarPath: string | null;
+  avatarTimestamp: Date | null;
   firstName: string;
   lastName: string;
   street: string;
@@ -75,7 +73,7 @@ export interface FeedPageResponse {
   id: number | null;
   issueTitle: string | null;
   issueDate: Date | null;
-  posts: FeedPost[]
+  posts: FeedPost[];
   nextPage: number | null;
 }
 

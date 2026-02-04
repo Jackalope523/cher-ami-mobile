@@ -6,7 +6,7 @@ import NetworkImage from './NetworkImage';
 import PopPressable from './PopPressable';
 
 interface UserItemProps {
-  imageSource?: string;
+  imageSource: string | null;
   text?: string;
   tagLeft?: string;
   tagRight?: string;

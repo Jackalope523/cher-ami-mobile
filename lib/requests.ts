@@ -1,4 +1,3 @@
-
 export interface AddPostRequest {
   time: string;
   caption: string;
@@ -22,14 +21,12 @@ export interface EmailVerifyRequest {
 export interface UpdateUserRequest {
   firstName: string;
   lastName: string;
-  dateOfBirth?: Date;
-  avatarPath?: string;
+  avatarPath: string | null;
 }
 
 export interface UpdateRecipientRequest {
   id: number;
   avatarPath: string | null;
-  title: string;
   firstName: string;
   lastName: string;
   street: string;
@@ -39,7 +36,6 @@ export interface UpdateRecipientRequest {
   country: string;
   unitNumber: string | null;
 }
-
 
 export interface CreateCircleRequest {
   title: string;
@@ -59,12 +55,11 @@ export interface IdRequest {
 }
 
 export interface RecipientRequest {
-  avatarUri: string;
-  avatarName: string;
-  title: string;
+  avatarUri: string | null;
+  avatarName: string | null;
   firstName: string;
   lastName: string;
-  unitNumber: string|null;
+  unitNumber: string | null;
   street: string;
   city: string;
   provinceOrState: string;

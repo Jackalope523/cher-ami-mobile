@@ -11,6 +11,7 @@ import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useAddRecipientMutation, useGetPriceQuery } from '@/lib/hooks';
+import { getNextMonthName } from '@/lib/utility';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -25,7 +26,6 @@ export default function AddRecipient() {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const [avatar, setAvatar] = useState<string | null>(null);
-  const [title, setTitle] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [unitNumber, setUnitNumber] = useState<string | null>(null);
@@ -63,7 +63,6 @@ export default function AddRecipient() {
 
   function buttonDisabled() {
     return (
-      avatar === null ||
       firstName === '' ||
       lastName === '' ||
       street === '' ||
@@ -86,14 +85,9 @@ export default function AddRecipient() {
   }
 
   function handleAdd() {
-    if (!avatar) {
-      throw new globalThis.Error('Avatar is null.');
-    }
-
     addRecipientMutation.mutate({
       avatarUri: avatar,
       avatarName: 'avatar.jpg',
-      title: title,
       firstName: firstName,
       lastName: lastName,
       unitNumber: unitNumber,
@@ -144,17 +138,6 @@ export default function AddRecipient() {
         Mailing address
       </Text>
       <View style={styles.textInputs}>
-        <TextInput
-          title="Title"
-          maxLength={25}
-          value={title}
-          onChangeText={setTitle}
-          keyboardType="default"
-          autoCapitalize="words"
-          autoCorrect={false}
-          textContentType="namePrefix"
-          autoComplete="off"
-        />
         <TextInput
           title="First Name"
           maxLength={100}
@@ -264,8 +247,7 @@ export default function AddRecipient() {
           <Text style={textStyles.labelSmall}>${getPriceQuery.data / 100}</Text>
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>
-          *Monthly subscription that charges you every month, starting October
-          1.
+          {`*Monthly subscription that charges you every month, starting ${getNextMonthName()} 1st.`}
         </Text>
       </View>
       <PopPressable

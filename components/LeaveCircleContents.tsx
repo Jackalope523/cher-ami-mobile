@@ -20,7 +20,7 @@ export default function LeaveCircleContents() {
     async () => {
       await queryClient.invalidateQueries({ queryKey: ['Circle'] });
       router.replace('/feed');
-      showToastMessage('Successfully left circle.', ToastMessageType.Success);
+      showToastMessage('Left circle.', ToastMessageType.Success);
     },
     (error) => {
       console.log(error);

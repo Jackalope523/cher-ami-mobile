@@ -21,10 +21,7 @@ export default function LastName() {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const userMutation = useUpdateUserMutation(
     () => {
-      showToastMessage(
-        'Successfully created account!',
-        ToastMessageType.Success,
-      );
+      showToastMessage('Created account!', ToastMessageType.Success);
       updateOnboarded(true);
     },
     (error) => {
@@ -37,6 +34,7 @@ export default function LastName() {
     userMutation.mutate({
       firstName: firstName as string,
       lastName: lastName as string,
+      avatarPath: null,
     });
   }
 

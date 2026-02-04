@@ -32,17 +32,15 @@ export default function ImagePickerProvider({
     try {
       const result = await openPicker(options);
 
-      const fileInfoBefore = new File(result.path).info();
-      console.log('Image size in bytes before compress:', fileInfoBefore.size);
-
+      const fileInfo = new File(result.path).info();
       const image = await ImageManipulator.manipulate(
         result.path,
       ).renderAsync();
 
       const MAX_BYTES = 5 * 1024 * 1024;
       let compressionFactor = 1;
-      if (fileInfoBefore.size && fileInfoBefore.size > MAX_BYTES) {
-        compressionFactor = MAX_BYTES / fileInfoBefore.size;
+      if (fileInfo.size && fileInfo.size > MAX_BYTES) {
+        compressionFactor = MAX_BYTES / fileInfo.size;
       }
 
       console.log('Compression factor: ' + compressionFactor);
@@ -51,9 +49,6 @@ export default function ImagePickerProvider({
         format: SaveFormat.JPEG,
         compress: compressionFactor,
       });
-
-      const fileInfoAfter = new File(jpgImage.uri).info();
-      console.log('Image size in bytes after compress:', fileInfoAfter.size);
 
       return jpgImage.uri;
     } catch (e: unknown) {

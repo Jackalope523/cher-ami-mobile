@@ -21,7 +21,7 @@ export default function Verify() {
   const { updateToken, updateOnboarded } = useAuth();
   const emailVerifyMutation = useEmailVerifyMutation(
     (response) => {
-      showToast('Successfully logged in!', ToastMessageType.Success);
+      showToast('Logged in!', ToastMessageType.Success);
       updateToken(response.token);
       updateOnboarded(response.onboarded);
     },

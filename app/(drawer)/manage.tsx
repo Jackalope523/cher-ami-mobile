@@ -205,7 +205,7 @@ export default function Manage() {
               imageSource={
                 x.avatarPath
                   ? x.avatarPath + `?timestamp=${x.avatarTimestamp}`
-                  : undefined
+                  : null
               }
               tagLeft={x.id === userQuery.data.id ? '(You)' : undefined}
               onPress={() =>
@@ -263,7 +263,11 @@ export default function Manage() {
             <UserItem
               key={x.id}
               text={x.firstName}
-              imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
+              imageSource={
+                x.avatarPath
+                  ? x.avatarPath + `?timestamp=${x.avatarTimestamp}`
+                  : null
+              }
               onPress={
                 x.managerId === userQuery.data.id
                   ? () => {

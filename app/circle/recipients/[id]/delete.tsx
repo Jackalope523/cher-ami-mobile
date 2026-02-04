@@ -1,5 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
-
+import UserIcon from '@/assets/icons/user-round.svg';
 import Error from '@/components/Error';
 import Loading from '@/components/Loading';
 import {
@@ -13,6 +12,7 @@ import { textStyles } from '@/constants/TextStyles';
 import { useDeleteRecipientMutation, useGetRecipientQuery } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DeleteRecipient() {
@@ -22,10 +22,7 @@ export default function DeleteRecipient() {
   const { data, status } = useGetRecipientQuery(Number(id));
   const mutation = useDeleteRecipientMutation(
     () => {
-      showToastMessage(
-        'Successfully removed recipient.',
-        ToastMessageType.Success,
-      );
+      showToastMessage('Removed recipient.', ToastMessageType.Success);
       queryClient.invalidateQueries({ queryKey: ['Circle'] });
       router.replace('/(drawer)/manage');
     },
@@ -52,10 +49,25 @@ export default function DeleteRecipient() {
         <Text style={[textStyles.heading1, styles.screenHeader]}>
           Remove recipient?
         </Text>
-        <NetworkImage
-          style={styles.avatar}
-          source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
-        />
+
+        {data.avatarPath ? (
+          <NetworkImage
+            style={styles.avatar}
+            source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
+          />
+        ) : (
+          <View
+            style={[
+              styles.avatar,
+              {
+                backgroundColor: '#F4F1EA',
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+            ]}>
+            <UserIcon height={48} width={48} color={'#868581'} />
+          </View>
+        )}
         <Text style={[textStyles.heading2, styles.recipientName]}>
           {`${data.firstName} ${data.lastName}`}
         </Text>

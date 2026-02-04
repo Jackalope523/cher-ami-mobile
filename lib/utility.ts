@@ -17,3 +17,25 @@ export function formatPhotoDate(date: Date) {
 
   return `Photo uploaded on ${month} ${day}${suffix}, ${year}`;
 }
+
+export function getNextMonthName() {
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  const today = new Date();
+  const nextMonthIndex = (today.getMonth() + 1) % 12; // wraps December → January
+
+  return monthNames[nextMonthIndex];
+}

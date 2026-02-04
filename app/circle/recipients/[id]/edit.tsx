@@ -1,3 +1,4 @@
+import PlusIcon from '@/assets/icons/plus.svg';
 import TrashIcon from '@/assets/icons/trash.svg';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
@@ -16,6 +17,7 @@ import {
   useGetRecipientQuery,
   useUpdateRecipientMutation,
 } from '@/lib/hooks';
+import { getNextMonthName } from '@/lib/utility';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
@@ -34,10 +36,7 @@ export default function EditRecipient() {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const mutation = useUpdateRecipientMutation(
     () => {
-      showToastMessage(
-        'Successfully updated recipient.',
-        ToastMessageType.Success,
-      );
+      showToastMessage('Updated recipient.', ToastMessageType.Success);
       queryClient.invalidateQueries({ queryKey: ['Circle'] });
       queryClient.invalidateQueries({ queryKey: ['Recipient', Number(id)] });
       router.back();
@@ -48,7 +47,6 @@ export default function EditRecipient() {
   );
 
   const [avatar, setAvatar] = useState<string | null>(null);
-  const [title, setTitle] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [unitNumber, setUnitNumber] = useState<string | null>(null);
@@ -80,7 +78,6 @@ export default function EditRecipient() {
   useEffect(() => {
     if (data) {
       setAvatar(data.avatarPath);
-      setTitle(data.title);
       setFirstName(data.firstName);
       setLastName(data.lastName);
       setStreet(data.street);
@@ -120,7 +117,6 @@ export default function EditRecipient() {
     if (data) {
       return (
         (avatar === data.avatarPath &&
-          title === data.title &&
           firstName === data.firstName &&
           lastName === data.lastName &&
           street === data.street &&
@@ -140,7 +136,6 @@ export default function EditRecipient() {
     if (data) {
       mutation.mutate({
         id: Number(id),
-        title,
         firstName,
         lastName,
         street,
@@ -179,11 +174,15 @@ export default function EditRecipient() {
       <PopPressable onPress={pickImage}>
         {avatar !== data.avatarPath ? (
           <Image style={styles.avatar} source={avatar} />
-        ) : (
+        ) : data.avatarPath ? (
           <NetworkImage
             style={styles.avatar}
             source={`${data.avatarPath}?timestamp=${data.avatarTimestamp}`}
           />
+        ) : (
+          <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
+            <PlusIcon height={48} width={48} color={'#868581'} />
+          </View>
         )}
       </PopPressable>
       <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
@@ -193,17 +192,6 @@ export default function EditRecipient() {
         Mailing address
       </Text>
       <View style={styles.textInputs}>
-        <TextInput
-          title="Title"
-          maxLength={25}
-          value={title}
-          onChangeText={setTitle}
-          keyboardType="default"
-          autoCapitalize="words"
-          autoCorrect={false}
-          textContentType="namePrefix"
-          autoComplete="off"
-        />
         <TextInput
           title="First Name"
           maxLength={100}
@@ -316,8 +304,7 @@ export default function EditRecipient() {
           </Text>
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>
-          *Monthly subscription that charges you every month, starting October
-          1.
+          {`*Monthly subscription that charges you every month, starting ${getNextMonthName()} 1st.`}
         </Text>
       </View>
       <PopPressable
@@ -353,6 +340,8 @@ const styles = StyleSheet.create({
     width: 96,
     borderRadius: 48,
     alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: Spacings.sm,
     marginTop: Spacings.xxl,
   },

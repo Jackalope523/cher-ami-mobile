@@ -1,15 +1,49 @@
 import { useAPI } from '@/components/APIProvider';
-import { ToastMessageType, useToastMessage } from '@/components/modals/ToastMessageProvider';
-import { AppearanceParams, SetupParams, useStripe } from '@stripe/stripe-react-native';
-import { QueryFunctionContext, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
+import {
+  AppearanceParams,
+  SetupParams,
+  useStripe,
+} from '@stripe/stripe-react-native';
+import {
+  QueryFunctionContext,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
-import { AddPostRequest, CreateCircleRequest, EmailAuthRequest, EmailVerifyRequest, IdRequest, ImageRequest, JoinCircleRequest, RecipientRequest, TokenRequest, UpdateRecipientRequest, UpdateUserRequest } from './requests';
-import { CardDTO, CircleDTO, CodeResponse, FeedPageResponse, LoginResponse, RecipientDTO, SetupIntentResponse, UserDTO, UserItem } from './responses';
+import {
+  AddPostRequest,
+  CreateCircleRequest,
+  EmailAuthRequest,
+  EmailVerifyRequest,
+  IdRequest,
+  ImageRequest,
+  JoinCircleRequest,
+  RecipientRequest,
+  TokenRequest,
+  UpdateRecipientRequest,
+  UpdateUserRequest,
+} from './requests';
+import {
+  CardDTO,
+  CircleDTO,
+  CodeResponse,
+  FeedPageResponse,
+  LoginResponse,
+  RecipientDTO,
+  SetupIntentResponse,
+  UserDTO,
+  UserItem,
+} from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
   const savedCallback = useRef(callback);
-  
+
   useEffect(() => {
     savedCallback.current = callback;
   }, [callback]);
@@ -25,7 +59,10 @@ export function useInterval(callback: () => void, delay: number) {
   }, [delay]);
 }
 
-export function usePingMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+export function usePingMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
   const showToastMessage = useToastMessage();
 
@@ -36,20 +73,21 @@ export function usePingMutation(onSuccess?: () => void,   onError?: (error: Axio
         response = await api.get('/ping', { timeout: 60000 });
 
         if (response.status === 202) {
-          showToastMessage("Connecting to server...", ToastMessageType.Informational)
-          await new Promise(resolve => setTimeout(resolve, 30000));
-        }
-        else if (response.status === 204) {
+          showToastMessage(
+            'Connecting to server...',
+            ToastMessageType.Informational,
+          );
+          await new Promise((resolve) => setTimeout(resolve, 30000));
+        } else if (response.status === 204) {
           return;
-        }
-        else {
-          throw new Error("Ping response was not 202 or 204.");
+        } else {
+          throw new Error('Ping response was not 202 or 204.');
         }
       }
-      throw new Error("Server took too long to start up.");
+      throw new Error('Server took too long to start up.');
     },
     onSuccess,
-    onError
+    onError,
   });
 }
 
@@ -61,7 +99,7 @@ export function usePostCountQuery() {
     queryFn: async () => {
       const response = await api.get('/issue/posts/count');
       return response.data;
-    }  
+    },
   });
 }
 
@@ -73,7 +111,7 @@ export function useGetPriceQuery() {
     queryFn: async () => {
       const response = await api.get('/recipient/price');
       return response.data;
-    }  
+    },
   });
 }
 
@@ -85,7 +123,7 @@ export function useBlockedUsersQuery() {
     queryFn: async () => {
       const response = await api.get('/users/blocked');
       return response.data;
-    }  
+    },
   });
 }
 
@@ -97,32 +135,32 @@ export function useGetCircleQuery() {
     queryFn: async () => {
       const response = await api.get('/circle');
       return response.status === 204 ? null : response.data;
-    }  
+    },
   });
 }
 
 export function useGetSelfQuery() {
   const api = useAPI();
- 
+
   return useQuery<UserDTO, AxiosError>({
     queryKey: ['User', 'Self'],
     queryFn: async () => {
       const response = await api.get<UserDTO>('/user');
       return response.data;
-    }, 
+    },
   });
 }
 
 export function useGetPaymentMethodQuery() {
   const api = useAPI();
- 
+
   return useQuery<CardDTO | null, AxiosError>({
     queryKey: ['PaymentMethod'],
     queryFn: async () => {
       const response = await api.get<CardDTO[]>('/payment-methods');
 
       return response.data[0] ?? null;
-    }, 
+    },
   });
 }
 
@@ -155,17 +193,22 @@ export function useFeedPostsInfiniteQuery(enabled: boolean = true) {
 
   return useInfiniteQuery<FeedPageResponse, AxiosError>({
     queryKey: ['FeedPages'],
-    queryFn: async ({pageParam = 0}: QueryFunctionContext) => {
-      const response = await api.get<FeedPageResponse>(`/circle/issues/${pageParam}`);
+    queryFn: async ({ pageParam = 0 }: QueryFunctionContext) => {
+      const response = await api.get<FeedPageResponse>(
+        `/circle/issues/${pageParam}`,
+      );
       return response.data;
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextPage,
-    enabled
+    enabled,
   });
 }
 
-export function useAddPostMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+export function useAddPostMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, AddPostRequest>({
@@ -180,22 +223,21 @@ export function useAddPostMutation(onSuccess?: () => void,   onError?: (error: A
         name: request.imageName,
       } as any);
 
-      await api.post(
-        `/issue/posts`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await api.post(`/issue/posts`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
     },
     onSuccess,
-    onError
+    onError,
   });
 }
 
-export function useDeletePostMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+export function useDeletePostMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, IdRequest>({
@@ -203,23 +245,29 @@ export function useDeletePostMutation(onSuccess?: () => void,   onError?: (error
       await api.delete(`/posts/${request.Id}`);
     },
     onSuccess,
-    onError
+    onError,
   });
 }
 
-export function useRemovePaymentMethodMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+export function useRemovePaymentMethodMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, void>({
     mutationFn: async () => {
-      await api.delete("/payment-method");
+      await api.delete('/payment-method');
     },
     onSuccess,
-    onError
+    onError,
   });
 }
 
-export function useAddPaymentMethodMutation(onSuccess?: (response: boolean) => void,   onError?: (error: AxiosError) => void) {
+export function useAddPaymentMethodMutation(
+  onSuccess?: (response: boolean) => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
@@ -244,7 +292,7 @@ export function useAddPaymentMethodMutation(onSuccess?: (response: boolean) => v
 
   return useMutation<boolean, AxiosError, void>({
     mutationFn: async () => {
-      const response = await api.post<SetupIntentResponse>("/payment-method");
+      const response = await api.post<SetupIntentResponse>('/payment-method');
 
       const params: SetupParams = {
         setupIntentClientSecret: response.data.clientSecret,
@@ -254,24 +302,26 @@ export function useAddPaymentMethodMutation(onSuccess?: (response: boolean) => v
         // returnURL: makeRedirectUri({ scheme: 'cherami' }),
         appearance: appearance,
       };
-      
+
       const { error: initError } = await initPaymentSheet(params);
 
       if (!initError) {
         const { error: presentError } = await presentPaymentSheet();
-    
+
         return presentError === undefined;
-      } 
-      else {
-        throw new Error("Error when initializing the payment sheet.");
+      } else {
+        throw new Error('Error when initializing the payment sheet.');
       }
     },
     onSuccess,
-    onError
+    onError,
   });
 }
 
-export function useUpdatePaymentMethodMutation(onSuccess?: (response: boolean) => void,   onError?: (error: AxiosError) => void) {
+export function useUpdatePaymentMethodMutation(
+  onSuccess?: (response: boolean) => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
@@ -296,7 +346,7 @@ export function useUpdatePaymentMethodMutation(onSuccess?: (response: boolean) =
 
   return useMutation<boolean, AxiosError, void>({
     mutationFn: async () => {
-      const response = await api.patch<SetupIntentResponse>("/payment-method");
+      const response = await api.patch<SetupIntentResponse>('/payment-method');
 
       const params: SetupParams = {
         setupIntentClientSecret: response.data.clientSecret,
@@ -306,36 +356,41 @@ export function useUpdatePaymentMethodMutation(onSuccess?: (response: boolean) =
         // returnURL: makeRedirectUri({ scheme: 'cherami' }),
         appearance: appearance,
       };
-      
+
       const { error: initError } = await initPaymentSheet(params);
 
       if (!initError) {
         const { error: presentError } = await presentPaymentSheet();
-      
+
         return presentError === undefined;
-      } 
-      else {
-        throw new Error("Error when initializing the payment sheet.");
+      } else {
+        throw new Error('Error when initializing the payment sheet.');
       }
     },
     onSuccess,
-    onError
+    onError,
   });
 }
 
-export function useDeleteRecipientMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+export function useDeleteRecipientMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, IdRequest>({
     mutationFn: async (request) => {
-      await api.delete(`/circle/recipients/${request.Id}`,);
+      await api.delete(`/circle/recipients/${request.Id}`);
     },
     onSuccess,
-    onError
+    onError,
   });
 }
 
-export function useUpdateHeaderMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+export function useUpdateHeaderMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, ImageRequest>({
@@ -348,22 +403,21 @@ export function useUpdateHeaderMutation(onSuccess?: () => void,   onError?: (err
         name: 'header.jpg',
       } as any);
 
-      await api.post(
-        `/circle/header`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await api.post(`/circle/header`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
     },
     onSuccess,
-    onError
+    onError,
   });
 }
 
-export function useUpdateAvatarMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+export function useUpdateAvatarMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, ImageRequest>({
@@ -376,22 +430,21 @@ export function useUpdateAvatarMutation(onSuccess?: () => void,   onError?: (err
         name: 'avatar.jpg',
       } as any);
 
-      await api.post(
-        `/user/avatar`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await api.post(`/user/avatar`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
     },
     onSuccess,
-    onError
+    onError,
   });
 }
 
-export function useEmailAuthMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+export function useEmailAuthMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, EmailAuthRequest>({
@@ -403,12 +456,18 @@ export function useEmailAuthMutation(onSuccess?:() => void , onError?: (error: A
   });
 }
 
-export function useEmailVerifyMutation(onSuccess?:(response: LoginResponse) => void , onError?: (error: AxiosError) => void) {
+export function useEmailVerifyMutation(
+  onSuccess?: (response: LoginResponse) => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<LoginResponse, AxiosError, EmailVerifyRequest>({
     mutationFn: async (request) => {
-      const response = await api.post<LoginResponse>('/auth/email/verify', request);
+      const response = await api.post<LoginResponse>(
+        '/auth/email/verify',
+        request,
+      );
       return response.data;
     },
     onSuccess,
@@ -416,249 +475,280 @@ export function useEmailVerifyMutation(onSuccess?:(response: LoginResponse) => v
   });
 }
 
-export function useRerollCodeMutation(onSuccess?:(data: CodeResponse) => void , onError?: (error: AxiosError) => void) {
+export function useRerollCodeMutation(
+  onSuccess?: (data: CodeResponse) => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<CodeResponse, AxiosError>({
-      mutationFn: async () =>{
-        const response = await api.post<CodeResponse>('/circle/code');
-        return response.data;
-      },
-      onSuccess: onSuccess,
-      onError: onError,
-    });
+    mutationFn: async () => {
+      const response = await api.post<CodeResponse>('/circle/code');
+      return response.data;
+    },
+    onSuccess: onSuccess,
+    onError: onError,
+  });
 }
 
-export function useUpdateUserMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+export function useUpdateUserMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, UpdateUserRequest>({
-      mutationFn: async (request) => {
-        const formData = new FormData();
+    mutationFn: async (request) => {
+      const formData = new FormData();
 
-        formData.append('FirstName', request.firstName);
-        formData.append('LastName', request.lastName);
+      formData.append('FirstName', request.firstName);
+      formData.append('LastName', request.lastName);
 
-        if (request.dateOfBirth) {
-          formData.append('DateOfBirth', request.dateOfBirth.toISOString().split("T")[0]);
-        }
-        
-        if (request.avatarPath) {
-          formData.append('Avatar', {
-            uri: request.avatarPath,
-            type: 'image/jpeg',
-            name: 'avatar.jpg',
-          } as any);
-        }
-       
-        const response = await api.put(
-          '/user', 
-          formData, 
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        
-        return response.data;
-      },
-      onSuccess,
-      onError,
-    });
+      if (request.avatarPath) {
+        formData.append('Avatar', {
+          uri: request.avatarPath,
+          type: 'image/jpeg',
+          name: 'avatar.jpg',
+        } as any);
+      }
+
+      const response = await api.put('/user', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      return response.data;
+    },
+    onSuccess,
+    onError,
+  });
 }
 
-export function useDeleteUserMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+export function useDeleteUserMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, void>({
-      mutationFn: async () => {
-        await api.delete('/user')
-      },
-      onSuccess: onSuccess,
-      onError: onError,
-    });
+    mutationFn: async () => {
+      await api.delete('/user');
+    },
+    onSuccess: onSuccess,
+    onError: onError,
+  });
 }
 
-export function useUpdateRecipientMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+export function useUpdateRecipientMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, UpdateRecipientRequest>({
-      mutationFn: async (request) => {
-        const formData = new FormData();
-  
-        formData.append('Title', request.title);
-        formData.append('FirstName', request.firstName);
-        formData.append('LastName', request.lastName);
+    mutationFn: async (request) => {
+      const formData = new FormData();
 
-        formData.append('Street', request.street);
-        formData.append('City', request.city);
-        formData.append('ProvinceOrState', request.provinceOrState);
-        formData.append('PostalCode', request.postalCode);
-        formData.append('Country', request.country);
+      formData.append('FirstName', request.firstName);
+      formData.append('LastName', request.lastName);
 
-        if (request.unitNumber) {
-          formData.append('UnitNumber', request.unitNumber);
-        }
+      formData.append('Street', request.street);
+      formData.append('City', request.city);
+      formData.append('ProvinceOrState', request.provinceOrState);
+      formData.append('PostalCode', request.postalCode);
+      formData.append('Country', request.country);
 
-        if (request.avatarPath) {
-          formData.append('Avatar', {
-            uri: request.avatarPath,
-            type: 'image/jpeg',
-            name: 'avatar.jpg',
-          } as any);
-        }
- 
-        const response = await api.put(
-          `/circle/recipients/${request.id}`, 
-          formData, 
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        
-        return response.data;
-      },
-      onSuccess,
-      onError,
-    });
+      if (request.unitNumber) {
+        formData.append('UnitNumber', request.unitNumber);
+      }
+
+      if (request.avatarPath) {
+        formData.append('Avatar', {
+          uri: request.avatarPath,
+          type: 'image/jpeg',
+          name: 'avatar.jpg',
+        } as any);
+      }
+
+      const response = await api.put(
+        `/circle/recipients/${request.id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+
+      return response.data;
+    },
+    onSuccess,
+    onError,
+  });
 }
 
-export function useCreateCircleMutation(onSuccess?:(data: CircleDTO) => void , onError?: (error: AxiosError) => void) {
+export function useCreateCircleMutation(
+  onSuccess?: (data: CircleDTO) => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<CircleDTO, AxiosError, CreateCircleRequest>({
-      mutationFn: async (request) => {
-        const formData = new FormData();
-  
-        formData.append('Title', request.title);
-        formData.append('Image', {
-          uri: request.imageUri,
-          type: 'image/jpeg',
-          name: 'header.jpg',
-        } as any);
-  
-        const response = await api.post(
-          '/circle', 
-          formData, 
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        
-        return response.data;
-      },
-      onSuccess,
-      onError,
-    });
+    mutationFn: async (request) => {
+      const formData = new FormData();
+
+      formData.append('Title', request.title);
+      formData.append('Image', {
+        uri: request.imageUri,
+        type: 'image/jpeg',
+        name: 'header.jpg',
+      } as any);
+
+      const response = await api.post('/circle', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      return response.data;
+    },
+    onSuccess,
+    onError,
+  });
 }
 
-
-
-export function useJoinCircleMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+export function useJoinCircleMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, JoinCircleRequest>({
-      mutationFn: async (request: JoinCircleRequest) => {
-        await api.post('/circles/join', request)
-      },
-      onSuccess: onSuccess,
-      onError: onError,
-    });
+    mutationFn: async (request: JoinCircleRequest) => {
+      await api.post('/circles/join', request);
+    },
+    onSuccess: onSuccess,
+    onError: onError,
+  });
 }
 
-export function useLeaveCircleMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+export function useLeaveCircleMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError>({
-      mutationFn: async () => {
-        await api.post('/circle/leave')
-      },
-      onSuccess: onSuccess,
-      onError: onError,
-    });
+    mutationFn: async () => {
+      await api.post('/circle/leave');
+    },
+    onSuccess: onSuccess,
+    onError: onError,
+  });
 }
 
-export function useReportPostMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+export function useReportPostMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, IdRequest>({
-      mutationFn: async (request: IdRequest) => {
-        await api.post(`/posts/${request.Id}/report`)
-      },
-      onSuccess: onSuccess,
-      onError: onError,
-    });
+    mutationFn: async (request: IdRequest) => {
+      await api.post(`/posts/${request.Id}/report`);
+    },
+    onSuccess: onSuccess,
+    onError: onError,
+  });
 }
 
-export function useBlockUserMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+export function useBlockUserMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, IdRequest>({
-      mutationFn: async (request: IdRequest) => {
-        await api.post(`/users/${request.Id}/block`);
-      },
-      onSuccess: onSuccess,
-      onError: onError,
-    });
+    mutationFn: async (request: IdRequest) => {
+      await api.post(`/users/${request.Id}/block`);
+    },
+    onSuccess: onSuccess,
+    onError: onError,
+  });
 }
 
-export function useUnblockUserMutation(onSuccess?:() => void , onError?: (error: AxiosError) => void) {
+export function useUnblockUserMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, IdRequest>({
-      mutationFn: async (request: IdRequest) => {
-        await api.delete(`/users/${request.Id}/block`);
-      },
-      onSuccess: onSuccess,
-      onError: onError,
-    });
+    mutationFn: async (request: IdRequest) => {
+      await api.delete(`/users/${request.Id}/block`);
+    },
+    onSuccess: onSuccess,
+    onError: onError,
+  });
 }
 
-export function useExchangeGoogleTokenMutation(onSuccess?:(response: LoginResponse) => void , onError?: (error: AxiosError) => void) {
+export function useExchangeGoogleTokenMutation(
+  onSuccess?: (response: LoginResponse) => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<LoginResponse, AxiosError, TokenRequest>({
-      mutationFn: async (request: TokenRequest) => {
-        const response = await api.post<LoginResponse>('/auth/google/token', request)
-        return response.data;
-      },
-      onSuccess: onSuccess,
-      onError: onError,
-    });
+    mutationFn: async (request: TokenRequest) => {
+      const response = await api.post<LoginResponse>(
+        '/auth/google/token',
+        request,
+      );
+      return response.data;
+    },
+    onSuccess: onSuccess,
+    onError: onError,
+  });
 }
 
-export function useExchangeAppleTokenMutation(onSuccess?:(response: LoginResponse) => void , onError?: (error: AxiosError) => void) {
+export function useExchangeAppleTokenMutation(
+  onSuccess?: (response: LoginResponse) => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<LoginResponse, AxiosError, TokenRequest>({
-      mutationFn: async (request: TokenRequest) => {
-        const response = await api.post<LoginResponse>('/auth/apple/token', request)
-        return response.data;
-      },
-      onSuccess: onSuccess,
-      onError: onError,
-    });
+    mutationFn: async (request: TokenRequest) => {
+      const response = await api.post<LoginResponse>(
+        '/auth/apple/token',
+        request,
+      );
+      return response.data;
+    },
+    onSuccess: onSuccess,
+    onError: onError,
+  });
 }
 
-export function useAddRecipientMutation(onSuccess?: () => void,   onError?: (error: AxiosError) => void) {
+export function useAddRecipientMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
   const api = useAPI();
 
   return useMutation<void, AxiosError, RecipientRequest>({
     mutationFn: async (request) => {
       const formData = new FormData();
 
-      formData.append('Avatar', {
-        uri: request.avatarUri,
-        type: 'image/jpeg',
-        name: request.avatarName,
-      } as any);
-      
-      formData.append('Title', request.title);
+      if (request.avatarUri) {
+        formData.append('Avatar', {
+          uri: request.avatarUri,
+          type: 'image/jpeg',
+          name: request.avatarName,
+        } as any);
+      }
+
       formData.append('FirstName', request.firstName);
       formData.append('LastName', request.lastName);
 
@@ -666,24 +756,19 @@ export function useAddRecipientMutation(onSuccess?: () => void,   onError?: (err
         formData.append('UnitNumber', request.unitNumber);
       }
 
-      
       formData.append('Street', request.street);
       formData.append('City', request.city);
       formData.append('ProvinceOrState', request.provinceOrState);
       formData.append('PostalCode', request.postalCode);
       formData.append('Country', request.country);
 
-      await api.post(
-        `/circle/recipients`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await api.post(`/circle/recipients`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
     },
     onSuccess,
-    onError
+    onError,
   });
 }
