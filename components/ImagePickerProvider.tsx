@@ -1,3 +1,4 @@
+import { File } from 'expo-file-system';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { createContext, ReactNode, useContext } from 'react';
 import { openPicker, Options } from 'react-native-image-crop-picker';
@@ -31,16 +32,32 @@ export default function ImagePickerProvider({
     try {
       const result = await openPicker(options);
 
+      const fileInfoBefore = new File(result.path).info();
+      console.log('Image size in bytes before compress:', fileInfoBefore.size);
+
       const image = await ImageManipulator.manipulate(
         result.path,
       ).renderAsync();
+
+      const MAX_BYTES = 5 * 1024 * 1024;
+      let compressionFactor = 1;
+      if (fileInfoBefore.size && fileInfoBefore.size > MAX_BYTES) {
+        compressionFactor = MAX_BYTES / fileInfoBefore.size;
+      }
+
+      console.log('Compression factor: ' + compressionFactor);
+
       const jpgImage = await image.saveAsync({
         format: SaveFormat.JPEG,
-        compress: 0.7,
+        compress: compressionFactor,
       });
+
+      const fileInfoAfter = new File(jpgImage.uri).info();
+      console.log('Image size in bytes after compress:', fileInfoAfter.size);
 
       return jpgImage.uri;
     } catch (e: unknown) {
+      console.log(e);
       return null;
     }
   }
