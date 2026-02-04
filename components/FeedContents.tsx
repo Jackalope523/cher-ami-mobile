@@ -283,8 +283,7 @@ export default function FeedContents() {
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          onPress={handleCreatePost}
-          disabled={data.pages[0].posts.length === 20}>
+          onPress={handleCreatePost}>
           <PlusIcon height={24} width={24} color={'#FFFFFF'} />
         </PopPressable>
       </View>

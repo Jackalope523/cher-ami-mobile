@@ -2,7 +2,7 @@
   "expo": {
     "name": "Cher Ami",
     "slug": "cherami",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "cherami",
@@ -17,7 +17,8 @@
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        "NSCameraUsageDescription": "This app may use your camera if you choose to take a new photo rather than selecting one from your library when prompted."
+        "NSCameraUsageDescription": "This app may use your camera if you choose to take a new photo rather than selecting one from your library when prompted.",
+        "NSPhotoLibraryUsageDescription": "This app allows you to choose photos from your library to share with your family."
       }
     },
     "android": {
@@ -55,9 +56,7 @@
       [
         "expo-font",
         {
-          "fonts": [
-            "./assets/fonts/Damion-Regular.ttf"
-          ],
+          "fonts": ["./assets/fonts/Damion-Regular.ttf"],
           "android": {
             "fonts": [
               {
