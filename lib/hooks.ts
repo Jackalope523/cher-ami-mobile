@@ -13,6 +13,7 @@ import {
   useInfiniteQuery,
   useMutation,
   useQuery,
+  useQueryClient,
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
@@ -39,6 +40,7 @@ import {
   SetupIntentResponse,
   UserDTO,
   UserItem,
+  VersionResponse,
 } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
@@ -135,6 +137,18 @@ export function useGetCircleQuery() {
     queryFn: async () => {
       const response = await api.get('/circle');
       return response.status === 204 ? null : response.data;
+    },
+  });
+}
+
+export function useVersionQuery() {
+  const api = useAPI();
+
+  return useQuery<VersionResponse, AxiosError>({
+    queryKey: ['Version'],
+    queryFn: async () => {
+      const response = await api.get('/version');
+      return response.data;
     },
   });
 }
@@ -414,11 +428,11 @@ export function useUpdateHeaderMutation(
   });
 }
 
-export function useUpdateAvatarMutation(
-  onSuccess?: () => void,
-  onError?: (error: AxiosError) => void,
-) {
+export function useUpdateAvatarMutation() {
   const api = useAPI();
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
+  const selfQuery = useGetSelfQuery();
 
   return useMutation<void, AxiosError, ImageRequest>({
     mutationFn: async (request) => {
@@ -436,8 +450,20 @@ export function useUpdateAvatarMutation(
         },
       });
     },
-    onSuccess,
-    onError,
+    onSuccess: async () => {
+      showToastMessage('Upload success!', ToastMessageType.Success);
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['User', 'Self'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['User', Number(selfQuery.data?.id)],
+        }),
+        queryClient.invalidateQueries({ queryKey: ['Circle'] }),
+      ]);
+    },
+    onError: () => {
+      showToastMessage('Upload failed.', ToastMessageType.Error);
+    },
   });
 }
 

@@ -10,9 +10,11 @@ import ToastMessageProvider, {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
+import Update from '@/components/Update';
 import { textStyles } from '@/constants/TextStyles';
-import { usePingMutation } from '@/lib/hooks';
+import { usePingMutation, useVersionQuery } from '@/lib/hooks';
 import { StripeProvider } from '@stripe/stripe-react-native';
+import { nativeApplicationVersion } from 'expo-application';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -23,6 +25,7 @@ SplashScreen.preventAutoHideAsync();
 function RootNavigator() {
   const { loaded, getToken, getOnboarded } = useAuth();
   const showToastMessage = useToastMessage();
+  const versionQuery = useVersionQuery();
   const pingMutation = usePingMutation(
     () => {},
     (error) => {
@@ -45,12 +48,16 @@ function RootNavigator() {
     return null;
   }
 
-  if (pingMutation.isError) {
+  if (pingMutation.isError || versionQuery.isError) {
     return <Error />;
   }
 
-  if (pingMutation.isPending) {
+  if (pingMutation.isPending || versionQuery.isLoading) {
     return <Loading />;
+  }
+
+  if (nativeApplicationVersion !== versionQuery.data?.version) {
+    return <Update />;
   }
 
   return (

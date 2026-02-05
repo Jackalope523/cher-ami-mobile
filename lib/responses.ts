@@ -92,3 +92,7 @@ export interface SetupIntentResponse {
   merchantDisplayName: string;
   allowsDelayedPaymentMethods: boolean;
 }
+
+export interface VersionResponse {
+  version: string;
+}

@@ -7,10 +7,6 @@ import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
 import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
-import {
-  ToastMessageType,
-  useToastMessage,
-} from '@/components/modals/ToastMessageProvider';
 import NetworkImage from '@/components/NetworkImage';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
@@ -18,6 +14,7 @@ import { textStyles } from '@/constants/TextStyles';
 import { useGetUserQuery, useUpdateAvatarMutation } from '@/lib/hooks';
 import { UserDTO } from '@/lib/responses';
 import { useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -30,21 +27,9 @@ export default function Profile() {
   const isSelf =
     queryClient.getQueryData<UserDTO>(['User', 'Self'])?.id === Number(id);
   const { data, status } = useGetUserQuery(Number(id));
-  const showToastMessage = useToastMessage();
-  const { displayDialogue, dismissDialogue } = useDialogueModal();
+  const { displayDialogue } = useDialogueModal();
 
-  const uploadMutation = useUpdateAvatarMutation(
-    () => {
-      showToastMessage('Upload success!', ToastMessageType.Success);
-      queryClient.invalidateQueries({ queryKey: ['User', 'Self'] });
-      queryClient.invalidateQueries({ queryKey: ['User', Number(id)] });
-      queryClient.invalidateQueries({ queryKey: ['Circle'] });
-    },
-    (error) => {
-      console.error('Upload failed:', error);
-      showToastMessage('Upload failed.', ToastMessageType.Error);
-    },
-  );
+  const uploadMutation = useUpdateAvatarMutation();
 
   useEffect(() => {
     if (!isSelf) {
@@ -94,7 +79,12 @@ export default function Profile() {
           style={styles.avatarContainer}
           onPress={pickImage}
           disabled={!isSelf}>
-          {data.avatarPath ? (
+          {uploadMutation.isPending ? (
+            <Image
+              style={styles.avatar}
+              source={uploadMutation.variables.imageUri}
+            />
+          ) : data.avatarPath ? (
             <NetworkImage
               style={styles.avatar}
               source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}

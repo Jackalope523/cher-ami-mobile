@@ -43,8 +43,6 @@ export default function ImagePickerProvider({
         compressionFactor = MAX_BYTES / fileInfo.size;
       }
 
-      console.log('Compression factor: ' + compressionFactor);
-
       const jpgImage = await image.saveAsync({
         format: SaveFormat.JPEG,
         compress: compressionFactor,
