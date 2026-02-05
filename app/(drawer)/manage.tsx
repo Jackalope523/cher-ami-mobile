@@ -2,6 +2,8 @@ import CreditCardIcon from '@/assets/icons/credit-card.svg';
 import SettingsIcon from '@/assets/icons/log-out.svg';
 import PlusIcon from '@/assets/icons/plus.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
+import Placeholder from '@/assets/images/placeholder.png';
+import { useAuth } from '@/components/AuthProvider';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import InviteModalContents from '@/components/InviteModalContents';
@@ -9,11 +11,7 @@ import LeaveCircleContents from '@/components/LeaveCircleContents';
 import Loading from '@/components/Loading';
 import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
 import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
-import {
-  ToastMessageType,
-  useToastMessage,
-} from '@/components/modals/ToastMessageProvider';
-import NetworkImage from '@/components/NetworkImage';
+import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import UserItem from '@/components/UserItem';
 import { Spacings } from '@/constants/Spacings';
@@ -25,6 +23,7 @@ import {
   useUpdateHeaderMutation,
 } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
@@ -36,6 +35,7 @@ export default function Manage() {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const pickImageAsync = useImagePicker();
+  const { getToken } = useAuth();
   const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
   const getPaymentMethodQuery = useGetPaymentMethodQuery();
@@ -43,16 +43,7 @@ export default function Manage() {
   const { displayDialogue } = useDialogueModal();
   const [scrolling, setScrolling] = useState(false);
 
-  const uploadMutation = useUpdateHeaderMutation(
-    () => {
-      showToastMessage('Upload success!', ToastMessageType.Success);
-      queryClient.invalidateQueries({ queryKey: ['Circle'] });
-    },
-    (error) => {
-      console.error('Upload failed:', error);
-      showToastMessage('Upload failed.', ToastMessageType.Error);
-    },
-  );
+  const uploadMutation = useUpdateHeaderMutation();
 
   useEffect(() => {
     navigation.setOptions({
@@ -126,17 +117,23 @@ export default function Manage() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}>
         <PopPressable onPress={pickImage}>
-          <NetworkImage
-            source={
-              circleQuery.data.headerPath +
-              `?timestamp=${circleQuery.data.headerTimestamp}`
-            }
+          <Image
             style={{
               width: Dimensions.get('window').width - 40,
               aspectRatio: 2 / 1,
               borderRadius: 32,
               marginHorizontal: 20,
               marginVertical: Spacings.xl,
+            }}
+            placeholder={Placeholder}
+            placeholderContentFit="fill"
+            source={{
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              },
+              uri: uploadMutation.isPending
+                ? uploadMutation.variables.imageUri
+                : `https://app-cherami-prod.azurewebsites.net${circleQuery.data.headerPath}?timestamp=${circleQuery.data.headerTimestamp}`,
             }}
           />
         </PopPressable>

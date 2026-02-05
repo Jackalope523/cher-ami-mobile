@@ -401,11 +401,10 @@ export function useDeleteRecipientMutation(
   });
 }
 
-export function useUpdateHeaderMutation(
-  onSuccess?: () => void,
-  onError?: (error: AxiosError) => void,
-) {
+export function useUpdateHeaderMutation() {
   const api = useAPI();
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
 
   return useMutation<void, AxiosError, ImageRequest>({
     mutationFn: async (request) => {
@@ -423,8 +422,14 @@ export function useUpdateHeaderMutation(
         },
       });
     },
-    onSuccess,
-    onError,
+    onSuccess: async () => {
+      showToastMessage('Upload success!', ToastMessageType.Success);
+      await queryClient.invalidateQueries({ queryKey: ['Circle'] });
+    },
+    onError: (error) => {
+      console.error('Upload failed:', error);
+      showToastMessage('Upload failed.', ToastMessageType.Error);
+    },
   });
 }
 

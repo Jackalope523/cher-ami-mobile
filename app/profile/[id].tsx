@@ -2,12 +2,13 @@ import CalendarIcon from '@/assets/icons/calendar.svg';
 import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
 import PlusIcon from '@/assets/icons/plus.svg';
 import PersonIcon from '@/assets/icons/user-round.svg';
+import Placeholder from '@/assets/images/placeholder.png';
+import { useAuth } from '@/components/AuthProvider';
 import BlockUserContents from '@/components/BlockUserContents';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
 import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
-import NetworkImage from '@/components/NetworkImage';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
@@ -22,6 +23,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function Profile() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
+  const { getToken } = useAuth();
   const queryClient = useQueryClient();
   const pickImageAsync = useImagePicker();
   const isSelf =
@@ -79,15 +81,19 @@ export default function Profile() {
           style={styles.avatarContainer}
           onPress={pickImage}
           disabled={!isSelf}>
-          {uploadMutation.isPending ? (
+          {data.avatarPath ? (
             <Image
               style={styles.avatar}
-              source={uploadMutation.variables.imageUri}
-            />
-          ) : data.avatarPath ? (
-            <NetworkImage
-              style={styles.avatar}
-              source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
+              placeholder={Placeholder}
+              placeholderContentFit="fill"
+              source={{
+                headers: {
+                  Authorization: `Bearer ${getToken()}`,
+                },
+                uri: uploadMutation.isPending
+                  ? uploadMutation.variables.imageUri
+                  : `https://app-cherami-prod.azurewebsites.net${data.avatarPath}?timestamp=${data.avatarTimestamp}`,
+              }}
             />
           ) : (
             <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
