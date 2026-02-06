@@ -69,11 +69,10 @@ export default function DeleteRecipient() {
           </View>
         )}
         <Text style={[textStyles.heading2, styles.recipientName]}>
-          {`${data.firstName} ${data.lastName}`}
+          {data.name}
         </Text>
         <Text style={textStyles.body}>
-          By removing {`${data.firstName} ${data.lastName}`} from the
-          recipients, they will{' '}
+          By removing {data.name} from the recipients, they will{' '}
           <Text style={[textStyles.body, { fontWeight: 'bold' }]}>
             stop receiving
           </Text>{' '}

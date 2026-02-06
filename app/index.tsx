@@ -270,6 +270,7 @@ export default function Index() {
           keyboardType="email-address"
           textContentType="emailAddress"
           autoComplete="email"
+          underlineColorAndroid="transparent"
         />
       </View>
 

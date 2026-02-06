@@ -22,7 +22,9 @@ import {
   useGetSelfQuery,
   useUpdateHeaderMutation,
 } from '@/lib/hooks';
-import { useQueryClient } from '@tanstack/react-query';
+import { RecipientRequest } from '@/lib/requests';
+import { RecipientItem } from '@/lib/responses';
+import { useMutationState, useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -41,6 +43,20 @@ export default function Manage() {
   const getPaymentMethodQuery = useGetPaymentMethodQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
   const { displayDialogue } = useDialogueModal();
+  const variables = useMutationState<RecipientItem>({
+    filters: { mutationKey: ['AddRecipient'], status: 'pending' },
+    select: (mutation) => {
+      const request = mutation.state.variables as RecipientRequest;
+
+      return {
+        id: -1,
+        managerId: userQuery.data?.id ?? -1,
+        name: request.name,
+        avatarPath: request.avatarUri,
+        avatarTimestamp: new Date(),
+      };
+    },
+  });
   const [scrolling, setScrolling] = useState(false);
 
   const uploadMutation = useUpdateHeaderMutation();
@@ -259,7 +275,7 @@ export default function Manage() {
           {circleQuery.data.recipients.map((x) => (
             <UserItem
               key={x.id}
-              text={x.firstName}
+              text={x.name}
               imageSource={
                 x.avatarPath
                   ? x.avatarPath + `?timestamp=${x.avatarTimestamp}`
@@ -280,6 +296,18 @@ export default function Manage() {
               }
             />
           ))}
+          {variables.length >= 1 && (
+            <UserItem
+              key={variables[0].id}
+              text={variables[0].name}
+              imageSource={
+                variables[0].avatarPath
+                  ? variables[0].avatarPath +
+                    `?timestamp=${variables[0].avatarTimestamp}`
+                  : null
+              }
+            />
+          )}
         </View>
       </ScrollView>
       {!scrolling && (

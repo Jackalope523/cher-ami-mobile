@@ -224,8 +224,11 @@ export function useAddPostMutation(
   onError?: (error: AxiosError) => void,
 ) {
   const api = useAPI();
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
 
   return useMutation<void, AxiosError, AddPostRequest>({
+    mutationKey: ['AddPost'],
     mutationFn: async (request) => {
       const formData = new FormData();
 
@@ -243,8 +246,17 @@ export function useAddPostMutation(
         },
       });
     },
-    onSuccess,
-    onError,
+    onSuccess: () => {
+      showToastMessage('Upload success!', ToastMessageType.Success);
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['FeedPages'] }),
+        queryClient.invalidateQueries({ queryKey: ['Count'] }),
+      ]);
+    },
+    onError: (error) => {
+      console.error('Upload failed:', error);
+      showToastMessage('Upload failed.', ToastMessageType.Error);
+    },
   });
 }
 
@@ -581,17 +593,16 @@ export function useUpdateRecipientMutation(
     mutationFn: async (request) => {
       const formData = new FormData();
 
-      formData.append('FirstName', request.firstName);
-      formData.append('LastName', request.lastName);
+      formData.append('Name', request.name);
 
-      formData.append('Street', request.street);
+      formData.append('AddressLine1', request.addressLine1);
       formData.append('City', request.city);
       formData.append('ProvinceOrState', request.provinceOrState);
       formData.append('PostalCode', request.postalCode);
       formData.append('Country', request.country);
 
-      if (request.unitNumber) {
-        formData.append('UnitNumber', request.unitNumber);
+      if (request.addressLine2) {
+        formData.append('AddressLine2', request.addressLine2);
       }
 
       if (request.avatarPath) {
@@ -762,13 +773,13 @@ export function useExchangeAppleTokenMutation(
   });
 }
 
-export function useAddRecipientMutation(
-  onSuccess?: () => void,
-  onError?: (error: AxiosError) => void,
-) {
+export function useAddRecipientMutation() {
   const api = useAPI();
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
 
   return useMutation<void, AxiosError, RecipientRequest>({
+    mutationKey: ['AddRecipient'],
     mutationFn: async (request) => {
       const formData = new FormData();
 
@@ -780,14 +791,13 @@ export function useAddRecipientMutation(
         } as any);
       }
 
-      formData.append('FirstName', request.firstName);
-      formData.append('LastName', request.lastName);
+      formData.append('Name', request.name);
 
-      if (request.unitNumber) {
-        formData.append('UnitNumber', request.unitNumber);
+      if (request.addressLine2) {
+        formData.append('AddressLine2', request.addressLine2);
       }
 
-      formData.append('Street', request.street);
+      formData.append('AddressLine1', request.addressLine1);
       formData.append('City', request.city);
       formData.append('ProvinceOrState', request.provinceOrState);
       formData.append('PostalCode', request.postalCode);
@@ -799,7 +809,13 @@ export function useAddRecipientMutation(
         },
       });
     },
-    onSuccess,
-    onError,
+    onSuccess: async () => {
+      showToastMessage('Recipient added!', ToastMessageType.Success);
+      await queryClient.invalidateQueries({ queryKey: ['Circle'] });
+    },
+    onError: (error) => {
+      console.log(error.message);
+      showToastMessage('Network error. Try again.', ToastMessageType.Error);
+    },
   });
 }

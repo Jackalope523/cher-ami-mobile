@@ -11,6 +11,7 @@ import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useFeedPostsInfiniteQuery } from '@/lib/hooks';
+import { useMutationState } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
@@ -25,6 +26,10 @@ import {
 export default function FeedContents() {
   const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
   const showToastMessage = useToastMessage();
+  const variables = useMutationState({
+    filters: { mutationKey: ['AddPost'], status: 'pending' },
+    select: (mutation) => mutation.state.variables,
+  });
 
   function handleCreatePost() {
     if (data?.pages[0].posts.length === 20) {
@@ -221,6 +226,12 @@ export default function FeedContents() {
             <Image source={MailboxImage} style={{ height: 64, width: 64 }} />
           </View>
         )}
+        {variables.length >= 1 && (
+          <View
+            style={{ paddingVertical: Spacings.md, justifyContent: 'center' }}>
+            <Loading />
+          </View>
+        )}
       </View>
     );
   }
@@ -311,6 +322,7 @@ const styles = StyleSheet.create({
   },
 
   issueStateContainer: {
+    backgroundColor: '#FCFBF8',
     paddingHorizontal: 20,
     rowGap: Spacings.sm,
   },

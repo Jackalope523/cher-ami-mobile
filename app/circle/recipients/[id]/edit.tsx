@@ -47,10 +47,9 @@ export default function EditRecipient() {
   );
 
   const [avatar, setAvatar] = useState<string | null>(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [unitNumber, setUnitNumber] = useState<string | null>(null);
-  const [street, setStreet] = useState('');
+  const [name, setName] = useState('');
+  const [addressLine1, setAddressLine1] = useState('');
+  const [addressLine2, setAddressLine2] = useState<string | null>(null);
   const [city, setCity] = useState('');
   const [provinceOrState, setProvinceOrState] = useState('');
   const [postalCode, setPostalCode] = useState('');
@@ -78,10 +77,9 @@ export default function EditRecipient() {
   useEffect(() => {
     if (data) {
       setAvatar(data.avatarPath);
-      setFirstName(data.firstName);
-      setLastName(data.lastName);
-      setStreet(data.street);
-      setUnitNumber(data.unitNumber);
+      setName(data.name);
+      setAddressLine1(data.addressLine1);
+      setAddressLine2(data.addressLine2);
       setCity(data.city);
       setProvinceOrState(data.provinceOrState);
       setPostalCode(data.postalCode);
@@ -117,10 +115,9 @@ export default function EditRecipient() {
     if (data) {
       return (
         (avatar === data.avatarPath &&
-          firstName === data.firstName &&
-          lastName === data.lastName &&
-          street === data.street &&
-          unitNumber === data.unitNumber &&
+          name === data.name &&
+          addressLine1 === data.addressLine1 &&
+          addressLine2 === data.addressLine2 &&
           city === data.city &&
           country === data.country &&
           provinceOrState === data.provinceOrState &&
@@ -136,14 +133,13 @@ export default function EditRecipient() {
     if (data) {
       mutation.mutate({
         id: Number(id),
-        firstName,
-        lastName,
-        street,
+        name,
+        addressLine1,
+        addressLine2,
         city,
         provinceOrState,
         postalCode,
         country,
-        unitNumber,
         avatarPath: avatar !== data.avatarPath ? avatar : null,
       });
     }
@@ -193,28 +189,19 @@ export default function EditRecipient() {
       </Text>
       <View style={styles.textInputs}>
         <TextInput
-          title="First Name"
+          title="Name*"
           maxLength={100}
-          value={firstName}
-          onChangeText={setFirstName}
+          value={name}
+          onChangeText={setName}
           autoCapitalize="words"
           textContentType="givenName"
           autoComplete="name-given"
         />
         <TextInput
-          title="Last Name"
+          title="Address Line 1*"
           maxLength={100}
-          value={lastName}
-          onChangeText={setLastName}
-          autoCapitalize="words"
-          textContentType="familyName"
-          autoComplete="name-family"
-        />
-        <TextInput
-          title="Street Address"
-          maxLength={150}
-          value={street}
-          onChangeText={setStreet}
+          value={addressLine1}
+          onChangeText={setAddressLine1}
           keyboardType="default"
           autoCapitalize="words"
           autoCorrect={true}
@@ -222,17 +209,17 @@ export default function EditRecipient() {
           autoComplete="street-address"
         />
         <TextInput
-          title="Unit Number"
-          maxLength={15}
-          value={unitNumber ?? ''}
-          onChangeText={setUnitNumber}
+          title="Address Line 2"
+          maxLength={100}
+          value={addressLine2 ?? ''}
+          onChangeText={setAddressLine2}
           autoCapitalize="characters"
           autoCorrect={false}
           textContentType="none"
           autoComplete="off"
         />
         <TextInput
-          title="City"
+          title="City*"
           maxLength={50}
           value={city}
           onChangeText={setCity}
@@ -241,7 +228,7 @@ export default function EditRecipient() {
         />
         <View style={{ flexDirection: 'row', columnGap: 20 }}>
           <TextInput
-            title="State"
+            title="State*"
             maxLength={50}
             value={provinceOrState}
             onChangeText={setProvinceOrState}
@@ -252,7 +239,7 @@ export default function EditRecipient() {
             }}
           />
           <TextInput
-            title="ZIP code"
+            title="ZIP code*"
             maxLength={20}
             value={postalCode}
             onChangeText={setPostalCode}
@@ -266,7 +253,7 @@ export default function EditRecipient() {
           />
         </View>
         <TextInput
-          title="Country"
+          title="Country*"
           maxLength={56}
           value={country}
           onChangeText={setCountry}

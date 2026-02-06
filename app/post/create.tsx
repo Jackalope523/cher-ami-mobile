@@ -1,9 +1,6 @@
 import PlusIcon from '@/assets/icons/plus.svg';
 import { useImagePicker } from '@/components/ImagePickerProvider';
-import {
-  ToastMessageType,
-  useToastMessage,
-} from '@/components/modals/ToastMessageProvider';
+import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import PostCounter from '@/components/PostCounter';
 import { Spacings } from '@/constants/Spacings';
@@ -33,17 +30,7 @@ export default function Create() {
   const [caption, setCaption] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
-  const uploadMutation = useAddPostMutation(
-    () => {
-      showToastMessage('Upload success!', ToastMessageType.Success);
-      queryClient.invalidateQueries({ queryKey: ['FeedPages'] });
-      queryClient.invalidateQueries({ queryKey: ['Count'] });
-    },
-    (error) => {
-      console.error('Upload failed:', error);
-      showToastMessage('Upload failed.', ToastMessageType.Error);
-    },
-  );
+  const uploadMutation = useAddPostMutation();
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {

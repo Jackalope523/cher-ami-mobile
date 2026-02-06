@@ -93,8 +93,12 @@ export default function Manage() {
         {getSelfQuery.data.recipients.map((x) => (
           <UserItem
             key={x.id}
-            text={`${x.firstName} ${x.lastName}`}
-            imageSource={x.avatarPath + `?timestamp=${x.avatarTimestamp}`}
+            text={x.name}
+            imageSource={
+              x.avatarPath
+                ? x.avatarPath + `?timestamp=${x.avatarTimestamp}`
+                : null
+            }
             tagRight={`$${getPriceQuery.data / 100}`}
           />
         ))}

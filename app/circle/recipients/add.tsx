@@ -2,10 +2,7 @@ import PlusIcon from '@/assets/icons/plus.svg';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
-import {
-  ToastMessageType,
-  useToastMessage,
-} from '@/components/modals/ToastMessageProvider';
+import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
@@ -24,28 +21,16 @@ export default function AddRecipient() {
   const queryClient = useQueryClient();
   const getPriceQuery = useGetPriceQuery();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-
   const [avatar, setAvatar] = useState<string | null>(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [unitNumber, setUnitNumber] = useState<string | null>(null);
-  const [street, setStreet] = useState('');
+  const [name, setName] = useState('');
+  const [addressLine1, setAddressLine1] = useState('');
+  const [addressLine2, setAddressLine2] = useState<string | null>(null);
   const [city, setCity] = useState('');
   const [provinceOrState, setProvinceOrState] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('United States');
 
-  const addRecipientMutation = useAddRecipientMutation(
-    () => {
-      showToastMessage('Recipient added!', ToastMessageType.Success);
-      queryClient.invalidateQueries({ queryKey: ['Circle'] });
-      router.back();
-    },
-    (error) => {
-      console.log(error.message);
-      showToastMessage('Network error. Try again.', ToastMessageType.Error);
-    },
-  );
+  const addRecipientMutation = useAddRecipientMutation();
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -63,9 +48,8 @@ export default function AddRecipient() {
 
   function buttonDisabled() {
     return (
-      firstName === '' ||
-      lastName === '' ||
-      street === '' ||
+      name === '' ||
+      addressLine1 === '' ||
       city === '' ||
       provinceOrState === '' ||
       postalCode === '' ||
@@ -88,15 +72,15 @@ export default function AddRecipient() {
     addRecipientMutation.mutate({
       avatarUri: avatar,
       avatarName: 'avatar.jpg',
-      firstName: firstName,
-      lastName: lastName,
-      unitNumber: unitNumber,
-      street: street,
-      city: city,
-      provinceOrState: provinceOrState,
-      postalCode: postalCode,
-      country: country,
+      name,
+      addressLine1,
+      addressLine2,
+      city,
+      provinceOrState,
+      postalCode,
+      country,
     });
+    router.back();
   }
 
   if (getPriceQuery.isError) {
@@ -139,28 +123,19 @@ export default function AddRecipient() {
       </Text>
       <View style={styles.textInputs}>
         <TextInput
-          title="First Name"
-          maxLength={100}
-          value={firstName}
-          onChangeText={setFirstName}
+          title="Name*"
+          maxLength={60}
+          value={name}
+          onChangeText={setName}
           autoCapitalize="words"
           textContentType="givenName"
           autoComplete="name-given"
         />
         <TextInput
-          title="Last Name"
+          title="Address Line 1*"
           maxLength={100}
-          value={lastName}
-          onChangeText={setLastName}
-          autoCapitalize="words"
-          textContentType="familyName"
-          autoComplete="name-family"
-        />
-        <TextInput
-          title="Street Address"
-          maxLength={150}
-          value={street}
-          onChangeText={setStreet}
+          value={addressLine1}
+          onChangeText={setAddressLine1}
           keyboardType="default"
           autoCapitalize="words"
           autoCorrect={true}
@@ -168,17 +143,17 @@ export default function AddRecipient() {
           autoComplete="street-address"
         />
         <TextInput
-          title="Unit Number"
-          maxLength={15}
-          value={unitNumber ?? ''}
-          onChangeText={setUnitNumber}
+          title="Address Line 2"
+          maxLength={100}
+          value={addressLine2 ?? ''}
+          onChangeText={setAddressLine2}
           autoCapitalize="characters"
           autoCorrect={false}
           textContentType="none"
           autoComplete="off"
         />
         <TextInput
-          title="City"
+          title="City*"
           maxLength={50}
           value={city}
           onChangeText={setCity}
@@ -187,7 +162,7 @@ export default function AddRecipient() {
         />
         <View style={{ flexDirection: 'row', columnGap: 20 }}>
           <TextInput
-            title="State"
+            title="State*"
             maxLength={50}
             value={provinceOrState}
             onChangeText={setProvinceOrState}
@@ -198,7 +173,7 @@ export default function AddRecipient() {
             }}
           />
           <TextInput
-            title="ZIP code"
+            title="ZIP code*"
             maxLength={20}
             value={postalCode}
             onChangeText={setPostalCode}
@@ -212,7 +187,7 @@ export default function AddRecipient() {
           />
         </View>
         <TextInput
-          title="Country"
+          title="Country*"
           maxLength={56}
           value={country}
           onChangeText={setCountry}

@@ -27,14 +27,13 @@ export interface UpdateUserRequest {
 export interface UpdateRecipientRequest {
   id: number;
   avatarPath: string | null;
-  firstName: string;
-  lastName: string;
-  street: string;
+  name: string;
+  addressLine1: string;
+  addressLine2: string | null;
   city: string;
   provinceOrState: string;
   postalCode: string;
   country: string;
-  unitNumber: string | null;
 }
 
 export interface CreateCircleRequest {
@@ -57,10 +56,9 @@ export interface IdRequest {
 export interface RecipientRequest {
   avatarUri: string | null;
   avatarName: string | null;
-  firstName: string;
-  lastName: string;
-  unitNumber: string | null;
-  street: string;
+  name: string;
+  addressLine1: string;
+  addressLine2: string | null;
   city: string;
   provinceOrState: string;
   postalCode: string;

@@ -39,3 +39,16 @@ export function getNextMonthName() {
 
   return monthNames[nextMonthIndex];
 }
+
+export function splitName(fullName: string) {
+  if (!fullName) {
+    return { firstName: '', lastName: '' };
+  }
+
+  const parts = fullName.trim().split(/\s+/);
+
+  const firstName = parts.shift() ?? '';
+  const lastName = parts.join(' ');
+
+  return { firstName, lastName };
+}

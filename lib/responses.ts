@@ -11,8 +11,7 @@ export interface UserItem {
 export interface RecipientItem {
   id: number;
   managerId: number;
-  firstName: string;
-  lastName: string;
+  name: string;
   avatarPath: string | null;
   avatarTimestamp: Date | null;
 }
@@ -51,14 +50,13 @@ export interface RecipientDTO {
   managerId: number;
   avatarPath: string | null;
   avatarTimestamp: Date | null;
-  firstName: string;
-  lastName: string;
-  street: string;
+  name: string;
+  addressLine1: string;
+  addressLine2: string | null;
   city: string;
   provinceOrState: string;
   postalCode: string;
   country: string;
-  unitNumber: string;
 }
 
 export interface FeedPost {
