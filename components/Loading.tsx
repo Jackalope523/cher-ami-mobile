@@ -1,3 +1,4 @@
+import LoadingIcon from '@/assets/icons/loader.svg';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
@@ -30,12 +31,7 @@ export default function Loading() {
   return (
     <View style={styles.container}>
       <Animated.View style={rotationAnim}>
-        <View style={styles.dot} />
-        <View style={{ flexDirection: 'row', columnGap: 18 }}>
-          <View style={styles.dot} />
-          <View style={styles.dot} />
-        </View>
-        <View style={styles.dot} />
+        <LoadingIcon height={48} width={48} color="#B05637" />
       </Animated.View>
     </View>
   );
@@ -46,12 +42,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FCFBF8',
-  },
-
-  dot: {
-    height: 18,
-    width: 18,
-    borderRadius: 9,
-    backgroundColor: '#B05637',
   },
 });
