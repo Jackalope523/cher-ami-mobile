@@ -28,6 +28,7 @@ import { router } from 'expo-router';
 import { maybeCompleteAuthSession } from 'expo-web-browser';
 import { useEffect, useState } from 'react';
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import { OneSignal } from 'react-native-onesignal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 maybeCompleteAuthSession();
@@ -74,6 +75,7 @@ export default function Index() {
   const showToast = useToastMessage();
   const exchangeGoogleTokenMutation = useExchangeGoogleTokenMutation(
     (response) => {
+      OneSignal.login(response.externalId);
       updateToken(response.token);
       updateOnboarded(response.onboarded);
     },
@@ -83,6 +85,7 @@ export default function Index() {
   );
   const exchangeAppleTokenMutation = useExchangeAppleTokenMutation(
     (response) => {
+      OneSignal.login(response.externalId);
       updateToken(response.token);
       updateOnboarded(response.onboarded);
     },

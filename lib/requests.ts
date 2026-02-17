@@ -3,6 +3,8 @@ export interface AddPostRequest {
   caption: string;
   imageUri: string;
   imageName: string;
+  imageWidth: number;
+  imageHeight: number;
 }
 
 export interface ImageRequest {
@@ -22,18 +24,6 @@ export interface UpdateUserRequest {
   firstName: string;
   lastName: string;
   avatarPath: string | null;
-}
-
-export interface UpdateRecipientRequest {
-  id: number;
-  avatarPath: string | null;
-  name: string;
-  addressLine1: string;
-  addressLine2: string | null;
-  city: string;
-  provinceOrState: string;
-  postalCode: string;
-  country: string;
 }
 
 export interface CreateCircleRequest {
@@ -56,6 +46,18 @@ export interface IdRequest {
 export interface RecipientRequest {
   avatarUri: string | null;
   avatarName: string | null;
+  name: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  provinceOrState: string;
+  postalCode: string;
+  country: string;
+}
+
+export interface UpdateRecipientRequest {
+  id: number;
+  avatarPath: string | null;
   name: string;
   addressLine1: string;
   addressLine2: string | null;

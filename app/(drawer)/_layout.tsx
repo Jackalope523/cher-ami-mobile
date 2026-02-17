@@ -21,6 +21,7 @@ import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { Dimensions, Text, View } from 'react-native';
+import { OneSignal } from 'react-native-onesignal';
 
 export default function Layout() {
   const selfQuery = useGetSelfQuery();
@@ -29,6 +30,7 @@ export default function Layout() {
 
   function handleLogout() {
     deleteToken();
+    OneSignal.logout();
     router.replace('/');
   }
 

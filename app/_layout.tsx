@@ -18,6 +18,7 @@ import { nativeApplicationVersion } from 'expo-application';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { LogLevel, OneSignal } from 'react-native-onesignal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
@@ -106,6 +107,12 @@ function RootNavigator() {
             }}
           />
           <Stack.Screen
+            name="post/pickSize"
+            options={{
+              title: 'Pick Size',
+            }}
+          />
+          <Stack.Screen
             name="billing/add"
             options={{
               headerShown: false,
@@ -148,6 +155,16 @@ function RootNavigator() {
 }
 
 export default function RootLayout() {
+  useEffect(() => {
+    // Enable verbose logging for debugging (remove in production)
+    OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+
+    OneSignal.initialize('8f532de7-80f6-43f4-b7da-a74cc5996378');
+    // Use this method to prompt for push notifications.
+    // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
+    OneSignal.Notifications.requestPermission(false);
+  }, []);
+
   return (
     <GestureHandlerRootView>
       <SafeAreaProvider>

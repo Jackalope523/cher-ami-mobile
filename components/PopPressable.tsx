@@ -2,11 +2,11 @@ import { StyleSheet } from 'react-native';
 import { Pressable, PressableProps } from 'react-native-gesture-handler';
 import { PressableEvent } from 'react-native-gesture-handler/lib/typescript/components/Pressable/PressableProps';
 import Animated, {
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 export default function PopPressable({
   children,
@@ -24,9 +24,8 @@ export default function PopPressable({
     if (disabled) return;
 
     scale.value = withTiming(1.03, { duration: 100 }, () => {
-      scale.value = withTiming(1, { duration: 100 }, () => {
-        if (onPress && event) runOnJS(onPress)(event);
-      });
+      if (onPress && event) scheduleOnRN(onPress, event);
+      scale.value = withTiming(1, { duration: 100 });
     });
   }
 

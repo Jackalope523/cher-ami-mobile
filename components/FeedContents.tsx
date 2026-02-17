@@ -17,6 +17,7 @@ import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
 import Error from './Error';
+import { useImagePicker } from './ImagePickerProvider';
 import Loading from './Loading';
 import {
   ToastMessageType,
@@ -26,6 +27,7 @@ import {
 export default function FeedContents() {
   const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
   const showToastMessage = useToastMessage();
+  const pickImageAsync = useImagePicker();
   const variables = useMutationState({
     filters: { mutationKey: ['AddPost'], status: 'pending' },
     select: (mutation) => mutation.state.variables,
@@ -38,11 +40,16 @@ export default function FeedContents() {
         ToastMessageType.Informational,
       );
     } else {
-      router.push({
-        pathname: '/post/create',
-        params: {
-          issueTitle: data?.pages[0].issueTitle,
-        },
+      pickImageAsync({}).then((imageUri) => {
+        if (imageUri) {
+          router.push({
+            pathname: '/post/pickSize',
+            params: {
+              issueTitle: data?.pages[0].issueTitle,
+              imageUri,
+            },
+          });
+        }
       });
     }
   }
@@ -227,10 +234,16 @@ export default function FeedContents() {
           </View>
         )}
         {variables.length >= 1 && (
-          <View
-            style={{ paddingVertical: Spacings.md, justifyContent: 'center' }}>
-            <Loading />
-          </View>
+          <>
+            <Post post={variables[0]} />
+            <View
+              style={{
+                paddingVertical: Spacings.md,
+                justifyContent: 'center',
+              }}>
+              <Loading />
+            </View>
+          </>
         )}
       </View>
     );

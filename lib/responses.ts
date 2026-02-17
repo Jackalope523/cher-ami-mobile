@@ -64,6 +64,8 @@ export interface FeedPost {
   authorId: number;
   photoDate: Date;
   photoPath: string;
+  imageWidth: number;
+  imageHeight: number;
   caption: string;
 }
 
@@ -78,6 +80,7 @@ export interface FeedPageResponse {
 export interface LoginResponse {
   token: string;
   onboarded: boolean;
+  externalId: string;
 }
 
 export interface CodeResponse {

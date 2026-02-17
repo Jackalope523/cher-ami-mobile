@@ -12,6 +12,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
+import { OneSignal } from 'react-native-onesignal';
 
 export default function Verify() {
   const showToast = useToastMessage();
@@ -21,7 +22,7 @@ export default function Verify() {
   const { updateToken, updateOnboarded } = useAuth();
   const emailVerifyMutation = useEmailVerifyMutation(
     (response) => {
-      showToast('Logged in!', ToastMessageType.Success);
+      OneSignal.login(response.externalId);
       updateToken(response.token);
       updateOnboarded(response.onboarded);
     },

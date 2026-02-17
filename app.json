@@ -18,7 +18,14 @@
       },
       "infoPlist": {
         "NSCameraUsageDescription": "This app may use your camera if you choose to take a new photo rather than selecting one from your library when prompted.",
-        "NSPhotoLibraryUsageDescription": "This app allows you to choose photos from your library to share with your family."
+        "NSPhotoLibraryUsageDescription": "This app allows you to choose photos from your library to share with your family.",
+        "UIBackgroundModes": ["remote-notification"]
+      },
+      "entitlements": {
+        "aps-environment": "development",
+        "com.apple.security.application-groups": [
+          "group.${ios.bundleIdentifier}.onesignal"
+        ]
       }
     },
     "android": {
@@ -37,6 +44,12 @@
     "plugins": [
       "expo-apple-authentication",
       "expo-router",
+      [
+        "onesignal-expo-plugin",
+        {
+          "mode": "development"
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -100,3 +113,4 @@
     "owner": "hollow-inc"
   }
 }
+
