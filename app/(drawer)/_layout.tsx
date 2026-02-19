@@ -20,6 +20,7 @@ import {
 import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
+import { useEffect } from 'react';
 import { Dimensions, Text, View } from 'react-native';
 import { OneSignal } from 'react-native-onesignal';
 
@@ -27,6 +28,12 @@ export default function Layout() {
   const selfQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
   const { deleteToken } = useAuth();
+
+  useEffect(() => {
+    if (selfQuery.data) {
+      OneSignal.login(selfQuery.data.externalId);
+    }
+  }, [selfQuery.data]);
 
   function handleLogout() {
     deleteToken();

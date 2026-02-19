@@ -159,7 +159,7 @@ export default function RootLayout() {
     // Enable verbose logging for debugging (remove in production)
     OneSignal.Debug.setLogLevel(LogLevel.Verbose);
 
-    OneSignal.initialize('8f532de7-80f6-43f4-b7da-a74cc5996378');
+    OneSignal.initialize('cb60c158-276d-4f0b-8fc7-431d2c6ca885');
     // Use this method to prompt for push notifications.
     // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
     OneSignal.Notifications.requestPermission(false);
@@ -178,7 +178,7 @@ export default function RootLayout() {
                       {/* JACKALOPE: Get this from the key store. */}
                       <StripeProvider
                         publishableKey={
-                          'pk_live_51RxlLoAAKZ0DCoddiYjT5r0l7YCbBd4dLkf1FejYMAKLQeCU3ghSreuwAKdMBJFdxt9V3bMd1cvy1EwTsXWu0ZTy00wwQab38P'
+                          'pk_test_51RxlM1ARYKi6NXMeRhx7XC2Rjjv7tbG84PRxlKpGX8JlRFtQKoTbVpUHXx9JLc784nyVEBu2lePJJdVJ68h2jGtn00jSaBvtFe'
                         }>
                         <RootNavigator />
                       </StripeProvider>

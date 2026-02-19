@@ -110,7 +110,9 @@ export default function Post({ post }: PostProps) {
           source={post.photoPath}
           style={{
             width: Dimensions.get('window').width - 40,
-            aspectRatio: post.imageWidth / post.imageHeight,
+            aspectRatio:
+              (post.imageWidth !== undefined ? post.imageWidth : 372) /
+              (post.imageHeight !== undefined ? post.imageHeight : 259),
             borderRadius: 32,
             marginHorizontal: 20,
           }}

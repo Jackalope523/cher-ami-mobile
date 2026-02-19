@@ -30,6 +30,7 @@ export interface CircleDTO {
 
 export interface UserDTO {
   id: number;
+  externalId: string;
   avatarPath: string | null;
   avatarTimestamp: Date | null;
   firstName: string;
@@ -80,7 +81,6 @@ export interface FeedPageResponse {
 export interface LoginResponse {
   token: string;
   onboarded: boolean;
-  externalId: string;
 }
 
 export interface CodeResponse {
