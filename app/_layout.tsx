@@ -12,7 +12,7 @@ import ToastMessageProvider, {
 } from '@/components/modals/ToastMessageProvider';
 import Update from '@/components/Update';
 import { textStyles } from '@/constants/TextStyles';
-import { usePingMutation, useVersionQuery } from '@/lib/hooks';
+import { useConfigQuery, usePingMutation } from '@/lib/hooks';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { nativeApplicationVersion } from 'expo-application';
 import { SplashScreen, Stack } from 'expo-router';
@@ -26,7 +26,7 @@ SplashScreen.preventAutoHideAsync();
 function RootNavigator() {
   const { loaded, getToken, getOnboarded } = useAuth();
   const showToastMessage = useToastMessage();
-  const versionQuery = useVersionQuery();
+  const configQuery = useConfigQuery();
   const pingMutation = usePingMutation(
     () => {},
     (error) => {
@@ -34,6 +34,18 @@ function RootNavigator() {
       showToastMessage('Unable to connect to server.', ToastMessageType.Error);
     },
   );
+
+  useEffect(() => {
+    if (configQuery.data) {
+      // Enable verbose logging for debugging (remove in production)
+      OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+
+      OneSignal.initialize(configQuery.data?.oneSignalAppId);
+      // Use this method to prompt for push notifications.
+      // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
+      OneSignal.Notifications.requestPermission(false);
+    }
+  }, [configQuery.data]);
 
   useEffect(() => {
     pingMutation.mutate();
@@ -49,122 +61,117 @@ function RootNavigator() {
     return null;
   }
 
-  if (pingMutation.isError || versionQuery.isError) {
+  if (pingMutation.isError || configQuery.isError) {
     return <Error />;
   }
 
-  if (pingMutation.isPending || versionQuery.isLoading) {
+  if (pingMutation.isPending || configQuery.isLoading) {
     return <Loading />;
   }
 
-  if (nativeApplicationVersion !== versionQuery.data?.version) {
+  if (nativeApplicationVersion !== configQuery.data?.version) {
     return <Update />;
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShadowVisible: false,
-        headerTitleStyle: textStyles.screenHeader,
-        headerTitleAlign: 'center',
-        headerBackButtonDisplayMode: 'minimal',
-        headerTintColor: '#C15F3C',
-        headerStyle: {
-          backgroundColor: '#FCFBF8',
-        },
-      }}>
-      <Stack.Protected guard={getToken() === null}>
-        <Stack.Screen
-          name="index"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="verify"
-          options={{
-            title: '',
-          }}
-        />
-      </Stack.Protected>
-      <Stack.Protected guard={getToken() !== null}>
-        <Stack.Protected guard={!getOnboarded()}>
-          <Stack.Screen name="onboarding/firstName" options={{ title: '' }} />
-          <Stack.Screen name="onboarding/lastName" options={{ title: '' }} />
-        </Stack.Protected>
-        <Stack.Protected guard={getOnboarded() ?? false}>
-          <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+    <StripeProvider publishableKey={configQuery.data.stripePublishableKey}>
+      <Stack
+        screenOptions={{
+          headerShadowVisible: false,
+          headerTitleStyle: textStyles.screenHeader,
+          headerTitleAlign: 'center',
+          headerBackButtonDisplayMode: 'minimal',
+          headerTintColor: '#C15F3C',
+          headerStyle: {
+            backgroundColor: '#FCFBF8',
+          },
+        }}>
+        <Stack.Protected guard={getToken() === null}>
           <Stack.Screen
-            name="profile/[id]"
-            options={{
-              title: 'Profile',
-            }}
-          />
-          <Stack.Screen
-            name="post/create"
-            options={{
-              title: 'New Post',
-            }}
-          />
-          <Stack.Screen
-            name="post/pickSize"
-            options={{
-              title: 'Pick Size',
-            }}
-          />
-          <Stack.Screen
-            name="billing/add"
+            name="index"
             options={{
               headerShown: false,
             }}
           />
           <Stack.Screen
-            name="billing/manage"
+            name="verify"
             options={{
-              title: 'Manage Billing',
+              title: '',
             }}
           />
-          <Stack.Screen
-            name="circle/recipients/add"
-            options={{
-              title: 'Add Recipient',
-            }}
-          />
-          <Stack.Screen
-            name="circle/recipients/[id]/edit"
-            options={{
-              title: 'Edit Recipient',
-            }}
-          />
-          <Stack.Screen
-            name="circle/recipients/[id]/delete"
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen name="onboarding/circleName" options={{ title: '' }} />
-          <Stack.Screen
-            name="onboarding/circleHeader"
-            options={{ title: '' }}
-          />
-          <Stack.Screen name="blocked" options={{ title: 'Blocked Users' }} />
         </Stack.Protected>
-      </Stack.Protected>
-    </Stack>
+        <Stack.Protected guard={getToken() !== null}>
+          <Stack.Protected guard={!getOnboarded()}>
+            <Stack.Screen name="onboarding/firstName" options={{ title: '' }} />
+            <Stack.Screen name="onboarding/lastName" options={{ title: '' }} />
+          </Stack.Protected>
+          <Stack.Protected guard={getOnboarded() ?? false}>
+            <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="profile/[id]"
+              options={{
+                title: 'Profile',
+              }}
+            />
+            <Stack.Screen
+              name="post/create"
+              options={{
+                title: 'New Post',
+              }}
+            />
+            <Stack.Screen
+              name="post/pickSize"
+              options={{
+                title: 'Pick Size',
+              }}
+            />
+            <Stack.Screen
+              name="billing/add"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="billing/manage"
+              options={{
+                title: 'Manage Billing',
+              }}
+            />
+            <Stack.Screen
+              name="circle/recipients/add"
+              options={{
+                title: 'Add Recipient',
+              }}
+            />
+            <Stack.Screen
+              name="circle/recipients/[id]/edit"
+              options={{
+                title: 'Edit Recipient',
+              }}
+            />
+            <Stack.Screen
+              name="circle/recipients/[id]/delete"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="onboarding/circleName"
+              options={{ title: '' }}
+            />
+            <Stack.Screen
+              name="onboarding/circleHeader"
+              options={{ title: '' }}
+            />
+            <Stack.Screen name="blocked" options={{ title: 'Blocked Users' }} />
+          </Stack.Protected>
+        </Stack.Protected>
+      </Stack>
+    </StripeProvider>
   );
 }
 
 export default function RootLayout() {
-  useEffect(() => {
-    // Enable verbose logging for debugging (remove in production)
-    OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-
-    OneSignal.initialize('cb60c158-276d-4f0b-8fc7-431d2c6ca885');
-    // Use this method to prompt for push notifications.
-    // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
-    OneSignal.Notifications.requestPermission(false);
-  }, []);
-
   return (
     <GestureHandlerRootView>
       <SafeAreaProvider>
@@ -175,13 +182,7 @@ export default function RootLayout() {
                 <BottomSheetModalProvider>
                   <DialogueModalProvider>
                     <DrawerModalProvider>
-                      {/* JACKALOPE: Get this from the key store. */}
-                      <StripeProvider
-                        publishableKey={
-                          'pk_test_51RxlM1ARYKi6NXMeRhx7XC2Rjjv7tbG84PRxlKpGX8JlRFtQKoTbVpUHXx9JLc784nyVEBu2lePJJdVJ68h2jGtn00jSaBvtFe'
-                        }>
-                        <RootNavigator />
-                      </StripeProvider>
+                      <RootNavigator />
                     </DrawerModalProvider>
                   </DialogueModalProvider>
                 </BottomSheetModalProvider>

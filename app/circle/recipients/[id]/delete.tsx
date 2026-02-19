@@ -1,16 +1,18 @@
 import UserIcon from '@/assets/icons/user-round.svg';
+import Placeholder from '@/assets/images/placeholder.png';
+import { useAuth } from '@/components/AuthProvider';
 import Error from '@/components/Error';
 import Loading from '@/components/Loading';
 import {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
-import NetworkImage from '@/components/NetworkImage';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useDeleteRecipientMutation, useGetRecipientQuery } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,6 +21,7 @@ export default function DeleteRecipient() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const { id } = useLocalSearchParams();
+  const { getToken } = useAuth();
   const { data, status } = useGetRecipientQuery(Number(id));
   const mutation = useDeleteRecipientMutation(
     () => {
@@ -51,9 +54,16 @@ export default function DeleteRecipient() {
         </Text>
 
         {data.avatarPath ? (
-          <NetworkImage
+          <Image
             style={styles.avatar}
-            source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
+            placeholder={Placeholder}
+            placeholderContentFit="fill"
+            source={{
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              },
+              uri: data.avatarPath,
+            }}
           />
         ) : (
           <View

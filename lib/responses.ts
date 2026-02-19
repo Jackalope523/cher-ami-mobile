@@ -5,7 +5,6 @@ export interface UserItem {
   firstName: string;
   lastName: string;
   avatarPath: string | null;
-  avatarTimestamp: Date | null;
 }
 
 export interface RecipientItem {
@@ -13,7 +12,6 @@ export interface RecipientItem {
   managerId: number;
   name: string;
   avatarPath: string | null;
-  avatarTimestamp: Date | null;
 }
 
 export interface CircleDTO {
@@ -32,7 +30,6 @@ export interface UserDTO {
   id: number;
   externalId: string;
   avatarPath: string | null;
-  avatarTimestamp: Date | null;
   firstName: string;
   lastName: string;
   joinDate: Date;
@@ -50,7 +47,6 @@ export interface RecipientDTO {
   id: number;
   managerId: number;
   avatarPath: string | null;
-  avatarTimestamp: Date | null;
   name: string;
   addressLine1: string;
   addressLine2: string | null;
@@ -94,6 +90,8 @@ export interface SetupIntentResponse {
   allowsDelayedPaymentMethods: boolean;
 }
 
-export interface VersionResponse {
+export interface ConfigResponse {
   version: string;
+  oneSignalAppId: string;
+  stripePublishableKey: string;
 }

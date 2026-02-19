@@ -92,7 +92,7 @@ export default function Profile() {
                 },
                 uri: uploadMutation.isPending
                   ? uploadMutation.variables.imageUri
-                  : `https://app-cherami-prod.azurewebsites.net${data.avatarPath}?timestamp=${data.avatarTimestamp}`,
+                  : data.avatarPath,
               }}
             />
           ) : (

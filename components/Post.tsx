@@ -1,14 +1,16 @@
 import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
 import UserIcon from '@/assets/icons/user.svg';
+import Placeholder from '@/assets/images/placeholder.png';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetSelfQuery, useGetUserQuery } from '@/lib/hooks';
 import { FeedPost } from '@/lib/responses';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { useAuth } from './AuthProvider';
 import DeletePostContents from './DeletePostContents';
 import { useDialogueModal } from './modals/DialogueModalProvider';
-import NetworkImage from './NetworkImage';
 import PopPressable from './PopPressable';
 import ReportPostContents from './ReportPostContents';
 
@@ -20,6 +22,7 @@ export default function Post({ post }: PostProps) {
   const { displayDialogue } = useDialogueModal();
   const userQuery = useGetUserQuery(post.authorId);
   const selfQuery = useGetSelfQuery();
+  const { getToken } = useAuth();
 
   function handlePostSettings(postId: number) {
     if (post.authorId === selfQuery.data?.id) {
@@ -58,12 +61,16 @@ export default function Post({ post }: PostProps) {
               })
             }>
             {userQuery.data.avatarPath ? (
-              <NetworkImage
+              <Image
                 style={{ height: 48, width: 48, borderRadius: 24 }}
-                source={
-                  userQuery.data.avatarPath +
-                  `?timestamp=${userQuery.data.avatarTimestamp}`
-                }
+                placeholder={Placeholder}
+                placeholderContentFit="fill"
+                source={{
+                  headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                  },
+                  uri: userQuery.data.avatarPath,
+                }}
               />
             ) : (
               <View
@@ -106,8 +113,7 @@ export default function Post({ post }: PostProps) {
       </View>
 
       <View style={{ marginBottom: Spacings.md }}>
-        <NetworkImage
-          source={post.photoPath}
+        <Image
           style={{
             width: Dimensions.get('window').width - 40,
             aspectRatio:
@@ -115,6 +121,14 @@ export default function Post({ post }: PostProps) {
               (post.imageHeight !== undefined ? post.imageHeight : 259),
             borderRadius: 32,
             marginHorizontal: 20,
+          }}
+          placeholder={Placeholder}
+          placeholderContentFit="fill"
+          source={{
+            headers: {
+              Authorization: `Bearer ${getToken()}`,
+            },
+            uri: post.photoPath,
           }}
         />
 

@@ -34,13 +34,13 @@ import {
   CardDTO,
   CircleDTO,
   CodeResponse,
+  ConfigResponse,
   FeedPageResponse,
   LoginResponse,
   RecipientDTO,
   SetupIntentResponse,
   UserDTO,
   UserItem,
-  VersionResponse,
 } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
@@ -141,13 +141,13 @@ export function useGetCircleQuery() {
   });
 }
 
-export function useVersionQuery() {
+export function useConfigQuery() {
   const api = useAPI();
 
-  return useQuery<VersionResponse, AxiosError>({
-    queryKey: ['Version'],
+  return useQuery<ConfigResponse, AxiosError>({
+    queryKey: ['Config'],
     queryFn: async () => {
-      const response = await api.get('/version');
+      const response = await api.get('/config');
       return response.data;
     },
   });
@@ -239,6 +239,8 @@ export function useAddPostMutation(
         type: 'image/jpeg',
         name: request.imageName,
       } as any);
+      formData.append('ImageWidth', request.imageWidth.toString());
+      formData.append('ImageHeight', request.imageHeight.toString());
 
       await api.post(`/issue/posts`, formData, {
         headers: {

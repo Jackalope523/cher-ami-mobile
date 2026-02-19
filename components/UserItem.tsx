@@ -1,8 +1,10 @@
 import UserIcon from '@/assets/icons/user.svg';
+import Placeholder from '@/assets/images/placeholder.png';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { Image } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
-import NetworkImage from './NetworkImage';
+import { useAuth } from './AuthProvider';
 import PopPressable from './PopPressable';
 
 interface UserItemProps {
@@ -20,6 +22,7 @@ export default function UserItem({
   tagRight,
   onPress,
 }: UserItemProps) {
+  const { getToken } = useAuth();
   return (
     <PopPressable
       style={styles.contributorContainer}
@@ -27,7 +30,17 @@ export default function UserItem({
       disabled={onPress === undefined}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         {imageSource ? (
-          <NetworkImage style={styles.image} source={imageSource} />
+          <Image
+            style={styles.image}
+            placeholder={Placeholder}
+            placeholderContentFit="fill"
+            source={{
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              },
+              uri: imageSource,
+            }}
+          />
         ) : (
           <View
             style={[

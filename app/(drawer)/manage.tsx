@@ -149,7 +149,7 @@ export default function Manage() {
               },
               uri: uploadMutation.isPending
                 ? uploadMutation.variables.imageUri
-                : `https://app-cherami-prod.azurewebsites.net${circleQuery.data.headerPath}?timestamp=${circleQuery.data.headerTimestamp}`,
+                : circleQuery.data.headerPath,
             }}
           />
         </PopPressable>
@@ -215,11 +215,7 @@ export default function Manage() {
             <UserItem
               key={x.id}
               text={x.firstName}
-              imageSource={
-                x.avatarPath
-                  ? x.avatarPath + `?timestamp=${x.avatarTimestamp}`
-                  : null
-              }
+              imageSource={x.avatarPath ? x.avatarPath : null}
               tagLeft={x.id === userQuery.data.id ? '(You)' : undefined}
               onPress={() =>
                 router.push({
@@ -276,11 +272,7 @@ export default function Manage() {
             <UserItem
               key={x.id}
               text={x.name}
-              imageSource={
-                x.avatarPath
-                  ? x.avatarPath + `?timestamp=${x.avatarTimestamp}`
-                  : null
-              }
+              imageSource={x.avatarPath ? x.avatarPath : null}
               onPress={
                 x.managerId === userQuery.data.id
                   ? () => {
@@ -301,10 +293,7 @@ export default function Manage() {
               key={variables[0].id}
               text={variables[0].name}
               imageSource={
-                variables[0].avatarPath
-                  ? variables[0].avatarPath +
-                    `?timestamp=${variables[0].avatarTimestamp}`
-                  : null
+                variables[0].avatarPath ? variables[0].avatarPath : null
               }
             />
           )}

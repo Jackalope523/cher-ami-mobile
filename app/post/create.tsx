@@ -1,3 +1,4 @@
+import PlusIcon from '@/assets/icons/plus.svg';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
@@ -9,14 +10,23 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
-import { ScrollView, TextInput } from 'react-native-gesture-handler';
+import {
+  Dimensions,
+  Keyboard,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { TextInput } from 'react-native-gesture-handler';
 
 export default function Create() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const pickImageAsync = useImagePicker();
-  const { issueTitle, imageUri, width, height } = useLocalSearchParams();
+  const { issueTitle } = useLocalSearchParams();
+
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
@@ -37,44 +47,66 @@ export default function Create() {
   }, []);
 
   function pickImage() {
-    pickImageAsync({}).then((imageUri) => {
-      router.push({
-        pathname: '/post/pickSize',
-        params: {
-          issueTitle,
-          imageUri,
-        },
-      });
+    pickImageAsync({
+      width: 372,
+      height: 259,
+      cropping: true,
+    }).then((x) => {
+      if (x !== null) {
+        setSelectedImage(x);
+      }
     });
   }
 
   function handlePost() {
-    uploadMutation.mutate({
-      time: new Date().toISOString(),
-      caption: caption,
-      imageUri: imageUri as string,
-      imageName: 'image.jpg',
-    });
-    router.back();
+    if (selectedImage) {
+      uploadMutation.mutate({
+        time: new Date().toISOString(),
+        caption: caption,
+        imageUri: selectedImage,
+        imageName: 'image.jpg',
+        imageWidth: 372,
+        imageHeight: 259,
+      });
+      router.back();
+    }
+  }
+
+  function buttonDisabled() {
+    return selectedImage === null || uploadMutation.isPending;
   }
 
   return (
-    <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false}>
+    <Pressable
+      style={[
+        styles.container,
+        keyboardVisible && { justifyContent: 'flex-start' },
+      ]}
+      onPress={Keyboard.dismiss}>
       <View>
         {!keyboardVisible && (
           <View>
             <PostCounter issueTitle={issueTitle as string} />
             <PopPressable style={styles.imageContainer} onPress={pickImage}>
-              <Image
-                source={imageUri}
-                style={[
-                  styles.image,
-                  { aspectRatio: Number(width) / Number(height) },
-                ]}
-              />
+              {selectedImage ? (
+                <Image source={selectedImage} style={styles.image} />
+              ) : (
+                <View
+                  style={{
+                    backgroundColor: '#F4F1EA',
+                    borderRadius: 32,
+                    width: Dimensions.get('window').width - 40,
+                    aspectRatio: 372 / 259,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <PlusIcon height={96} width={96} color={'#868581'} />
+                </View>
+              )}
             </PopPressable>
           </View>
         )}
+
         <View
           style={{
             flexDirection: 'row',
@@ -105,10 +137,10 @@ export default function Create() {
 
       <PopPressable
         onPress={handlePost}
-        disabled={uploadMutation.isPending}
+        disabled={buttonDisabled()}
         style={[
           styles.button,
-          uploadMutation.isPending && {
+          buttonDisabled() && {
             backgroundColor: '#ECEDEF',
             borderColor: '#ECEDEF',
           },
@@ -116,12 +148,12 @@ export default function Create() {
         <Text
           style={[
             textStyles.buttonTextWhite,
-            uploadMutation.isPending && { color: '#A8ABB3' },
+            buttonDisabled() && { color: '#A8ABB3' },
           ]}>
           Post
         </Text>
       </PopPressable>
-    </ScrollView>
+    </Pressable>
   );
 }
 
@@ -134,6 +166,7 @@ const styles = StyleSheet.create({
 
   image: {
     width: Dimensions.get('window').width - 40,
+    aspectRatio: 372 / 259,
     borderRadius: 32,
   },
 

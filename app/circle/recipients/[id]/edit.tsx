@@ -1,5 +1,7 @@
 import PlusIcon from '@/assets/icons/plus.svg';
 import TrashIcon from '@/assets/icons/trash.svg';
+import Placeholder from '@/assets/images/placeholder.png';
+import { useAuth } from '@/components/AuthProvider';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
@@ -7,7 +9,6 @@ import {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
-import NetworkImage from '@/components/NetworkImage';
 import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
@@ -28,6 +29,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 export default function EditRecipient() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
+  const { getToken } = useAuth();
   const queryClient = useQueryClient();
   const pickImageAsync = useImagePicker();
   const getPriceQuery = useGetPriceQuery();
@@ -171,9 +173,16 @@ export default function EditRecipient() {
         {avatar !== data.avatarPath ? (
           <Image style={styles.avatar} source={avatar} />
         ) : data.avatarPath ? (
-          <NetworkImage
+          <Image
             style={styles.avatar}
-            source={`${data.avatarPath}?timestamp=${data.avatarTimestamp}`}
+            placeholder={Placeholder}
+            placeholderContentFit="fill"
+            source={{
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              },
+              uri: data.avatarPath,
+            }}
           />
         ) : (
           <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>

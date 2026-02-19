@@ -5,10 +5,10 @@ import MenuIcon from '@/assets/icons/menu.svg';
 import SettingsIcon from '@/assets/icons/settings.svg';
 import UserIcon from '@/assets/icons/user.svg';
 import PersonIconOrange from '@/assets/icons/users-round.svg';
+import Placeholder from '@/assets/images/placeholder.png';
 import { useAuth } from '@/components/AuthProvider';
 import Error from '@/components/Error';
 import Loading from '@/components/Loading';
-import NetworkImage from '@/components/NetworkImage';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
@@ -17,6 +17,7 @@ import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
+import { Image } from 'expo-image';
 import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
@@ -27,7 +28,7 @@ import { OneSignal } from 'react-native-onesignal';
 export default function Layout() {
   const selfQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
-  const { deleteToken } = useAuth();
+  const { getToken, deleteToken } = useAuth();
 
   useEffect(() => {
     if (selfQuery.data) {
@@ -77,15 +78,19 @@ export default function Layout() {
               marginBottom: Spacings.xl,
             }}>
             {selfQuery.data.avatarPath ? (
-              <NetworkImage
-                source={
-                  selfQuery.data.avatarPath +
-                  `?timestamp=${selfQuery.data.avatarTimestamp}`
-                }
+              <Image
                 style={{
                   height: 48,
                   width: 48,
                   borderRadius: 24,
+                }}
+                placeholder={Placeholder}
+                placeholderContentFit="fill"
+                source={{
+                  headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                  },
+                  uri: selfQuery.data.avatarPath,
                 }}
               />
             ) : (

@@ -40,17 +40,7 @@ export default function FeedContents() {
         ToastMessageType.Informational,
       );
     } else {
-      pickImageAsync({}).then((imageUri) => {
-        if (imageUri) {
-          router.push({
-            pathname: '/post/pickSize',
-            params: {
-              issueTitle: data?.pages[0].issueTitle,
-              imageUri,
-            },
-          });
-        }
-      });
+      router.push('/post/create');
     }
   }
 
@@ -233,7 +223,7 @@ export default function FeedContents() {
             <Image source={MailboxImage} style={{ height: 64, width: 64 }} />
           </View>
         )}
-        {variables.length >= 1 && (
+        {/* {variables.length >= 1 && (
           <>
             <Post post={variables[0]} />
             <View
@@ -244,7 +234,7 @@ export default function FeedContents() {
               <Loading />
             </View>
           </>
-        )}
+        )} */}
       </View>
     );
   }
