@@ -25,12 +25,11 @@ export default function DeleteRecipient() {
   const { data, status } = useGetRecipientQuery(Number(id));
   const mutation = useDeleteRecipientMutation(
     () => {
-      showToastMessage('Removed recipient.', ToastMessageType.Success);
       queryClient.invalidateQueries({ queryKey: ['Circle'] });
       router.replace('/(drawer)/manage');
     },
     () => {
-      showToastMessage('Failed to remove recipient.', ToastMessageType.Error);
+      showToastMessage('Network error. Try again.', ToastMessageType.Error);
     },
   );
 

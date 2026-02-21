@@ -18,7 +18,7 @@ import { nativeApplicationVersion } from 'expo-application';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { LogLevel, OneSignal } from 'react-native-onesignal';
+import { OneSignal } from 'react-native-onesignal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
@@ -37,13 +37,7 @@ function RootNavigator() {
 
   useEffect(() => {
     if (configQuery.data) {
-      // Enable verbose logging for debugging (remove in production)
-      OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-
-      OneSignal.initialize(configQuery.data?.oneSignalAppId);
-      // Use this method to prompt for push notifications.
-      // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
-      OneSignal.Notifications.requestPermission(false);
+      OneSignal.initialize(configQuery.data.oneSignalAppId);
     }
   }, [configQuery.data]);
 

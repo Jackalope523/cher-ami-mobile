@@ -101,6 +101,7 @@ export default function ToastMessageProvider({
             left: insets.left,
             right: insets.right,
             zIndex: 11,
+            pointerEvents: 'box-none',
           }}>
           <Animated.View
             style={{

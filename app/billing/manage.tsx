@@ -74,7 +74,11 @@ export default function Manage() {
     return <Loading />;
   }
 
-  if (!getSelfQuery.data || !getPriceQuery.data || !getPaymentMethodQuery) {
+  if (
+    !getSelfQuery.data ||
+    getPriceQuery.data === undefined ||
+    !getPaymentMethodQuery
+  ) {
     return null;
   }
 

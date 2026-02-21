@@ -155,7 +155,7 @@ export default function EditRecipient() {
     return <Loading />;
   }
 
-  if (!data || !getPriceQuery.data) {
+  if (!data || getPriceQuery.data === undefined) {
     return null;
   }
 

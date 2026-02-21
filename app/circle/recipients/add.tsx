@@ -2,7 +2,7 @@ import PlusIcon from '@/assets/icons/plus.svg';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
-import { useToastMessage } from '@/components/modals/ToastMessageProvider';
+import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
 import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
@@ -16,7 +16,7 @@ import { useEffect, useState } from 'react';
 import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 export default function AddRecipient() {
-  const showToastMessage = useToastMessage();
+  const { displayBottomSheet } = useBottomSheetModal();
   const pickImageAsync = useImagePicker();
   const queryClient = useQueryClient();
   const getPriceQuery = useGetPriceQuery();
@@ -91,7 +91,7 @@ export default function AddRecipient() {
     return <Loading />;
   }
 
-  if (!getPriceQuery.data) {
+  if (getPriceQuery.data === undefined) {
     return null;
   }
 

@@ -17,6 +17,7 @@ import {
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
+import { OneSignal } from 'react-native-onesignal';
 import {
   AddPostRequest,
   CreateCircleRequest,
@@ -250,6 +251,10 @@ export function useAddPostMutation(
     },
     onSuccess: () => {
       showToastMessage('Upload success!', ToastMessageType.Success);
+      OneSignal.User.addTag(
+        'last_posted_at',
+        String(Math.floor(Date.now() / 1000)),
+      );
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ['FeedPages'] }),
         queryClient.invalidateQueries({ queryKey: ['Count'] }),
@@ -812,7 +817,6 @@ export function useAddRecipientMutation() {
       });
     },
     onSuccess: async () => {
-      showToastMessage('Recipient added!', ToastMessageType.Success);
       await queryClient.invalidateQueries({ queryKey: ['Circle'] });
     },
     onError: (error) => {
