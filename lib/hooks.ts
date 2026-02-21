@@ -442,12 +442,11 @@ export function useUpdateHeaderMutation() {
       });
     },
     onSuccess: async () => {
-      showToastMessage('Upload success!', ToastMessageType.Success);
       await queryClient.invalidateQueries({ queryKey: ['Circle'] });
     },
     onError: (error) => {
       console.error('Upload failed:', error);
-      showToastMessage('Upload failed.', ToastMessageType.Error);
+      showToastMessage('Update failed. Try again.', ToastMessageType.Error);
     },
   });
 }
