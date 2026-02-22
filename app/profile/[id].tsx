@@ -81,7 +81,7 @@ export default function Profile() {
           style={styles.avatarContainer}
           onPress={pickImage}
           disabled={!isSelf}>
-          {data.avatarPath ? (
+          {data.avatarUrl ? (
             <Image
               style={styles.avatar}
               placeholder={Placeholder}
@@ -92,7 +92,7 @@ export default function Profile() {
                 },
                 uri: uploadMutation.isPending
                   ? uploadMutation.variables.imageUri
-                  : data.avatarPath,
+                  : data.avatarUrl,
               }}
             />
           ) : (

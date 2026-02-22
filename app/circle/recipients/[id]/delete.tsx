@@ -52,7 +52,7 @@ export default function DeleteRecipient() {
           Remove recipient?
         </Text>
 
-        {data.avatarPath ? (
+        {data.avatarUrl ? (
           <Image
             style={styles.avatar}
             placeholder={Placeholder}
@@ -61,7 +61,7 @@ export default function DeleteRecipient() {
               headers: {
                 Authorization: `Bearer ${getToken()}`,
               },
-              uri: data.avatarPath,
+              uri: data.avatarUrl,
             }}
           />
         ) : (

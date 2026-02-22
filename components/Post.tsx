@@ -60,7 +60,7 @@ export default function Post({ post }: PostProps) {
                 params: { id: post.authorId },
               })
             }>
-            {userQuery.data.avatarPath ? (
+            {userQuery.data.avatarUrl ? (
               <Image
                 style={{ height: 48, width: 48, borderRadius: 24 }}
                 placeholder={Placeholder}
@@ -69,7 +69,7 @@ export default function Post({ post }: PostProps) {
                   headers: {
                     Authorization: `Bearer ${getToken()}`,
                   },
-                  uri: userQuery.data.avatarPath,
+                  uri: userQuery.data.avatarUrl,
                 }}
               />
             ) : (
@@ -128,7 +128,7 @@ export default function Post({ post }: PostProps) {
             headers: {
               Authorization: `Bearer ${getToken()}`,
             },
-            uri: post.photoPath,
+            uri: post.photoUrl,
           }}
         />
 

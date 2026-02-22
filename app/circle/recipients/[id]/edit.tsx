@@ -78,7 +78,7 @@ export default function EditRecipient() {
 
   useEffect(() => {
     if (data) {
-      setAvatar(data.avatarPath);
+      setAvatar(data.avatarUrl);
       setName(data.name);
       setAddressLine1(data.addressLine1);
       setAddressLine2(data.addressLine2);
@@ -116,7 +116,7 @@ export default function EditRecipient() {
   function buttonDisabled() {
     if (data) {
       return (
-        (avatar === data.avatarPath &&
+        (avatar === data.avatarUrl &&
           name === data.name &&
           addressLine1 === data.addressLine1 &&
           addressLine2 === data.addressLine2 &&
@@ -142,7 +142,7 @@ export default function EditRecipient() {
         provinceOrState,
         postalCode,
         country,
-        avatarPath: avatar !== data.avatarPath ? avatar : null,
+        avatarUrl: avatar !== data.avatarUrl ? avatar : null,
       });
     }
   }
@@ -170,9 +170,9 @@ export default function EditRecipient() {
       overScrollMode="never"
       showsVerticalScrollIndicator={false}>
       <PopPressable onPress={pickImage}>
-        {avatar !== data.avatarPath ? (
+        {avatar !== data.avatarUrl ? (
           <Image style={styles.avatar} source={avatar} />
-        ) : data.avatarPath ? (
+        ) : data.avatarUrl ? (
           <Image
             style={styles.avatar}
             placeholder={Placeholder}
@@ -181,7 +181,7 @@ export default function EditRecipient() {
               headers: {
                 Authorization: `Bearer ${getToken()}`,
               },
-              uri: data.avatarPath,
+              uri: data.avatarUrl,
             }}
           />
         ) : (

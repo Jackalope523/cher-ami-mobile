@@ -106,7 +106,7 @@ export default function Blocked() {
           <UserItem
             key={x.id}
             text={x.firstName}
-            imageSource={x.avatarPath ? x.avatarPath : null}
+            imageSource={x.avatarUrl ? x.avatarUrl : null}
             tagLeft={'(Unblock)'}
             onPress={() =>
               displayDialogue(<UnblockUserContents userId={x.id} />)

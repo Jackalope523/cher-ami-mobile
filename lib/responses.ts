@@ -4,19 +4,22 @@ export interface UserItem {
   id: number;
   firstName: string;
   lastName: string;
-  avatarPath: string | null;
+  avatarUrl: string | null;
+  avatarUrl: string | null;
 }
 
 export interface RecipientItem {
   id: number;
   managerId: number;
   name: string;
-  avatarPath: string | null;
+  avatarUrl: string | null;
+  avatarUrl: string | null;
 }
 
 export interface CircleDTO {
   id: number;
-  headerPath: string;
+  headerUrl: string;
+  headerUrl: string;
   headerTimestamp: Date;
   title: string;
   inviteCode: string;
@@ -29,7 +32,8 @@ export interface CircleDTO {
 export interface UserDTO {
   id: number;
   externalId: string;
-  avatarPath: string | null;
+  avatarUrl: string | null;
+  avatarUrl: string | null;
   firstName: string;
   lastName: string;
   joinDate: Date;
@@ -46,7 +50,8 @@ export interface CardDTO {
 export interface RecipientDTO {
   id: number;
   managerId: number;
-  avatarPath: string | null;
+  avatarUrl: string | null;
+  avatarUrl: string | null;
   name: string;
   addressLine1: string;
   addressLine2: string | null;
@@ -60,6 +65,7 @@ export interface FeedPost {
   id: number;
   authorId: number;
   photoDate: Date;
+  photoUrl: string;
   photoPath: string;
   imageWidth: number;
   imageHeight: number;

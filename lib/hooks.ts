@@ -1,47 +1,47 @@
 import { useAPI } from '@/components/APIProvider';
 import {
-  ToastMessageType,
-  useToastMessage,
+    ToastMessageType,
+    useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
 import {
-  AppearanceParams,
-  SetupParams,
-  useStripe,
+    AppearanceParams,
+    SetupParams,
+    useStripe,
 } from '@stripe/stripe-react-native';
 import {
-  QueryFunctionContext,
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
+    QueryFunctionContext,
+    useInfiniteQuery,
+    useMutation,
+    useQuery,
+    useQueryClient,
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
 import { OneSignal } from 'react-native-onesignal';
 import {
-  AddPostRequest,
-  CreateCircleRequest,
-  EmailAuthRequest,
-  EmailVerifyRequest,
-  IdRequest,
-  ImageRequest,
-  JoinCircleRequest,
-  RecipientRequest,
-  TokenRequest,
-  UpdateRecipientRequest,
-  UpdateUserRequest,
+    AddPostRequest,
+    CreateCircleRequest,
+    EmailAuthRequest,
+    EmailVerifyRequest,
+    IdRequest,
+    ImageRequest,
+    JoinCircleRequest,
+    RecipientRequest,
+    TokenRequest,
+    UpdateRecipientRequest,
+    UpdateUserRequest,
 } from './requests';
 import {
-  CardDTO,
-  CircleDTO,
-  CodeResponse,
-  ConfigResponse,
-  FeedPageResponse,
-  LoginResponse,
-  RecipientDTO,
-  SetupIntentResponse,
-  UserDTO,
-  UserItem,
+    CardDTO,
+    CircleDTO,
+    CodeResponse,
+    ConfigResponse,
+    FeedPageResponse,
+    LoginResponse,
+    RecipientDTO,
+    SetupIntentResponse,
+    UserDTO,
+    UserItem,
 } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
@@ -553,9 +553,9 @@ export function useUpdateUserMutation(
       formData.append('FirstName', request.firstName);
       formData.append('LastName', request.lastName);
 
-      if (request.avatarPath) {
+      if (request.avatarUrl) {
         formData.append('Avatar', {
-          uri: request.avatarPath,
+          uri: request.avatarUrl,
           type: 'image/jpeg',
           name: 'avatar.jpg',
         } as any);
@@ -611,9 +611,9 @@ export function useUpdateRecipientMutation(
         formData.append('AddressLine2', request.addressLine2);
       }
 
-      if (request.avatarPath) {
+      if (request.avatarUrl) {
         formData.append('Avatar', {
-          uri: request.avatarPath,
+          uri: request.avatarUrl,
           type: 'image/jpeg',
           name: 'avatar.jpg',
         } as any);

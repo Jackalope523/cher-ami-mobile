@@ -23,7 +23,7 @@ export interface EmailVerifyRequest {
 export interface UpdateUserRequest {
   firstName: string;
   lastName: string;
-  avatarPath: string | null;
+  avatarUrl: string | null;
 }
 
 export interface CreateCircleRequest {
@@ -57,7 +57,7 @@ export interface RecipientRequest {
 
 export interface UpdateRecipientRequest {
   id: number;
-  avatarPath: string | null;
+  avatarUrl: string | null;
   name: string;
   addressLine1: string;
   addressLine2: string | null;

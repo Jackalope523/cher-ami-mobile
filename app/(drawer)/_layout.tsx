@@ -77,7 +77,7 @@ export default function Layout() {
               paddingLeft: Spacings.lg,
               marginBottom: Spacings.xl,
             }}>
-            {selfQuery.data.avatarPath ? (
+            {selfQuery.data.avatarUrl ? (
               <Image
                 style={{
                   height: 48,
@@ -90,7 +90,7 @@ export default function Layout() {
                   headers: {
                     Authorization: `Bearer ${getToken()}`,
                   },
-                  uri: selfQuery.data.avatarPath,
+                  uri: selfQuery.data.avatarUrl,
                 }}
               />
             ) : (

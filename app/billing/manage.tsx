@@ -98,7 +98,7 @@ export default function Manage() {
           <UserItem
             key={x.id}
             text={x.name}
-            imageSource={x.avatarPath ? x.avatarPath : null}
+            imageSource={x.avatarUrl ? x.avatarUrl : null}
             tagRight={`$${getPriceQuery.data / 100}`}
           />
         ))}

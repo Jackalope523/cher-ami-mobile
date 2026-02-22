@@ -34,7 +34,7 @@ export default function LastName() {
     userMutation.mutate({
       firstName: firstName as string,
       lastName: lastName as string,
-      avatarPath: null,
+      avatarUrl: null,
     });
   }
 

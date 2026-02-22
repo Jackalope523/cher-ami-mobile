@@ -52,7 +52,7 @@ export default function Manage() {
         id: -1,
         managerId: userQuery.data?.id ?? -1,
         name: request.name,
-        avatarPath: request.avatarUri,
+        avatarUrl: request.avatarUri,
         avatarTimestamp: new Date(),
       };
     },
@@ -149,7 +149,7 @@ export default function Manage() {
               },
               uri: uploadMutation.isPending
                 ? uploadMutation.variables.imageUri
-                : circleQuery.data.headerPath,
+                : circleQuery.data.headerUrl,
             }}
           />
         </PopPressable>
@@ -215,7 +215,7 @@ export default function Manage() {
             <UserItem
               key={x.id}
               text={x.firstName}
-              imageSource={x.avatarPath ? x.avatarPath : null}
+              imageSource={x.avatarUrl ? x.avatarUrl : null}
               tagLeft={x.id === userQuery.data.id ? '(You)' : undefined}
               onPress={() =>
                 router.push({
@@ -272,7 +272,7 @@ export default function Manage() {
             <UserItem
               key={x.id}
               text={x.name}
-              imageSource={x.avatarPath ? x.avatarPath : null}
+              imageSource={x.avatarUrl ? x.avatarUrl : null}
               onPress={
                 x.managerId === userQuery.data.id
                   ? () => {
@@ -293,7 +293,7 @@ export default function Manage() {
               key={variables[0].id}
               text={variables[0].name}
               imageSource={
-                variables[0].avatarPath ? variables[0].avatarPath : null
+                variables[0].avatarUrl ? variables[0].avatarUrl : null
               }
             />
           )}
