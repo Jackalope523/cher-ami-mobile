@@ -5,7 +5,6 @@ export interface UserItem {
   firstName: string;
   lastName: string;
   avatarUrl: string | null;
-  avatarUrl: string | null;
 }
 
 export interface RecipientItem {
@@ -13,12 +12,11 @@ export interface RecipientItem {
   managerId: number;
   name: string;
   avatarUrl: string | null;
-  avatarUrl: string | null;
+  isVeteran: boolean;
 }
 
 export interface CircleDTO {
   id: number;
-  headerUrl: string;
   headerUrl: string;
   headerTimestamp: Date;
   title: string;
@@ -32,7 +30,6 @@ export interface CircleDTO {
 export interface UserDTO {
   id: number;
   externalId: string;
-  avatarUrl: string | null;
   avatarUrl: string | null;
   firstName: string;
   lastName: string;
@@ -51,7 +48,6 @@ export interface RecipientDTO {
   id: number;
   managerId: number;
   avatarUrl: string | null;
-  avatarUrl: string | null;
   name: string;
   addressLine1: string;
   addressLine2: string | null;
@@ -59,6 +55,7 @@ export interface RecipientDTO {
   provinceOrState: string;
   postalCode: string;
   country: string;
+  isVeteran: boolean;
 }
 
 export interface FeedPost {
@@ -100,4 +97,9 @@ export interface ConfigResponse {
   version: string;
   oneSignalAppId: string;
   stripePublishableKey: string;
+}
+
+export interface PriceResponse {
+  standardEditionPrice: number;
+  militaryEditionPrice: number;
 }

@@ -2,6 +2,7 @@ import PlusIcon from '@/assets/icons/plus.svg';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
+import MilitaryEditionModalContents from '@/components/MilitaryEditionModalContents';
 import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
 import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
@@ -9,16 +10,14 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useAddRecipientMutation, useGetPriceQuery } from '@/lib/hooks';
 import { getNextMonthName } from '@/lib/utility';
-import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 export default function AddRecipient() {
-  const { displayBottomSheet } = useBottomSheetModal();
+  const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
   const pickImageAsync = useImagePicker();
-  const queryClient = useQueryClient();
   const getPriceQuery = useGetPriceQuery();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(null);
@@ -29,6 +28,7 @@ export default function AddRecipient() {
   const [provinceOrState, setProvinceOrState] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('United States');
+  const [isVeteran, setIsVeteran] = useState(false);
 
   const addRecipientMutation = useAddRecipientMutation();
 
@@ -79,6 +79,7 @@ export default function AddRecipient() {
       provinceOrState,
       postalCode,
       country,
+      isVeteran,
     });
     router.back();
   }
@@ -197,6 +198,37 @@ export default function AddRecipient() {
           autoCapitalize="words"
           autoCorrect={false}
         />
+        <PopPressable
+          onPress={() => {
+            if (isVeteran) {
+              setIsVeteran(false);
+            } else {
+              displayBottomSheet(
+                <MilitaryEditionModalContents
+                  dismissModal={dismissBottomSheetModal}
+                  setIsVeteran={setIsVeteran}
+                />,
+              );
+            }
+          }}
+          style={[
+            styles.button,
+            {
+              backgroundColor: isVeteran ? '#ECEDEF' : '#779443',
+              borderColor: isVeteran ? '#ECEDEF' : '#779443',
+            },
+          ]}>
+          <Text
+            style={[
+              textStyles.buttonTextWhite,
+              { color: isVeteran ? '#A8ABB3' : '#FFFFFF' },
+              { fontWeight: isVeteran ? 'bold' : 'normal' },
+            ]}>
+            {isVeteran
+              ? 'Military Edition Activated'
+              : 'Activate Military Edition'}
+          </Text>
+        </PopPressable>
       </View>
       <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
       <View style={styles.summaryItemList}>
@@ -219,7 +251,12 @@ export default function AddRecipient() {
         <View style={styles.divider} />
         <View style={styles.summaryItem}>
           <Text style={textStyles.labelSmall}>Total</Text>
-          <Text style={textStyles.labelSmall}>${getPriceQuery.data / 100}</Text>
+          <Text style={textStyles.labelSmall}>
+            $
+            {(isVeteran
+              ? getPriceQuery.data.militaryEditionPrice
+              : getPriceQuery.data.standardEditionPrice) / 100}
+          </Text>
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>
           {`*Monthly subscription that charges you every month, starting ${getNextMonthName()} 1st.`}

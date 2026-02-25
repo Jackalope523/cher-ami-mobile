@@ -5,6 +5,8 @@ import { useAuth } from '@/components/AuthProvider';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
+import MilitaryEditionModalContents from '@/components/MilitaryEditionModalContents';
+import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
 import {
   ToastMessageType,
   useToastMessage,
@@ -31,6 +33,7 @@ export default function EditRecipient() {
   const navigation = useNavigation();
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
+  const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
   const pickImageAsync = useImagePicker();
   const getPriceQuery = useGetPriceQuery();
   const showToastMessage = useToastMessage();
@@ -56,6 +59,7 @@ export default function EditRecipient() {
   const [provinceOrState, setProvinceOrState] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('United States');
+  const [isVeteran, setIsVeteran] = useState(false);
 
   useEffect(() => {
     if (data) {
@@ -86,6 +90,7 @@ export default function EditRecipient() {
       setProvinceOrState(data.provinceOrState);
       setPostalCode(data.postalCode);
       setCountry(data.country);
+      setIsVeteran(data.isVeteran);
     }
   }, [data]);
 
@@ -123,7 +128,8 @@ export default function EditRecipient() {
           city === data.city &&
           country === data.country &&
           provinceOrState === data.provinceOrState &&
-          postalCode === data.postalCode) ||
+          postalCode === data.postalCode &&
+          isVeteran === data.isVeteran) ||
         mutation.isPending
       );
     }
@@ -143,6 +149,7 @@ export default function EditRecipient() {
         postalCode,
         country,
         avatarUrl: avatar !== data.avatarUrl ? avatar : null,
+        isVeteran,
       });
     }
   }
@@ -272,6 +279,37 @@ export default function EditRecipient() {
           autoCapitalize="words"
           autoCorrect={false}
         />
+        <PopPressable
+          onPress={() => {
+            if (isVeteran) {
+              setIsVeteran(false);
+            } else {
+              displayBottomSheet(
+                <MilitaryEditionModalContents
+                  dismissModal={dismissBottomSheetModal}
+                  setIsVeteran={setIsVeteran}
+                />,
+              );
+            }
+          }}
+          style={[
+            styles.button,
+            {
+              backgroundColor: isVeteran ? '#ECEDEF' : '#779443',
+              borderColor: isVeteran ? '#ECEDEF' : '#779443',
+            },
+          ]}>
+          <Text
+            style={[
+              textStyles.buttonTextWhite,
+              { color: isVeteran ? '#A8ABB3' : '#FFFFFF' },
+              { fontWeight: isVeteran ? 'bold' : 'normal' },
+            ]}>
+            {isVeteran
+              ? 'Military Edition Activated'
+              : 'Activate Military Edition'}
+          </Text>
+        </PopPressable>
       </View>
       <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
       <View style={styles.summaryItemList}>
@@ -295,8 +333,10 @@ export default function EditRecipient() {
         <View style={styles.summaryItem}>
           <Text style={textStyles.labelSmall}>Total</Text>
           <Text style={textStyles.labelSmall}>
-            {' '}
-            ${getPriceQuery.data / 100}
+            $
+            {(isVeteran
+              ? getPriceQuery.data.militaryEditionPrice
+              : getPriceQuery.data.standardEditionPrice) / 100}
           </Text>
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>

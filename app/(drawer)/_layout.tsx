@@ -12,7 +12,11 @@ import Loading from '@/components/Loading';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetCircleQuery, useGetSelfQuery } from '@/lib/hooks';
+import {
+  useConfigQuery,
+  useGetCircleQuery,
+  useGetSelfQuery,
+} from '@/lib/hooks';
 import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
@@ -28,13 +32,15 @@ import { OneSignal } from 'react-native-onesignal';
 export default function Layout() {
   const selfQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
+  const configQuery = useConfigQuery();
   const { getToken, deleteToken } = useAuth();
 
   useEffect(() => {
-    if (selfQuery.data) {
+    if (selfQuery.data && configQuery.data) {
+      OneSignal.initialize(configQuery.data.oneSignalAppId);
       OneSignal.login(selfQuery.data.externalId);
     }
-  }, [selfQuery.data]);
+  }, [selfQuery.data, configQuery.data]);
 
   function handleLogout() {
     deleteToken();

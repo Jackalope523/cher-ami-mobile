@@ -18,7 +18,6 @@ import { nativeApplicationVersion } from 'expo-application';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { OneSignal } from 'react-native-onesignal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
@@ -34,12 +33,6 @@ function RootNavigator() {
       showToastMessage('Unable to connect to server.', ToastMessageType.Error);
     },
   );
-
-  useEffect(() => {
-    if (configQuery.data) {
-      OneSignal.initialize(configQuery.data.oneSignalAppId);
-    }
-  }, [configQuery.data]);
 
   useEffect(() => {
     pingMutation.mutate();

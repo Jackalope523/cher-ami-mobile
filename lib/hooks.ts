@@ -1,47 +1,48 @@
 import { useAPI } from '@/components/APIProvider';
 import {
-    ToastMessageType,
-    useToastMessage,
+  ToastMessageType,
+  useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
 import {
-    AppearanceParams,
-    SetupParams,
-    useStripe,
+  AppearanceParams,
+  SetupParams,
+  useStripe,
 } from '@stripe/stripe-react-native';
 import {
-    QueryFunctionContext,
-    useInfiniteQuery,
-    useMutation,
-    useQuery,
-    useQueryClient,
+  QueryFunctionContext,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
 import { OneSignal } from 'react-native-onesignal';
 import {
-    AddPostRequest,
-    CreateCircleRequest,
-    EmailAuthRequest,
-    EmailVerifyRequest,
-    IdRequest,
-    ImageRequest,
-    JoinCircleRequest,
-    RecipientRequest,
-    TokenRequest,
-    UpdateRecipientRequest,
-    UpdateUserRequest,
+  AddPostRequest,
+  CreateCircleRequest,
+  EmailAuthRequest,
+  EmailVerifyRequest,
+  IdRequest,
+  ImageRequest,
+  JoinCircleRequest,
+  RecipientRequest,
+  TokenRequest,
+  UpdateRecipientRequest,
+  UpdateUserRequest,
 } from './requests';
 import {
-    CardDTO,
-    CircleDTO,
-    CodeResponse,
-    ConfigResponse,
-    FeedPageResponse,
-    LoginResponse,
-    RecipientDTO,
-    SetupIntentResponse,
-    UserDTO,
-    UserItem,
+  CardDTO,
+  CircleDTO,
+  CodeResponse,
+  ConfigResponse,
+  FeedPageResponse,
+  LoginResponse,
+  PriceResponse,
+  RecipientDTO,
+  SetupIntentResponse,
+  UserDTO,
+  UserItem,
 } from './responses';
 
 export function useInterval(callback: () => void, delay: number) {
@@ -109,10 +110,10 @@ export function usePostCountQuery() {
 export function useGetPriceQuery() {
   const api = useAPI();
 
-  return useQuery<number, AxiosError>({
+  return useQuery<PriceResponse, AxiosError>({
     queryKey: ['Price'],
     queryFn: async () => {
-      const response = await api.get('/recipient/price');
+      const response = await api.get<PriceResponse>('/v2/recipient/price');
       return response.data;
     },
   });
@@ -606,6 +607,7 @@ export function useUpdateRecipientMutation(
       formData.append('ProvinceOrState', request.provinceOrState);
       formData.append('PostalCode', request.postalCode);
       formData.append('Country', request.country);
+      formData.append('IsVeteran', request.isVeteran.toString());
 
       if (request.addressLine2) {
         formData.append('AddressLine2', request.addressLine2);
@@ -808,6 +810,7 @@ export function useAddRecipientMutation() {
       formData.append('ProvinceOrState', request.provinceOrState);
       formData.append('PostalCode', request.postalCode);
       formData.append('Country', request.country);
+      formData.append('IsVeteran', request.isVeteran.toString());
 
       await api.post(`/circle/recipients`, formData, {
         headers: {

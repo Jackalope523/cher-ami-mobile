@@ -1,3 +1,4 @@
+
 export interface AddPostRequest {
   time: string;
   caption: string;
@@ -53,6 +54,7 @@ export interface RecipientRequest {
   provinceOrState: string;
   postalCode: string;
   country: string;
+  isVeteran: boolean;
 }
 
 export interface UpdateRecipientRequest {
@@ -65,4 +67,5 @@ export interface UpdateRecipientRequest {
   provinceOrState: string;
   postalCode: string;
   country: string;
+  isVeteran: boolean;
 }

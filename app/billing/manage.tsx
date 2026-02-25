@@ -99,7 +99,11 @@ export default function Manage() {
             key={x.id}
             text={x.name}
             imageSource={x.avatarUrl ? x.avatarUrl : null}
-            tagRight={`$${getPriceQuery.data / 100}`}
+            tagRight={`$${
+              (x.isVeteran
+                ? getPriceQuery.data.militaryEditionPrice
+                : getPriceQuery.data.standardEditionPrice) / 100
+            }`}
           />
         ))}
       </View>
@@ -107,7 +111,14 @@ export default function Manage() {
       <View style={styles.priceTotal}>
         <Text style={textStyles.labelSmall}>Total</Text>
         <Text style={textStyles.labelSmall}>
-          ${(getSelfQuery.data.recipients.length * getPriceQuery.data) / 100}
+          $
+          {getSelfQuery.data.recipients
+            .map((x) =>
+              x.isVeteran
+                ? getPriceQuery.data.militaryEditionPrice
+                : getPriceQuery.data.standardEditionPrice,
+            )
+            .reduce((a, b) => a + b, 0) / 100}
         </Text>
       </View>
       <Text style={textStyles.heading3}>Billing details</Text>
