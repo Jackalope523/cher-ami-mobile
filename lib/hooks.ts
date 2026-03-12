@@ -28,6 +28,7 @@ import {
   JoinCircleRequest,
   RecipientRequest,
   TokenRequest,
+  UpdateCircleRequest,
   UpdateRecipientRequest,
   UpdateUserRequest,
 } from './requests';
@@ -546,8 +547,12 @@ export function useUpdateUserMutation(
   onError?: (error: AxiosError) => void,
 ) {
   const api = useAPI();
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
+  const selfQuery = useGetSelfQuery();
 
   return useMutation<void, AxiosError, UpdateUserRequest>({
+    mutationKey: ['UpdateUser'],
     mutationFn: async (request) => {
       const formData = new FormData();
 
@@ -570,8 +575,62 @@ export function useUpdateUserMutation(
 
       return response.data;
     },
-    onSuccess,
-    onError,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['User', 'Self'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['User', Number(selfQuery.data?.id)],
+        }),
+        queryClient.invalidateQueries({ queryKey: ['Circle'] }),
+      ]);
+      if (onSuccess) onSuccess();
+    },
+    onError: (error) => {
+      showToastMessage('Network error. Try again.', ToastMessageType.Error);
+      if (onError) onError(error);
+    },
+  });
+}
+
+export function useUpdateCircleMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
+  const api = useAPI();
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, AxiosError, UpdateCircleRequest>({
+    mutationKey: ['UpdateCircle'],
+    mutationFn: async (request) => {
+      const formData = new FormData();
+
+      formData.append('Title', request.title);
+
+      if (request.headerUrl) {
+        formData.append('Header', {
+          uri: request.headerUrl,
+          type: 'image/jpeg',
+          name: 'header.jpg',
+        } as any);
+      }
+
+      const response = await api.put('/circle', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      return response.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['Circle'] });
+      if (onSuccess) onSuccess();
+    },
+    onError: (error) => {
+      showToastMessage('Network error. Try again.', ToastMessageType.Error);
+      if (onError) onError(error);
+    },
   });
 }
 

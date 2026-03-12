@@ -17,8 +17,7 @@ export interface RecipientItem {
 
 export interface CircleDTO {
   id: number;
-  headerUrl: string;
-  headerTimestamp: Date;
+  headerUrl: string | null;
   title: string;
   inviteCode: string;
   dateCreated: Date;

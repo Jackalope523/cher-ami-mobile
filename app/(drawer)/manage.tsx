@@ -1,17 +1,17 @@
 import CreditCardIcon from '@/assets/icons/credit-card.svg';
+import ImageIcon from '@/assets/icons/image.svg';
 import SettingsIcon from '@/assets/icons/log-out.svg';
+import EditIcon from '@/assets/icons/pencil.svg';
 import PlusIcon from '@/assets/icons/plus.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
 import Placeholder from '@/assets/images/placeholder.png';
 import { useAuth } from '@/components/AuthProvider';
 import Error from '@/components/Error';
-import { useImagePicker } from '@/components/ImagePickerProvider';
 import InviteModalContents from '@/components/InviteModalContents';
 import LeaveCircleContents from '@/components/LeaveCircleContents';
 import Loading from '@/components/Loading';
 import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
 import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
-import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import UserItem from '@/components/UserItem';
 import { Spacings } from '@/constants/Spacings';
@@ -20,11 +20,10 @@ import {
   useGetCircleQuery,
   useGetPaymentMethodQuery,
   useGetSelfQuery,
-  useUpdateHeaderMutation,
 } from '@/lib/hooks';
-import { RecipientRequest } from '@/lib/requests';
+import { RecipientRequest, UpdateCircleRequest } from '@/lib/requests';
 import { RecipientItem } from '@/lib/responses';
-import { useMutationState, useQueryClient } from '@tanstack/react-query';
+import { useMutationState } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -33,16 +32,17 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 
 export default function Manage() {
-  const showToastMessage = useToastMessage();
   const navigation = useNavigation();
-  const queryClient = useQueryClient();
-  const pickImageAsync = useImagePicker();
   const { getToken } = useAuth();
   const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
   const getPaymentMethodQuery = useGetPaymentMethodQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
   const { displayDialogue } = useDialogueModal();
+  const updateCircleVariables = useMutationState<UpdateCircleRequest>({
+    filters: { mutationKey: ['UpdateCircle'], status: 'pending' },
+    select: (mutation) => mutation.state.variables as UpdateCircleRequest,
+  });
   const variables = useMutationState<RecipientItem>({
     filters: { mutationKey: ['AddRecipient'], status: 'pending' },
     select: (mutation) => {
@@ -54,18 +54,30 @@ export default function Manage() {
         name: request.name,
         avatarUrl: request.avatarUri,
         avatarTimestamp: new Date(),
+        isVeteran: request.isVeteran,
       };
     },
   });
   const [scrolling, setScrolling] = useState(false);
 
-  const uploadMutation = useUpdateHeaderMutation();
-
   useEffect(() => {
     navigation.setOptions({
-      title: circleQuery.data?.title ?? '',
+      title:
+        updateCircleVariables.length > 0
+          ? updateCircleVariables[0].title
+          : circleQuery.data?.title ?? '',
+      headerRight: () => (
+        <PopPressable onPress={() => router.push('/circle/edit')}>
+          <EditIcon
+            height={24}
+            width={24}
+            color={'#C15F3C'}
+            style={{ marginRight: 10 }}
+          />
+        </PopPressable>
+      ),
     });
-  }, [circleQuery.data, navigation]);
+  }, [circleQuery.data, navigation, updateCircleVariables]);
 
   function handleInvite() {
     displayBottomSheet(
@@ -83,20 +95,6 @@ export default function Manage() {
 
   function handleCircleSettings() {
     displayDialogue(<LeaveCircleContents />);
-  }
-
-  function pickImage() {
-    pickImageAsync({
-      width: 2 * 186,
-      height: 186,
-      cropping: true,
-    }).then((x) => {
-      if (x) {
-        uploadMutation.mutate({
-          imageUri: x,
-        });
-      }
-    });
   }
 
   if (
@@ -132,27 +130,27 @@ export default function Manage() {
         onMomentumScrollEnd={() => setScrolling(false)}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}>
-        <PopPressable onPress={pickImage}>
+        {circleQuery.data.headerUrl ? (
           <Image
-            style={{
-              width: Dimensions.get('window').width - 40,
-              aspectRatio: 2 / 1,
-              borderRadius: 32,
-              marginHorizontal: 20,
-              marginVertical: Spacings.xl,
-            }}
+            style={styles.header}
             placeholder={Placeholder}
             placeholderContentFit="fill"
             source={{
               headers: {
                 Authorization: `Bearer ${getToken()}`,
               },
-              uri: uploadMutation.isPending
-                ? uploadMutation.variables.imageUri
-                : circleQuery.data.headerUrl,
+              uri:
+                updateCircleVariables.length > 0 &&
+                updateCircleVariables[0].headerUrl
+                  ? updateCircleVariables[0].headerUrl
+                  : circleQuery.data.headerUrl,
             }}
           />
-        </PopPressable>
+        ) : (
+          <View style={[styles.header, { backgroundColor: '#F4F1EA' }]}>
+            <ImageIcon height={48} width={48} color={'#868581'} />
+          </View>
+        )}
 
         <View
           style={{
@@ -349,4 +347,14 @@ export default function Manage() {
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  header: {
+    width: Dimensions.get('window').width - 40,
+    aspectRatio: 2 / 1,
+    borderRadius: 32,
+    marginHorizontal: 20,
+    marginVertical: Spacings.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

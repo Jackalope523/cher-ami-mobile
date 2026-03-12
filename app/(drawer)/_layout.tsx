@@ -231,7 +231,12 @@ export default function Layout() {
         ),
       })}>
       <Drawer.Screen name="feed" options={{ title: '' }} />
-      <Drawer.Screen name="manage" options={{ title: '' }} />
+      <Drawer.Screen
+        name="manage"
+        options={{
+          title: '',
+        }}
+      />
       <Drawer.Screen name="settings" options={{ title: 'Settings' }} />
     </Drawer>
   );

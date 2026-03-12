@@ -1,3 +1,4 @@
+import EditIcon from '@/assets/icons/pencil.svg';
 import APIProvider from '@/components/APIProvider';
 import AuthProvider, { useAuth } from '@/components/AuthProvider';
 import Error from '@/components/Error';
@@ -10,12 +11,11 @@ import ToastMessageProvider, {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
-import Update from '@/components/Update';
+import PopPressable from '@/components/PopPressable';
 import { textStyles } from '@/constants/TextStyles';
 import { useConfigQuery, usePingMutation } from '@/lib/hooks';
 import { StripeProvider } from '@stripe/stripe-react-native';
-import { nativeApplicationVersion } from 'expo-application';
-import { SplashScreen, Stack } from 'expo-router';
+import { router, SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -56,12 +56,13 @@ function RootNavigator() {
     return <Loading />;
   }
 
-  if (nativeApplicationVersion !== configQuery.data?.version) {
-    return <Update />;
-  }
+  // if (nativeApplicationVersion !== configQuery.data?.version) {
+  //   return <Update />;
+  // }
 
   return (
-    <StripeProvider publishableKey={configQuery.data.stripePublishableKey}>
+    <StripeProvider
+      publishableKey={configQuery.data?.stripePublishableKey ?? ''}>
       <Stack
         screenOptions={{
           headerShadowVisible: false,
@@ -95,9 +96,26 @@ function RootNavigator() {
           <Stack.Protected guard={getOnboarded() ?? false}>
             <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
             <Stack.Screen
+              name="profile/edit"
+              options={{
+                title: 'Edit Profile',
+              }}
+            />
+            <Stack.Screen
+              name="circle/edit"
+              options={{
+                title: 'Edit Circle',
+              }}
+            />
+            <Stack.Screen
               name="profile/[id]"
               options={{
                 title: 'Profile',
+                headerRight: () => (
+                  <PopPressable onPress={() => router.push('/profile/edit')}>
+                    <EditIcon height={24} width={24} color={'#C15F3C'} />
+                  </PopPressable>
+                ),
               }}
             />
             <Stack.Screen
@@ -109,7 +127,7 @@ function RootNavigator() {
             <Stack.Screen
               name="post/pickSize"
               options={{
-                title: 'Pick Size',
+                title: 'Choose Image Shape',
               }}
             />
             <Stack.Screen

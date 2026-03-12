@@ -1,4 +1,3 @@
-
 export interface AddPostRequest {
   time: string;
   caption: string;
@@ -30,6 +29,11 @@ export interface UpdateUserRequest {
 export interface CreateCircleRequest {
   title: string;
   imageUri: string;
+}
+
+export interface UpdateCircleRequest {
+  title: string;
+  headerUrl: string | null;
 }
 
 export interface JoinCircleRequest {
