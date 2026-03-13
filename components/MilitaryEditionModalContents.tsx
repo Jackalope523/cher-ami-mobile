@@ -22,7 +22,7 @@ export default function MilitaryEditionModalContents({
           Military Edition
         </Text>
         <PopPressable onPress={dismissModal}>
-          <XIcon height={24} width={24} />
+          <XIcon height={24} width={24} color="#868581" />
         </PopPressable>
       </View>
 

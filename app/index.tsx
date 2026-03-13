@@ -93,7 +93,6 @@ export default function Index() {
 
   const emailAuthMutation = useEmailAuthMutation(
     () => {
-      showToast('Check your email!', ToastMessageType.Success);
       router.push({
         pathname: '/verify',
         params: {
