@@ -1,79 +1,93 @@
+import bannerImage from '@/assets/images/banner.png';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
-import {
-  Animated,
-  Dimensions,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { openCropper } from 'react-native-image-crop-picker';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  interpolateColor,
+  SharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: windowWidth } = Dimensions.get('window');
-const CAROUSEL_ITEM_WIDTH = windowWidth * 0.8;
-const CAROUSEL_SPACING = (windowWidth - CAROUSEL_ITEM_WIDTH) / 2;
+const CAROUSEL_ITEM_WIDTH = windowWidth - 80; // 40 margin on each side
+const CAROUSEL_SPACING = 40;
+const ITEM_FULL_WIDTH = CAROUSEL_ITEM_WIDTH + CAROUSEL_SPACING;
 
-const SIZES = [
+type ImageSize = {
+  id: string;
+  label: string;
+  description: string;
+  width: number;
+  height: number;
+  aspectRatio: number;
+};
+
+const SIZES: ImageSize[] = [
   {
     id: 'standard',
     label: 'Standard',
     description:
-      'Recommended size. 4:3 aspect ratio.\nBest for family portraits, landscape photos.',
+      'Recommended size. 4:3 aspect ratio. Best for family portraits, landscape photos.',
     width: 1088,
-    height: 756,
+    height: 816,
     aspectRatio: 4 / 3,
   },
   {
-    id: 'portrait',
-    label: 'Portrait',
-    description:
-      'Tall format. 3:4 aspect ratio.\nGreat for single person portraits and scenery.',
-    width: 756,
-    height: 1088,
-    aspectRatio: 3 / 4,
+    id: 'vertical',
+    label: 'Vertical',
+    description: '9:16 aspect ratio. Best for portraits, lifestyle photos.',
+    width: 720,
+    height: 1280,
+    aspectRatio: 9 / 16,
   },
   {
-    id: 'square',
-    label: 'Square',
-    description:
-      '1:1 aspect ratio.\nClassic social media look, perfect for close-ups.',
-    width: 1000,
-    height: 1000,
-    aspectRatio: 1,
-  },
-  {
-    id: 'spread',
-    label: 'Spread',
-    description:
-      'Extra wide format. 16:9 aspect ratio.\nIdeal for panoramic shots and wide group photos.',
+    id: 'horizontal',
+    label: 'Horizontal',
+    description: 'Best for landscape and panoramic photos.',
     width: 1600,
     height: 900,
     aspectRatio: 16 / 9,
   },
+  {
+    id: 'feature',
+    label: 'Feature',
+    description:
+      'Best for high quality photos that you want to highlight in the magazine. 1 per user, per issue.',
+    width: 1000,
+    height: 1000,
+    aspectRatio: 1,
+  },
 ];
+
+const CAROUSEL_BOX_SIZE = CAROUSEL_ITEM_WIDTH;
 
 export default function PickSize() {
   const { issueTitle, imageUri } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState(0);
-  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollX = useSharedValue(0);
 
-  const onScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-    { useNativeDriver: false },
-  );
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+    },
+  });
 
-  const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
+  const onViewableItemsChanged = ({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
       setActiveIndex(viewableItems[0].index);
     }
-  }).current;
+  };
 
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 50,
@@ -99,50 +113,43 @@ export default function PickSize() {
     });
   }
 
-  const renderItem = ({ item }: { item: (typeof SIZES)[0] }) => {
-    return (
-      <View style={styles.carouselItemContainer}>
-        <View style={[styles.imageWrapper, { aspectRatio: item.aspectRatio }]}>
-          <Image
-            source={{ uri: imageUri as string }}
-            style={styles.previewImage}
-            resizeMode="cover"
-          />
-        </View>
-      </View>
-    );
+  const renderItem = ({ item, index }: { item: ImageSize; index: number }) => {
+    return <CarouselItem item={item} index={index} scrollX={scrollX} />;
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
-        <FlatList
-          data={SIZES}
-          renderItem={renderItem}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={CAROUSEL_ITEM_WIDTH + Spacings.md}
-          decelerationRate="fast"
-          contentContainerStyle={styles.flatListContent}
-          onScroll={onScroll}
-          onViewableItemsChanged={onViewableItemsChanged}
-          viewabilityConfig={viewabilityConfig}
-          keyExtractor={(item) => item.id}
-        />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        overScrollMode="never"
+        bounces={false}>
+        <View style={styles.carouselWrapper}>
+          <Animated.FlatList
+            data={SIZES}
+            renderItem={renderItem}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={ITEM_FULL_WIDTH}
+            decelerationRate="fast"
+            contentContainerStyle={styles.flatListContent}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={viewabilityConfig}
+            keyExtractor={(item) => item.id}
+            overScrollMode="never"
+            bounces={false}
+          />
+        </View>
 
         <Text style={[textStyles.body, styles.hintText]}>
-          You'll get to adjust the crop next.
+          You&apos;ll get to adjust the crop next.
         </Text>
 
         <View style={styles.paginationContainer}>
           {SIZES.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.paginationDot,
-                activeIndex === index && styles.paginationDotActive,
-              ]}
-            />
+            <PaginationDot key={index} index={index} scrollX={scrollX} />
           ))}
         </View>
 
@@ -151,23 +158,8 @@ export default function PickSize() {
           <Text style={[textStyles.caption, styles.descriptionText]}>
             {SIZES[activeIndex].description}
           </Text>
-
-          <View style={styles.previewSection}>
-            <Text style={textStyles.labelLargeBlack}>Preview</Text>
-            <View style={styles.placeholderGrid}>
-              {/* Simplified placeholders matching the design */}
-              <View style={styles.placeholderRow}>
-                <View style={styles.placeholderBox} />
-                <View style={styles.placeholderBox} />
-              </View>
-              <View style={styles.placeholderRow}>
-                <View style={[styles.placeholderBox, { flex: 2 }]} />
-                <View style={styles.placeholderBox} />
-              </View>
-            </View>
-          </View>
         </View>
-      </View>
+      </ScrollView>
 
       <View
         style={[styles.footer, { paddingBottom: insets.bottom + Spacings.md }]}>
@@ -179,6 +171,120 @@ export default function PickSize() {
   );
 }
 
+function CarouselItem({
+  item,
+  index,
+  scrollX,
+}: {
+  item: ImageSize;
+  index: number;
+  scrollX: SharedValue<number>;
+}) {
+  const animatedStyle = useAnimatedStyle(() => {
+    const scale = interpolate(
+      scrollX.value,
+      [
+        (index - 1) * ITEM_FULL_WIDTH,
+        index * ITEM_FULL_WIDTH,
+        (index + 1) * ITEM_FULL_WIDTH,
+      ],
+      [0.9, 1, 0.9],
+      Extrapolation.CLAMP,
+    );
+
+    const opacity = interpolate(
+      scrollX.value,
+      [
+        (index - 1) * ITEM_FULL_WIDTH,
+        index * ITEM_FULL_WIDTH,
+        (index + 1) * ITEM_FULL_WIDTH,
+      ],
+      [0.6, 1, 0.6],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      transform: [{ scale }],
+      opacity,
+    };
+  });
+
+  const PADDING = 0;
+  const MAX_SIZE = CAROUSEL_BOX_SIZE - PADDING;
+  let displayWidth, displayHeight;
+
+  if (item.aspectRatio >= 1) {
+    displayWidth = MAX_SIZE;
+    displayHeight = MAX_SIZE / item.aspectRatio;
+  } else {
+    displayHeight = MAX_SIZE;
+    displayWidth = MAX_SIZE * item.aspectRatio;
+  }
+
+  const imageStyle = {
+    width: displayWidth,
+    height: displayHeight,
+    borderRadius: item.id === 'horizontal' ? 24 : 32,
+  };
+
+  return (
+    <View style={styles.carouselItemContainer}>
+      <Animated.View style={[styles.imageWrapper, imageStyle, animatedStyle]}>
+        <Image
+          source={bannerImage}
+          style={styles.previewImage}
+          contentFit="cover"
+        />
+      </Animated.View>
+    </View>
+  );
+}
+
+function PaginationDot({
+  index,
+  scrollX,
+}: {
+  index: number;
+  scrollX: SharedValue<number>;
+}) {
+  const animatedStyle = useAnimatedStyle(() => {
+    const width = interpolate(
+      scrollX.value,
+      [
+        (index - 1) * ITEM_FULL_WIDTH,
+        index * ITEM_FULL_WIDTH,
+        (index + 1) * ITEM_FULL_WIDTH,
+      ],
+      [8, 10, 8],
+      Extrapolation.CLAMP,
+    );
+
+    const backgroundColorValue = interpolate(
+      scrollX.value,
+      [
+        (index - 1) * ITEM_FULL_WIDTH,
+        index * ITEM_FULL_WIDTH,
+        (index + 1) * ITEM_FULL_WIDTH,
+      ],
+      [0, 1, 0],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      width,
+      height: width,
+      borderRadius: width / 2,
+      backgroundColor: interpolateColor(
+        backgroundColorValue,
+        [0, 1],
+        ['#EAE8E4', '#C15F3C'],
+      ),
+    };
+  });
+
+  return <Animated.View style={[styles.paginationDot, animatedStyle]} />;
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -187,34 +293,35 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  scrollContent: {
+    paddingBottom: Spacings.xl,
+  },
+  carouselWrapper: {
+    height: CAROUSEL_BOX_SIZE,
+    justifyContent: 'center',
+    marginTop: Spacings.xl,
+    marginBottom: Spacings.xxl,
+  },
   flatListContent: {
     paddingHorizontal: CAROUSEL_SPACING,
-    paddingTop: Spacings.xl,
     alignItems: 'center',
   },
   carouselItemContainer: {
     width: CAROUSEL_ITEM_WIDTH,
-    marginRight: Spacings.md,
+    height: CAROUSEL_BOX_SIZE,
+    marginRight: CAROUSEL_SPACING,
     alignItems: 'center',
     justifyContent: 'center',
   },
   imageWrapper: {
-    width: '100%',
     backgroundColor: '#EAE8E4',
-    borderRadius: 24,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
   },
   previewImage: {
     flex: 1,
   },
   hintText: {
     textAlign: 'center',
-    marginTop: Spacings.lg,
     color: '#868581',
   },
   paginationContainer: {
@@ -223,19 +330,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: Spacings.md,
     marginBottom: Spacings.xl,
+    height: 10,
   },
   paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#EAE8E4',
     marginHorizontal: 4,
-  },
-  paginationDotActive: {
-    backgroundColor: '#C15F3C',
-    width: 10,
-    height: 10,
-    borderRadius: 5,
   },
   detailsContainer: {
     paddingHorizontal: Spacings.lg,
@@ -267,8 +365,9 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     backgroundColor: '#C15F3C',
-    height: 56,
-    borderRadius: 16,
+    borderRadius: 14,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },

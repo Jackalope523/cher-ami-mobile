@@ -52,8 +52,8 @@ export default function FeedContents() {
         ToastMessageType.Informational,
       );
     } else {
-      router.push('/post/create');
-      // router.push('/post/pickSize');
+      // router.push('/post/create');
+      router.push('/post/pickSize');
     }
   }
 
