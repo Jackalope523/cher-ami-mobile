@@ -23,6 +23,7 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
 import Error from './Error';
+import { useImagePicker } from './ImagePickerProvider';
 import Loading from './Loading';
 import {
   ToastMessageType,
@@ -36,6 +37,7 @@ export default function FeedContents() {
   const getPaymentMethodQuery = useGetPaymentMethodQuery();
   const showToastMessage = useToastMessage();
   const [hideBanner, setHideBanner] = useState(false);
+  const pickImageAsync = useImagePicker();
 
   function handleAddRecipient() {
     if (getPaymentMethodQuery.data || userQuery.data?.isBillingExempt) {
@@ -53,7 +55,15 @@ export default function FeedContents() {
       );
     } else {
       // router.push('/post/create');
-      router.push('/post/pickSize');
+
+      pickImageAsync().then((x) => {
+        if (x !== null) {
+          router.push({
+            pathname: '/post/size',
+            params: { issueTitle: data?.pages[0].issueTitle, imageUri: x },
+          });
+        }
+      });
     }
   }
 

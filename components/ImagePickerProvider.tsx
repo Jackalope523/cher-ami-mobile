@@ -8,7 +8,7 @@ interface ImagePickerProviderProps {
 }
 
 interface ImagePickerInterface {
-  pickImageAsync: (options: Options) => Promise<string | null>;
+  pickImageAsync: (options?: Options) => Promise<string | null>;
 }
 
 const ImagePickerContext = createContext<ImagePickerInterface | null>(null);
@@ -28,9 +28,9 @@ export const useImagePicker = () => {
 export default function ImagePickerProvider({
   children,
 }: ImagePickerProviderProps) {
-  async function pickImageAsync(options: Options) {
+  async function pickImageAsync(options?: Options) {
     try {
-      const result = await openPicker(options);
+      const result = await openPicker(options ?? {});
 
       const fileInfo = new File(result.path).info();
       const image = await ImageManipulator.manipulate(

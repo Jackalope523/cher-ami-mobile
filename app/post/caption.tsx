@@ -1,4 +1,3 @@
-import PlusIcon from '@/assets/icons/plus.svg';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
@@ -8,7 +7,7 @@ import { textStyles } from '@/constants/TextStyles';
 import { useAddPostMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Dimensions,
@@ -20,17 +19,37 @@ import {
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 
-export default function Create() {
+const { width: windowWidth } = Dimensions.get('window');
+const IMAGE_CONTAINER_SIZE = windowWidth - 80;
+
+export default function Caption() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const pickImageAsync = useImagePicker();
   const { issueTitle, imageUri, width, height } = useLocalSearchParams();
 
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const uploadMutation = useAddPostMutation();
+
+  const aspectRatio = Number(width) / Number(height) || 1;
+  const MAX_SIZE = IMAGE_CONTAINER_SIZE;
+  let displayWidth, displayHeight;
+
+  if (aspectRatio >= 1) {
+    displayWidth = MAX_SIZE;
+    displayHeight = MAX_SIZE / aspectRatio;
+  } else {
+    displayHeight = MAX_SIZE;
+    displayWidth = MAX_SIZE * aspectRatio;
+  }
+
+  const imageStyle = {
+    width: displayWidth,
+    height: displayHeight,
+    borderRadius: aspectRatio > 1.5 ? 24 : 32,
+  };
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -46,34 +65,20 @@ export default function Create() {
     };
   }, []);
 
-  function pickImage() {
-    pickImageAsync({
-      width: 372,
-      height: 259,
-      cropping: true,
-    }).then((x) => {
-      if (x !== null) {
-        setSelectedImage(x);
-      }
-    });
-  }
-
   function handlePost() {
-    if (selectedImage) {
-      uploadMutation.mutate({
-        time: new Date().toISOString(),
-        caption: caption,
-        imageUri: selectedImage,
-        imageName: 'image.jpg',
-        imageWidth: 372,
-        imageHeight: 259,
-      });
-      router.back();
-    }
+    uploadMutation.mutate({
+      time: new Date().toISOString(),
+      caption: caption,
+      imageUri: imageUri as string,
+      imageName: 'image.jpg',
+      imageWidth: Number(width),
+      imageHeight: Number(height),
+    });
+    // router.back();
   }
 
   function buttonDisabled() {
-    return selectedImage === null || uploadMutation.isPending;
+    return uploadMutation.isPending;
   }
 
   return (
@@ -87,23 +92,15 @@ export default function Create() {
         {!keyboardVisible && (
           <View>
             <PostCounter issueTitle={issueTitle as string} />
-            <PopPressable style={styles.imageContainer} onPress={pickImage}>
-              {selectedImage ? (
-                <Image source={selectedImage} style={styles.image} />
-              ) : (
-                <View
-                  style={{
-                    backgroundColor: '#F4F1EA',
-                    borderRadius: 32,
-                    width: Dimensions.get('window').width - 40,
-                    aspectRatio: 372 / 259,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <PlusIcon height={96} width={96} color={'#868581'} />
-                </View>
-              )}
-            </PopPressable>
+            <View style={styles.imageContainer}>
+              <View style={[styles.imageWrapper, imageStyle]}>
+                <Image
+                  source={imageUri}
+                  style={imageStyle}
+                  contentFit="cover"
+                />
+              </View>
+            </View>
           </View>
         )}
 
@@ -164,17 +161,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 
+  imageWrapper: {
+    backgroundColor: '#EAE8E4',
+    overflow: 'hidden',
+  },
+
   image: {
-    width: Dimensions.get('window').width - 40,
-    aspectRatio: 372 / 259,
+    flex: 1,
     borderRadius: 32,
+    overflow: 'hidden',
   },
 
   imageContainer: {
+    height: IMAGE_CONTAINER_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: Spacings.mdsm,
-    paddingBottom: 32,
+    marginTop: Spacings.xl,
+    marginBottom: Spacings.xxl,
   },
 
   button: {

@@ -1,4 +1,3 @@
-import bannerImage from '@/assets/images/banner.png';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
@@ -69,9 +68,7 @@ const SIZES: ImageSize[] = [
   },
 ];
 
-const CAROUSEL_BOX_SIZE = CAROUSEL_ITEM_WIDTH;
-
-export default function PickSize() {
+export default function Size() {
   const { issueTitle, imageUri } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -100,21 +97,32 @@ export default function PickSize() {
       path: imageUri as string,
       width: selected.width,
       height: selected.height,
-    }).then((image) => {
-      router.replace({
-        pathname: '/post/create',
-        params: {
-          issueTitle,
-          imageUri: image.path,
-          width: selected.width,
-          height: selected.height,
-        },
+    })
+      .then((image) => {
+        router.push({
+          pathname: '/post/caption',
+          params: {
+            issueTitle,
+            imageUri: image.path,
+            width: selected.width,
+            height: selected.height,
+          },
+        });
+      })
+      .catch((err) => {
+        console.log('Crop canceled or failed:', err);
       });
-    });
   }
 
   const renderItem = ({ item, index }: { item: ImageSize; index: number }) => {
-    return <CarouselItem item={item} index={index} scrollX={scrollX} />;
+    return (
+      <CarouselItem
+        imageUri={imageUri as string}
+        item={item}
+        index={index}
+        scrollX={scrollX}
+      />
+    );
   };
 
   return (
@@ -154,8 +162,17 @@ export default function PickSize() {
         </View>
 
         <View style={styles.detailsContainer}>
-          <Text style={textStyles.heading3}>{SIZES[activeIndex].label}</Text>
-          <Text style={[textStyles.caption, styles.descriptionText]}>
+          <Text
+            style={{
+              fontFamily: 'Poppins',
+              fontWeight: 600,
+              fontSize: 28,
+              color: '#242832',
+              letterSpacing: -0.5,
+            }}>
+            {SIZES[activeIndex].label}
+          </Text>
+          <Text style={[textStyles.body, styles.descriptionText]}>
             {SIZES[activeIndex].description}
           </Text>
         </View>
@@ -172,10 +189,12 @@ export default function PickSize() {
 }
 
 function CarouselItem({
+  imageUri,
   item,
   index,
   scrollX,
 }: {
+  imageUri: string;
   item: ImageSize;
   index: number;
   scrollX: SharedValue<number>;
@@ -210,7 +229,7 @@ function CarouselItem({
   });
 
   const PADDING = 0;
-  const MAX_SIZE = CAROUSEL_BOX_SIZE - PADDING;
+  const MAX_SIZE = CAROUSEL_ITEM_WIDTH - PADDING;
   let displayWidth, displayHeight;
 
   if (item.aspectRatio >= 1) {
@@ -231,7 +250,7 @@ function CarouselItem({
     <View style={styles.carouselItemContainer}>
       <Animated.View style={[styles.imageWrapper, imageStyle, animatedStyle]}>
         <Image
-          source={bannerImage}
+          source={imageUri}
           style={styles.previewImage}
           contentFit="cover"
         />
@@ -297,7 +316,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacings.xl,
   },
   carouselWrapper: {
-    height: CAROUSEL_BOX_SIZE,
+    height: CAROUSEL_ITEM_WIDTH,
     justifyContent: 'center',
     marginTop: Spacings.xl,
     marginBottom: Spacings.xxl,
@@ -308,7 +327,7 @@ const styles = StyleSheet.create({
   },
   carouselItemContainer: {
     width: CAROUSEL_ITEM_WIDTH,
-    height: CAROUSEL_BOX_SIZE,
+    height: CAROUSEL_ITEM_WIDTH,
     marginRight: CAROUSEL_SPACING,
     alignItems: 'center',
     justifyContent: 'center',

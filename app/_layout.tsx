@@ -125,7 +125,13 @@ function RootNavigator() {
               }}
             />
             <Stack.Screen
-              name="post/pickSize"
+              name="post/caption"
+              options={{
+                title: 'Write a Caption',
+              }}
+            />
+            <Stack.Screen
+              name="post/size"
               options={{
                 title: 'Choose Image Shape',
               }}
