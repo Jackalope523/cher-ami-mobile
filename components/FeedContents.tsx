@@ -17,11 +17,17 @@ import {
   useGetCircleQuery,
   useGetPaymentMethodQuery,
   useGetSelfQuery,
+  useUploadImageMutation,
 } from '@/lib/hooks';
+import { UploadImageDetailsRequest } from '@/lib/requests';
+import { useMutationState } from '@tanstack/react-query';
 import { Image, ImageBackground } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 import Error from './Error';
 import { useImagePicker } from './ImagePickerProvider';
 import Loading from './Loading';
@@ -38,6 +44,11 @@ export default function FeedContents() {
   const showToastMessage = useToastMessage();
   const [hideBanner, setHideBanner] = useState(false);
   const pickImageAsync = useImagePicker();
+  const uploadImageMutation = useUploadImageMutation();
+  const variables = useMutationState<UploadImageDetailsRequest>({
+    filters: { mutationKey: ['ImageDetails'], status: 'pending' },
+    select: (mutation) => mutation.state.variables as UploadImageDetailsRequest,
+  });
 
   function handleAddRecipient() {
     if (getPaymentMethodQuery.data || userQuery.data?.isBillingExempt) {
@@ -47,20 +58,28 @@ export default function FeedContents() {
     }
   }
 
-  function handleCreatePost() {
+  async function handleCreatePost() {
     if (data?.pages[0].posts.length === 20) {
       showToastMessage(
         "This month's issue is complete!",
         ToastMessageType.Informational,
       );
     } else {
-      // router.push('/post/create');
+      const uploadId = uuidv4();
 
-      pickImageAsync().then((x) => {
+      pickImageAsync().then(async (x) => {
         if (x !== null) {
+          uploadImageMutation.mutate({
+            uploadId,
+            imageUri: x,
+          });
           router.push({
             pathname: '/post/size',
-            params: { issueTitle: data?.pages[0].issueTitle, imageUri: x },
+            params: {
+              issueTitle: data?.pages[0].issueTitle,
+              imageUri: x,
+              uploadId,
+            },
           });
         }
       });
@@ -238,9 +257,9 @@ export default function FeedContents() {
                   justifyContent: 'flex-end',
                   marginBottom: 56,
                 }}>
-                <PopPressable onPress={() => setHideBanner(true)}>
+                <Pressable onPress={() => setHideBanner(true)}>
                   <XIcon height={24} width={24} color="#868581" />
-                </PopPressable>
+                </Pressable>
               </View>
 
               <Text
@@ -276,6 +295,20 @@ export default function FeedContents() {
               </Text>
               <Image source={CameraImage} style={{ height: 64, width: 64 }} />
             </View>
+          )}
+          {variables[0] && (
+            <Post
+              post={{
+                id: -1,
+                authorId: userQuery.data?.id ?? 0,
+                photoDate: new Date(),
+                photoUrl: variables[0].imageUri,
+                photoPath: '',
+                imageWidth: variables[0].width,
+                imageHeight: variables[0].height,
+                caption: variables[0].caption,
+              }}
+            />
           )}
           {data?.pages[0].posts.length === 20 && (
             <View style={styles.toast}>

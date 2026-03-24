@@ -7,6 +7,21 @@ export interface AddPostRequest {
   imageHeight: number;
 }
 
+export interface UploadImageRequest {
+  uploadId: string;
+  imageUri: string;
+}
+
+export interface UploadImageDetailsRequest {
+  uploadId: string;
+  caption: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  imageUri: string;
+}
+
 export interface ImageRequest {
   imageUri: string;
 }

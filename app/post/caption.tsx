@@ -4,10 +4,10 @@ import PopPressable from '@/components/PopPressable';
 import PostCounter from '@/components/PostCounter';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useAddPostMutation } from '@/lib/hooks';
+import { useUploadImageDetailsMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Dimensions,
@@ -26,12 +26,13 @@ export default function Caption() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const pickImageAsync = useImagePicker();
-  const { issueTitle, imageUri, width, height } = useLocalSearchParams();
+  const { issueTitle, imageUri, width, height, x, y, uploadId } =
+    useLocalSearchParams();
 
   const [caption, setCaption] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
-  const uploadMutation = useAddPostMutation();
+  const uploadImageDetailsMutation = useUploadImageDetailsMutation();
 
   const aspectRatio = Number(width) / Number(height) || 1;
   const MAX_SIZE = IMAGE_CONTAINER_SIZE;
@@ -66,19 +67,21 @@ export default function Caption() {
   }, []);
 
   function handlePost() {
-    uploadMutation.mutate({
-      time: new Date().toISOString(),
-      caption: caption,
+    uploadImageDetailsMutation.mutate({
+      uploadId: uploadId as string,
+      caption,
+      x: Number(x),
+      y: Number(y),
+      width: Number(width),
+      height: Number(height),
       imageUri: imageUri as string,
-      imageName: 'image.jpg',
-      imageWidth: Number(width),
-      imageHeight: Number(height),
     });
-    // router.back();
+
+    router.replace('/feed');
   }
 
   function buttonDisabled() {
-    return uploadMutation.isPending;
+    return uploadImageDetailsMutation.isPending;
   }
 
   return (

@@ -22,7 +22,6 @@ export default function DeletePostContents({
   const queryClient = useQueryClient();
   const mutation = useDeletePostMutation(
     () => {
-      showToast('Post deleted.', ToastMessageType.Success);
       queryClient.invalidateQueries({ queryKey: ['FeedPages'] });
       queryClient.invalidateQueries({ queryKey: ['PostCount'] });
       dismissDialogue();

@@ -31,6 +31,8 @@ import {
   UpdateCircleRequest,
   UpdateRecipientRequest,
   UpdateUserRequest,
+  UploadImageDetailsRequest,
+  UploadImageRequest,
 } from './requests';
 import {
   CardDTO,
@@ -837,6 +839,65 @@ export function useExchangeAppleTokenMutation(
     },
     onSuccess: onSuccess,
     onError: onError,
+  });
+}
+
+export function useUploadImageMutation() {
+  const api = useAPI();
+  const showToastMessage = useToastMessage();
+
+  return useMutation<void, AxiosError, UploadImageRequest>({
+    mutationKey: ['UploadImage'],
+    mutationFn: async (request) => {
+      const formData = new FormData();
+
+      formData.append('UploadId', request.uploadId);
+      formData.append('Image', {
+        uri: request.imageUri,
+        type: 'image/jpeg',
+        name: 'image.jpg',
+      } as any);
+
+      await api.post(`/issue/posts/upload-image`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    },
+    onError: (error) => {
+      console.error(
+        'Upload image failed:',
+        error.response?.data || error.message,
+      );
+      showToastMessage('Upload image failed.', ToastMessageType.Error);
+    },
+  });
+}
+
+export function useUploadImageDetailsMutation() {
+  const api = useAPI();
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, AxiosError, UploadImageDetailsRequest>({
+    mutationKey: ['ImageDetails'],
+    mutationFn: async (payload) => {
+      await api.post('/issue/posts/upload-details', payload);
+    },
+    onSuccess: () => {
+      OneSignal.User.addTag(
+        'last_posted_at',
+        String(Math.floor(Date.now() / 1000)),
+      );
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['FeedPages'] }),
+        queryClient.invalidateQueries({ queryKey: ['Count'] }),
+      ]);
+    },
+    onError: (error) => {
+      console.error('Upload failed:', error);
+      showToastMessage('Upload failed.', ToastMessageType.Error);
+    },
   });
 }
 

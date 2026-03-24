@@ -69,7 +69,7 @@ const SIZES: ImageSize[] = [
 ];
 
 export default function Size() {
-  const { issueTitle, imageUri } = useLocalSearchParams();
+  const { issueTitle, imageUri, uploadId } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useSharedValue(0);
@@ -103,9 +103,12 @@ export default function Size() {
           pathname: '/post/caption',
           params: {
             issueTitle,
+            uploadId,
             imageUri: image.path,
-            width: selected.width,
-            height: selected.height,
+            width: image.cropRect?.width,
+            height: image.cropRect?.height,
+            x: image.cropRect?.x,
+            y: image.cropRect?.y,
           },
         });
       })
