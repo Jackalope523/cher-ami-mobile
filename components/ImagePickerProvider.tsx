@@ -33,7 +33,6 @@ export default function ImagePickerProvider({
       const result = await openPicker(options ?? {});
 
       const fileInfo = new File(result.path).info();
-      console.log('File size: ' + fileInfo.size);
 
       const image = await ImageManipulator.manipulate(
         result.path,
@@ -49,9 +48,6 @@ export default function ImagePickerProvider({
         format: SaveFormat.JPEG,
         compress: compressionFactor,
       });
-
-      const fileInfo2 = new File(jpgImage.uri).info();
-      console.log('File size after: ' + fileInfo2.size);
 
       return jpgImage.uri;
     } catch (e: unknown) {
