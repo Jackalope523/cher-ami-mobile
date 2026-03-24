@@ -1,11 +1,8 @@
-import { useImagePicker } from '@/components/ImagePickerProvider';
-import { useToastMessage } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import PostCounter from '@/components/PostCounter';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useUploadImageDetailsMutation } from '@/lib/hooks';
-import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -23,9 +20,6 @@ const { width: windowWidth } = Dimensions.get('window');
 const IMAGE_CONTAINER_SIZE = windowWidth - 80;
 
 export default function Caption() {
-  const showToastMessage = useToastMessage();
-  const queryClient = useQueryClient();
-  const pickImageAsync = useImagePicker();
   const { issueTitle, imageUri, width, height, x, y, uploadId } =
     useLocalSearchParams();
 

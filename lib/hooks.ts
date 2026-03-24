@@ -16,6 +16,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
+import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { OneSignal } from 'react-native-onesignal';
 import {
@@ -869,7 +870,8 @@ export function useUploadImageMutation() {
         'Upload image failed:',
         error.response?.data || error.message,
       );
-      showToastMessage('Upload image failed.', ToastMessageType.Error);
+      router.replace('/feed');
+      showToastMessage('Error. Try again.', ToastMessageType.Error);
     },
   });
 }
