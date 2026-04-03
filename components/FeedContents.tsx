@@ -298,6 +298,7 @@ export default function FeedContents() {
           )}
           {variables[0] && (
             <Post
+              loading={variables[0] !== undefined}
               post={{
                 id: -1,
                 authorId: userQuery.data?.id ?? 0,
@@ -367,7 +368,7 @@ export default function FeedContents() {
             section.data.length,
           )
         }
-        ListHeaderComponent={renderListHeader}
+        ListHeaderComponent={renderListHeader()}
         onEndReached={handleOnEndReached}
       />
 

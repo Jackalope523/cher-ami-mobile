@@ -8,6 +8,7 @@ import { FeedPost } from '@/lib/responses';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import AnimatedLoadingIcon from './AnimatedLoadingIcon';
 import { useAuth } from './AuthProvider';
 import DeletePostContents from './DeletePostContents';
 import { useDialogueModal } from './modals/DialogueModalProvider';
@@ -16,9 +17,10 @@ import ReportPostContents from './ReportPostContents';
 
 type PostProps = {
   post: FeedPost;
+  loading?: boolean;
 };
 
-export default function Post({ post }: PostProps) {
+export default function Post({ post, loading = false }: PostProps) {
   const { displayDialogue } = useDialogueModal();
   const userQuery = useGetUserQuery(post.authorId);
   const selfQuery = useGetSelfQuery();
@@ -105,11 +107,15 @@ export default function Post({ post }: PostProps) {
           {/* </View> */}
         </View>
 
-        <PopPressable
-          onPress={() => handlePostSettings(post.id)}
-          style={{ padding: Spacings.mdsm }}>
-          <MenuIcon width={24} height={24} />
-        </PopPressable>
+        {!loading ? (
+          <PopPressable
+            onPress={() => handlePostSettings(post.id)}
+            style={{ padding: Spacings.mdsm }}>
+            <MenuIcon width={24} height={24} />
+          </PopPressable>
+        ) : (
+          <AnimatedLoadingIcon height={24} width={24} />
+        )}
       </View>
 
       <View style={{ marginBottom: Spacings.md }}>

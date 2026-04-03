@@ -254,15 +254,15 @@ export function useAddPostMutation(
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       showToastMessage('Upload success!', ToastMessageType.Success);
       OneSignal.User.addTag(
         'last_posted_at',
         String(Math.floor(Date.now() / 1000)),
       );
-      Promise.all([
+      await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['FeedPages'] }),
-        queryClient.invalidateQueries({ queryKey: ['Count'] }),
+        queryClient.invalidateQueries({ queryKey: ['PostCount'] }),
       ]);
     },
     onError: (error) => {
@@ -886,14 +886,14 @@ export function useUploadImageDetailsMutation() {
     mutationFn: async (payload) => {
       await api.post('/issue/posts/upload-details', payload);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       OneSignal.User.addTag(
         'last_posted_at',
         String(Math.floor(Date.now() / 1000)),
       );
-      Promise.all([
+      await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['FeedPages'] }),
-        queryClient.invalidateQueries({ queryKey: ['Count'] }),
+        queryClient.invalidateQueries({ queryKey: ['PostCount'] }),
       ]);
     },
     onError: (error) => {
