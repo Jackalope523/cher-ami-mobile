@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-export default function EditRecipient() {
+export default function EditProfile() {
   const { getToken } = useAuth();
   const selfQuery = useGetSelfQuery();
   const updateUserMutation = useUpdateUserMutation();
