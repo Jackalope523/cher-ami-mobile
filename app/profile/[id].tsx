@@ -1,23 +1,20 @@
 import CalendarIcon from '@/assets/icons/calendar.svg';
 import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
-import { default as PlusIcon } from '@/assets/icons/plus.svg';
+import PersonIcon from '@/assets/icons/user-round.svg';
+import Placeholder from '@/assets/images/placeholder.png';
+import { useAuth } from '@/components/AuthProvider';
 import BlockUserContents from '@/components/BlockUserContents';
 import Error from '@/components/Error';
 import Loading from '@/components/Loading';
 import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
-import {
-  ToastMessageType,
-  useToastMessage,
-} from '@/components/modals/ToastMessageProvider';
-import NetworkImage from '@/components/NetworkImage';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetUserQuery, useUpdateAvatarMutation } from '@/lib/hooks';
+import { useGetUserQuery } from '@/lib/hooks';
+import { UpdateUserRequest } from '@/lib/requests';
 import { UserDTO } from '@/lib/responses';
-import { useQueryClient } from '@tanstack/react-query';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { launchImageLibraryAsync } from 'expo-image-picker';
+import { useMutationState, useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -25,25 +22,16 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function Profile() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
+  const { getToken } = useAuth();
   const queryClient = useQueryClient();
   const isSelf =
     queryClient.getQueryData<UserDTO>(['User', 'Self'])?.id === Number(id);
   const { data, status } = useGetUserQuery(Number(id));
-  const showToastMessage = useToastMessage();
-  const { displayDialogue, dismissDialogue } = useDialogueModal();
-
-  const uploadMutation = useUpdateAvatarMutation(
-    () => {
-      showToastMessage('Upload success!', ToastMessageType.Success);
-      queryClient.invalidateQueries({ queryKey: ['User', 'Self'] });
-      queryClient.invalidateQueries({ queryKey: ['User', Number(id)] });
-      queryClient.invalidateQueries({ queryKey: ['Circle'] });
-    },
-    (error) => {
-      console.error('Upload failed:', error);
-      showToastMessage('Upload failed.', ToastMessageType.Error);
-    },
-  );
+  const { displayDialogue } = useDialogueModal();
+  const variables = useMutationState<UpdateUserRequest>({
+    filters: { mutationKey: ['UpdateUser'], status: 'pending' },
+    select: (mutation) => mutation.state.variables as UpdateUserRequest,
+  });
 
   useEffect(() => {
     if (!isSelf) {
@@ -60,28 +48,6 @@ export default function Profile() {
     }
   }, [data, displayDialogue, id, isSelf, navigation]);
 
-  async function pickImageAsync() {
-    let result = await launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const image = await ImageManipulator.manipulate(
-        result.assets[0].uri,
-      ).renderAsync();
-      const jpgImage = await image.saveAsync({
-        format: SaveFormat.JPEG,
-      });
-
-      uploadMutation.mutate({
-        imageUri: jpgImage.uri,
-      });
-    }
-  }
-
   if (status === 'error') {
     return <Error />;
   }
@@ -97,23 +63,32 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <View>
-        <PopPressable
-          style={styles.avatarContainer}
-          onPress={pickImageAsync}
-          disabled={!isSelf}>
-          {data.avatarPath ? (
-            <NetworkImage
+        <View style={styles.avatarContainer}>
+          {data.avatarUrl ? (
+            <Image
               style={styles.avatar}
-              source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
+              placeholder={Placeholder}
+              placeholderContentFit="fill"
+              source={{
+                headers: {
+                  Authorization: `Bearer ${getToken()}`,
+                },
+                uri:
+                  variables.length > 0 && variables[0].avatarUrl
+                    ? variables[0].avatarUrl
+                    : data.avatarUrl,
+              }}
             />
           ) : (
             <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
-              <PlusIcon height={48} width={48} color={'#868581'} />
+              <PersonIcon height={48} width={48} color={'#868581'} />
             </View>
           )}
-        </PopPressable>
+        </View>
         <Text style={[textStyles.heading2, styles.name]}>
-          {`${data.firstName} ${data.lastName}`}
+          {`${variables.length > 0 ? variables[0].firstName : data.firstName} ${
+            variables.length > 0 ? variables[0].lastName : data.lastName
+          }`}
         </Text>
         <Text style={[textStyles.heading3, styles.about]}>About</Text>
         <View style={styles.birthdayContainer}>

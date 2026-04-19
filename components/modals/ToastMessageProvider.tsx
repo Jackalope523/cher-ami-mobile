@@ -77,15 +77,15 @@ export default function ToastMessageProvider({
   function mapIcon() {
     switch (toastType) {
       case ToastMessageType.Success:
-        return <CheckIcon height={24} width={24} />;
+        return <CheckIcon height={24} width={24} color={'#242832'} />;
       case ToastMessageType.Error:
-        return <ErrorIcon height={24} width={24} />;
+        return <ErrorIcon height={24} width={24} color={'#242832'} />;
       case ToastMessageType.Alert:
-        return <AlertIcon height={24} width={24} />;
+        return <AlertIcon height={24} width={24} color={'#242832'} />;
       case ToastMessageType.Informational:
-        return <InfoIcon height={24} width={24} />;
+        return <InfoIcon height={24} width={24} color={'#242832'} />;
       default:
-        return <CheckIcon height={24} width={24} />;
+        return <CheckIcon height={24} width={24} color={'#242832'} />;
     }
   }
 
@@ -101,6 +101,7 @@ export default function ToastMessageProvider({
             left: insets.left,
             right: insets.right,
             zIndex: 11,
+            pointerEvents: 'box-none',
           }}>
           <Animated.View
             style={{

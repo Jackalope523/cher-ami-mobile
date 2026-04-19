@@ -66,7 +66,7 @@ export default function InviteModalContents({
           Invite to circle
         </Text>
         <PopPressable onPress={dismissModal}>
-          <XIcon height={24} width={24} />
+          <XIcon height={24} width={24} color="#868581" />
         </PopPressable>
       </View>
 

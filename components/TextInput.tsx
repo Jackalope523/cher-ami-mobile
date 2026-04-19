@@ -29,6 +29,7 @@ export default function TextInput({
       <ReactNativeTextInput
         style={[textStyles.body, styles.textInput]}
         placeholderTextColor="#868581"
+        underlineColorAndroid="transparent"
         {...props}
       />
     </View>

@@ -1,26 +1,30 @@
 import MenuIcon from '@/assets/icons/ellipsis-vertical.svg';
 import UserIcon from '@/assets/icons/user.svg';
+import Placeholder from '@/assets/images/placeholder.png';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetSelfQuery, useGetUserQuery } from '@/lib/hooks';
 import { FeedPost } from '@/lib/responses';
-import { formatPhotoDate } from '@/lib/utility';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import AnimatedLoadingIcon from './AnimatedLoadingIcon';
+import { useAuth } from './AuthProvider';
 import DeletePostContents from './DeletePostContents';
 import { useDialogueModal } from './modals/DialogueModalProvider';
-import NetworkImage from './NetworkImage';
 import PopPressable from './PopPressable';
 import ReportPostContents from './ReportPostContents';
 
 type PostProps = {
   post: FeedPost;
+  loading?: boolean;
 };
 
-export default function Post({ post }: PostProps) {
+export default function Post({ post, loading = false }: PostProps) {
   const { displayDialogue } = useDialogueModal();
   const userQuery = useGetUserQuery(post.authorId);
   const selfQuery = useGetSelfQuery();
+  const { getToken } = useAuth();
 
   function handlePostSettings(postId: number) {
     if (post.authorId === selfQuery.data?.id) {
@@ -58,13 +62,17 @@ export default function Post({ post }: PostProps) {
                 params: { id: post.authorId },
               })
             }>
-            {userQuery.data.avatarPath ? (
-              <NetworkImage
+            {userQuery.data.avatarUrl ? (
+              <Image
                 style={{ height: 48, width: 48, borderRadius: 24 }}
-                source={
-                  userQuery.data.avatarPath +
-                  `?timestamp=${userQuery.data.avatarTimestamp}`
-                }
+                placeholder={Placeholder}
+                placeholderContentFit="fill"
+                source={{
+                  headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                  },
+                  uri: userQuery.data.avatarUrl,
+                }}
               />
             ) : (
               <View
@@ -80,40 +88,53 @@ export default function Post({ post }: PostProps) {
               </View>
             )}
           </PopPressable>
-          <View>
-            <PopPressable
-              onPress={() =>
-                router.push({
-                  pathname: '/profile/[id]',
-                  params: { id: post.authorId },
-                })
-              }>
-              <Text
-                style={
-                  textStyles.labelLargeBlack
-                }>{`${userQuery.data.firstName} ${userQuery.data.lastName}`}</Text>
-            </PopPressable>
-            <Text style={textStyles.captionMedium}>
+          {/* <View> */}
+          <PopPressable
+            onPress={() =>
+              router.push({
+                pathname: '/profile/[id]',
+                params: { id: post.authorId },
+              })
+            }>
+            <Text
+              style={
+                textStyles.labelLargeBlack
+              }>{`${userQuery.data.firstName} ${userQuery.data.lastName}`}</Text>
+          </PopPressable>
+          {/* <Text style={textStyles.captionMedium}>
               {formatPhotoDate(post.photoDate)}
-            </Text>
-          </View>
+            </Text> */}
+          {/* </View> */}
         </View>
 
-        <PopPressable
-          onPress={() => handlePostSettings(post.id)}
-          style={{ padding: Spacings.mdsm }}>
-          <MenuIcon width={24} height={24} />
-        </PopPressable>
+        {!loading ? (
+          <PopPressable
+            onPress={() => handlePostSettings(post.id)}
+            style={{ padding: Spacings.mdsm }}>
+            <MenuIcon width={24} height={24} />
+          </PopPressable>
+        ) : (
+          <AnimatedLoadingIcon height={24} width={24} />
+        )}
       </View>
 
       <View style={{ marginBottom: Spacings.md }}>
-        <NetworkImage
-          source={post.photoPath}
+        <Image
           style={{
             width: Dimensions.get('window').width - 40,
-            aspectRatio: 744 / 496,
+            aspectRatio:
+              (post.imageWidth !== undefined ? post.imageWidth : 372) /
+              (post.imageHeight !== undefined ? post.imageHeight : 259),
             borderRadius: 32,
             marginHorizontal: 20,
+          }}
+          placeholder={Placeholder}
+          placeholderContentFit="fill"
+          source={{
+            headers: {
+              Authorization: `Bearer ${getToken()}`,
+            },
+            uri: post.photoUrl,
           }}
         />
 

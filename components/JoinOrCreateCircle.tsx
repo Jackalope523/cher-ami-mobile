@@ -20,7 +20,7 @@ export default function JoinOrCreateCircle() {
   const mutation = useJoinCircleMutation(
     async () => {
       await queryClient.invalidateQueries({ queryKey: ['Circle'] });
-      showToastMessage('Successfully joined circle.', ToastMessageType.Success);
+      showToastMessage('Joined circle.', ToastMessageType.Success);
     },
     (error) => {
       console.log(error);

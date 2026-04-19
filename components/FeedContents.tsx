@@ -1,33 +1,89 @@
+import XIcon from '@/assets/icons/circle-x.svg';
 import PlusIcon from '@/assets/icons/plus.svg';
 import CameraImage from '@/assets/images/camera.png';
 import Hedgehog from '@/assets/images/hedgehog.png';
 import MailboxImage from '@/assets/images/mailbox.png';
 import Mouse from '@/assets/images/mouse.png';
 
+import bannerImage from '@/assets/images/banner.png';
 import PopPressable from '@/components/PopPressable';
 import Post from '@/components/Post';
 import PostCounter from '@/components/PostCounter';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useFeedPostsInfiniteQuery } from '@/lib/hooks';
-import { Image } from 'expo-image';
+import {
+  useFeedPostsInfiniteQuery,
+  useGetCircleQuery,
+  useGetPaymentMethodQuery,
+  useGetSelfQuery,
+  useUploadImageMutation,
+} from '@/lib/hooks';
+import { UploadImageDetailsRequest } from '@/lib/requests';
+import { useMutationState } from '@tanstack/react-query';
+import { Image, ImageBackground } from 'expo-image';
 import { router } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 import Error from './Error';
+import { useImagePicker } from './ImagePickerProvider';
 import Loading from './Loading';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from './modals/ToastMessageProvider';
 
 export default function FeedContents() {
   const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
+  const circleQuery = useGetCircleQuery();
+  const userQuery = useGetSelfQuery();
+  const getPaymentMethodQuery = useGetPaymentMethodQuery();
+  const showToastMessage = useToastMessage();
+  const [hideBanner, setHideBanner] = useState(false);
+  const pickImageAsync = useImagePicker();
+  const uploadImageMutation = useUploadImageMutation();
+  const variables = useMutationState<UploadImageDetailsRequest>({
+    filters: { mutationKey: ['ImageDetails'], status: 'pending' },
+    select: (mutation) => mutation.state.variables as UploadImageDetailsRequest,
+  });
 
-  function handleCreatePost() {
-    router.push({
-      pathname: '/post/create',
-      params: {
-        issueTitle: data?.pages[0].issueTitle,
-      },
-    });
+  function handleAddRecipient() {
+    if (getPaymentMethodQuery.data || userQuery.data?.isBillingExempt) {
+      router.push('/circle/recipients/add');
+    } else {
+      router.push('/billing/add');
+    }
+  }
+
+  async function handleCreatePost() {
+    if (data?.pages[0].posts.length === 20) {
+      showToastMessage(
+        "This month's issue is complete!",
+        ToastMessageType.Informational,
+      );
+    } else {
+      const uploadId = uuidv4();
+
+      pickImageAsync().then(async (x) => {
+        if (x !== null) {
+          uploadImageMutation.mutate({
+            uploadId,
+            imageUri: x,
+          });
+          router.push({
+            pathname: '/post/size',
+            params: {
+              issueTitle: data?.pages[0].issueTitle,
+              imageUri: x,
+              uploadId,
+            },
+          });
+        }
+      });
+    }
   }
 
   useEffect(() => {
@@ -41,44 +97,32 @@ export default function FeedContents() {
 
   function mapDateToText(date: Date): string {
     const now = new Date();
-
     const diffTime = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffSeconds = Math.floor(diffTime / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
 
-    // Days
-    if (diffDays === 0) return 'Today';
+    if (diffMinutes < 1) return 'Just Now';
+    if (diffMinutes < 60) return `${diffMinutes} Minutes Ago`;
+    if (diffHours < 24) return `${diffHours} Hours Ago`;
+
     if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} Days Ago`;
 
-    // Weeks
     const diffWeeks = Math.floor(diffDays / 7);
-    if (diffWeeks === 0) return 'This Week';
     if (diffWeeks === 1) return 'Last Week';
+    if (diffWeeks < 4) return `${diffWeeks} Weeks Ago`;
 
-    // Months
-    const diffMonths =
+    let diffMonths =
       (now.getFullYear() - date.getFullYear()) * 12 +
       (now.getMonth() - date.getMonth());
     if (diffMonths === 0) return 'This Month';
     if (diffMonths === 1) return 'Last Month';
-    if (diffMonths === 2) return 'Two Months Ago';
-    if (diffMonths === 3) return 'Three Months Ago';
-    if (diffMonths === 4) return 'Four Months Ago';
-    if (diffMonths === 5) return 'Five Months Ago';
-    if (diffMonths === 6) return 'Six Months Ago';
-    if (diffMonths === 7) return 'Seven Months Ago';
-    if (diffMonths === 8) return 'Eight Months Ago';
-    if (diffMonths === 9) return 'Nine Months Ago';
-    if (diffMonths === 10) return 'Ten Months Ago';
-    if (diffMonths === 11) return 'Eleven Months Ago';
+    if (diffMonths < 12) return `${diffMonths} Months Ago`;
 
-    // Years
     const diffYears = now.getFullYear() - date.getFullYear();
     if (diffYears === 1) return 'Last Year';
-    if (diffYears === 2) return 'Two Years Ago';
-    if (diffYears === 3) return 'Three Years Ago';
-    if (diffYears === 4) return 'Four Years Ago';
-    if (diffYears === 5) return 'Five Years Ago';
-
     return `${diffYears} Years Ago`;
   }
 
@@ -156,6 +200,7 @@ export default function FeedContents() {
               {date.toLocaleString('en-US', {
                 month: 'long',
                 year: 'numeric',
+                timeZone: 'UTC',
               })}
             </Text>
           </View>
@@ -192,34 +237,95 @@ export default function FeedContents() {
     return (
       <View>
         <PostCounter issueTitle={data?.pages[0].issueTitle} />
-        {data?.pages[0].posts.length === 0 && (
-          <View style={styles.toast}>
-            <Text
-              style={[
-                textStyles.heading5,
-                {
-                  flexShrink: 1,
-                },
-              ]}>
-              {"Be the first to upload to this month's issue!"}
-            </Text>
-            <Image source={CameraImage} style={{ height: 64, width: 64 }} />
-          </View>
-        )}
-        {data?.pages[0].posts.length === 20 && (
-          <View style={styles.toast}>
-            <Text
-              style={[
-                textStyles.heading5,
-                {
-                  flexShrink: 1,
-                },
-              ]}>
-              {"This month's issue is full!"}
-            </Text>
-            <Image source={MailboxImage} style={{ height: 64, width: 64 }} />
-          </View>
-        )}
+        <View style={{ rowGap: Spacings.lg }}>
+          {circleQuery.data?.recipients.length === 0 && !hideBanner && (
+            <ImageBackground
+              source={bannerImage}
+              contentFit="cover"
+              imageStyle={{
+                borderRadius: 20,
+                borderWidth: 1.5,
+                borderColor: '#DEDBD5',
+              }}
+              style={{
+                marginHorizontal: Spacings.lgmd,
+                padding: Spacings.lgmd,
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'flex-end',
+                  marginBottom: 56,
+                }}>
+                <Pressable onPress={() => setHideBanner(true)}>
+                  <XIcon height={24} width={24} color="#868581" />
+                </Pressable>
+              </View>
+
+              <Text
+                style={{
+                  fontFamily: 'Poppins',
+                  fontWeight: 600,
+                  fontSize: 20,
+                  color: '#242832',
+                  marginBottom: Spacings.sm,
+                }}>
+                Who is this magazine for?
+              </Text>
+              <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
+                You haven&apos;t added a recipient yet. Add an address so we can
+                mail these memories to your loved ones at the end of the month!
+              </Text>
+
+              <PopPressable onPress={handleAddRecipient} style={styles.button}>
+                <Text style={textStyles.buttonTextWhite}>Add recipient</Text>
+              </PopPressable>
+            </ImageBackground>
+          )}
+          {data?.pages[0].posts.length === 0 && (
+            <View style={styles.toast}>
+              <Text
+                style={[
+                  textStyles.heading5,
+                  {
+                    flexShrink: 1,
+                  },
+                ]}>
+                {"Be the first to upload to this month's issue!"}
+              </Text>
+              <Image source={CameraImage} style={{ height: 64, width: 64 }} />
+            </View>
+          )}
+          {variables[0] && (
+            <Post
+              loading={variables[0] !== undefined}
+              post={{
+                id: -1,
+                authorId: userQuery.data?.id ?? 0,
+                photoDate: new Date(),
+                photoUrl: variables[0].imageUri,
+                photoPath: '',
+                imageWidth: variables[0].width,
+                imageHeight: variables[0].height,
+                caption: variables[0].caption,
+              }}
+            />
+          )}
+          {data?.pages[0].posts.length === 20 && (
+            <View style={styles.toast}>
+              <Text
+                style={[
+                  textStyles.heading5,
+                  {
+                    flexShrink: 1,
+                  },
+                ]}>
+                {"This month's issue is full!"}
+              </Text>
+              <Image source={MailboxImage} style={{ height: 64, width: 64 }} />
+            </View>
+          )}
+        </View>
       </View>
     );
   }
@@ -262,7 +368,7 @@ export default function FeedContents() {
             section.data.length,
           )
         }
-        ListHeaderComponent={renderListHeader}
+        ListHeaderComponent={renderListHeader()}
         onEndReached={handleOnEndReached}
       />
 
@@ -282,8 +388,7 @@ export default function FeedContents() {
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          onPress={handleCreatePost}
-          disabled={data.pages[0].posts.length === 20}>
+          onPress={handleCreatePost}>
           <PlusIcon height={24} width={24} color={'#FFFFFF'} />
         </PopPressable>
       </View>
@@ -311,6 +416,7 @@ const styles = StyleSheet.create({
   },
 
   issueStateContainer: {
+    backgroundColor: '#FCFBF8',
     paddingHorizontal: 20,
     rowGap: Spacings.sm,
   },
@@ -318,5 +424,17 @@ const styles = StyleSheet.create({
   issueStateInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#C15F3C',
+    marginBottom: 20,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#C15F3C',
+    paddingVertical: Spacings.mdsm,
+    paddingHorizontal: Spacings.md,
   },
 });

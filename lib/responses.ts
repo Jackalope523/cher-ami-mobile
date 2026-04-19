@@ -1,26 +1,23 @@
-import { IssueSchedule } from "./enums";
+import { IssueSchedule } from './enums';
 
 export interface UserItem {
   id: number;
   firstName: string;
   lastName: string;
-  avatarPath?: string;
-  avatarTimestamp?: Date; 
+  avatarUrl: string | null;
 }
 
 export interface RecipientItem {
   id: number;
   managerId: number;
-  firstName: string;
-  lastName: string;
-  avatarPath: string;
-  avatarTimestamp: Date; 
+  name: string;
+  avatarUrl: string | null;
+  isVeteran: boolean;
 }
 
 export interface CircleDTO {
   id: number;
-  headerPath: string;
-  headerTimestamp: Date; 
+  headerUrl: string | null;
   title: string;
   inviteCode: string;
   dateCreated: Date;
@@ -31,36 +28,43 @@ export interface CircleDTO {
 
 export interface UserDTO {
   id: number;
-  avatarPath?: string;
-  avatarTimestamp?: Date;
+  externalId: string;
+  avatarUrl: string | null;
   firstName: string;
   lastName: string;
-  dateOfBirth?: Date;
   joinDate: Date;
+  isBillingExempt: boolean;
   recipients: RecipientItem[];
+}
+
+export interface CardDTO {
+  id: string;
+  displayBrand: string;
+  last4: string;
 }
 
 export interface RecipientDTO {
   id: number;
   managerId: number;
-  avatarPath: string;
-  avatarTimestamp: Date;
-  title: string;
-  firstName: string;
-  lastName: string;
-  street: string;
+  avatarUrl: string | null;
+  name: string;
+  addressLine1: string;
+  addressLine2: string | null;
   city: string;
   provinceOrState: string;
   postalCode: string;
   country: string;
-  unitNumber: string;
+  isVeteran: boolean;
 }
 
 export interface FeedPost {
   id: number;
   authorId: number;
   photoDate: Date;
+  photoUrl: string;
   photoPath: string;
+  imageWidth: number;
+  imageHeight: number;
   caption: string;
 }
 
@@ -68,7 +72,7 @@ export interface FeedPageResponse {
   id: number | null;
   issueTitle: string | null;
   issueDate: Date | null;
-  posts: FeedPost[]
+  posts: FeedPost[];
   nextPage: number | null;
 }
 
@@ -79,4 +83,22 @@ export interface LoginResponse {
 
 export interface CodeResponse {
   code: string;
+}
+
+export interface SetupIntentResponse {
+  clientSecret: string;
+  customerId: string;
+  merchantDisplayName: string;
+  allowsDelayedPaymentMethods: boolean;
+}
+
+export interface ConfigResponse {
+  version: string;
+  oneSignalAppId: string;
+  stripePublishableKey: string;
+}
+
+export interface PriceResponse {
+  standardEditionPrice: number;
+  militaryEditionPrice: number;
 }

@@ -1,46 +1,65 @@
 import UserIcon from '@/assets/icons/user.svg';
+import Placeholder from '@/assets/images/placeholder.png';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { Image } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
-import NetworkImage from './NetworkImage';
+import { useAuth } from './AuthProvider';
 import PopPressable from './PopPressable';
 
 interface UserItemProps {
-  imageSource?: string;
+  imageSource: string | null;
   text?: string;
-  tag?: string;
-  showTag?: boolean;
+  tagLeft?: string;
+  tagRight?: string;
   onPress?: () => void;
 }
 
 export default function UserItem({
   imageSource,
   text = 'John Doe',
-  tag = '(You)',
-  showTag = false,
-  onPress = () => {},
+  tagLeft,
+  tagRight,
+  onPress,
 }: UserItemProps) {
+  const { getToken } = useAuth();
   return (
-    <PopPressable style={styles.contributorContainer} onPress={onPress}>
-      {imageSource ? (
-        <NetworkImage style={styles.image} source={imageSource} />
-      ) : (
-        <View
-          style={[
-            styles.image,
-            {
-              backgroundColor: '#F4F1EA',
-              alignItems: 'center',
-              justifyContent: 'center',
-            },
-          ]}>
-          <UserIcon height={24} width={24} color={'#868581'} />
+    <PopPressable
+      style={styles.contributorContainer}
+      onPress={onPress}
+      disabled={onPress === undefined}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {imageSource ? (
+          <Image
+            style={styles.image}
+            placeholder={Placeholder}
+            placeholderContentFit="fill"
+            source={{
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              },
+              uri: imageSource,
+            }}
+          />
+        ) : (
+          <View
+            style={[
+              styles.image,
+              {
+                backgroundColor: '#F4F1EA',
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+            ]}>
+            <UserIcon height={24} width={24} color={'#868581'} />
+          </View>
+        )}
+        <View style={{ columnGap: Spacings.sm, flexDirection: 'row' }}>
+          <Text style={textStyles.labelLargeBlack}>{text}</Text>
+          {tagLeft && <Text style={textStyles.labelLargeGrey}>{tagLeft}</Text>}
         </View>
-      )}
-      <View style={{ columnGap: Spacings.sm, flexDirection: 'row' }}>
-        <Text style={textStyles.labelLargeBlack}>{text}</Text>
-        {showTag && <Text style={textStyles.labelLargeGrey}>{tag}</Text>}
       </View>
+      {tagRight && <Text style={textStyles.labelLargeGrey}>{tagRight}</Text>}
     </PopPressable>
   );
 }
@@ -48,6 +67,7 @@ const styles = StyleSheet.create({
   contributorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
 
   image: {

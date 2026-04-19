@@ -17,3 +17,38 @@ export function formatPhotoDate(date: Date) {
 
   return `Photo uploaded on ${month} ${day}${suffix}, ${year}`;
 }
+
+export function getNextMonthName() {
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  const today = new Date();
+  const nextMonthIndex = (today.getMonth() + 1) % 12; // wraps December → January
+
+  return monthNames[nextMonthIndex];
+}
+
+export function splitName(fullName: string) {
+  if (!fullName) {
+    return { firstName: '', lastName: '' };
+  }
+
+  const parts = fullName.trim().split(/\s+/);
+
+  const firstName = parts.shift() ?? '';
+  const lastName = parts.join(' ');
+
+  return { firstName, lastName };
+}

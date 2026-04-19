@@ -1,9 +1,25 @@
-
 export interface AddPostRequest {
   time: string;
   caption: string;
   imageUri: string;
   imageName: string;
+  imageWidth: number;
+  imageHeight: number;
+}
+
+export interface UploadImageRequest {
+  uploadId: string;
+  imageUri: string;
+}
+
+export interface UploadImageDetailsRequest {
+  uploadId: string;
+  caption: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  imageUri: string;
 }
 
 export interface ImageRequest {
@@ -22,28 +38,17 @@ export interface EmailVerifyRequest {
 export interface UpdateUserRequest {
   firstName: string;
   lastName: string;
-  dateOfBirth?: Date;
-  avatarPath?: string;
+  avatarUrl: string | null;
 }
-
-export interface UpdateRecipientRequest {
-  id: number;
-  avatarPath?: string;
-  title: string;
-  firstName: string;
-  lastName: string;
-  street: string;
-  city: string;
-  provinceOrState: string;
-  postalCode: string;
-  country: string;
-  unitNumber: string;
-}
-
 
 export interface CreateCircleRequest {
   title: string;
   imageUri: string;
+}
+
+export interface UpdateCircleRequest {
+  title: string;
+  headerUrl: string | null;
 }
 
 export interface JoinCircleRequest {
@@ -59,15 +64,27 @@ export interface IdRequest {
 }
 
 export interface RecipientRequest {
-  avatarUri: string;
-  avatarName: string;
-  title: string;
-  firstName: string;
-  lastName: string;
-  unitNumber: string;
-  street: string;
+  avatarUri: string | null;
+  avatarName: string | null;
+  name: string;
+  addressLine1: string;
+  addressLine2: string | null;
   city: string;
   provinceOrState: string;
   postalCode: string;
   country: string;
+  isVeteran: boolean;
+}
+
+export interface UpdateRecipientRequest {
+  id: number;
+  avatarUrl: string | null;
+  name: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  provinceOrState: string;
+  postalCode: string;
+  country: string;
+  isVeteran: boolean;
 }

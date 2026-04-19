@@ -93,7 +93,6 @@ export default function Index() {
 
   const emailAuthMutation = useEmailAuthMutation(
     () => {
-      showToast('Check your email!', ToastMessageType.Success);
       router.push({
         pathname: '/verify',
         params: {
@@ -102,7 +101,7 @@ export default function Index() {
       });
     },
     (error) => {
-      console.log(error);
+      console.log(error.message);
       showToast('Failed to log in. Try again.', ToastMessageType.Error);
     },
   );
@@ -267,6 +266,10 @@ export default function Index() {
           value={email}
           onChangeText={setEmail}
           containerStyle={{ width: '100%' }}
+          keyboardType="email-address"
+          textContentType="emailAddress"
+          autoComplete="email"
+          underlineColorAndroid="transparent"
         />
       </View>
 

@@ -1,70 +1,36 @@
 import PlusIcon from '@/assets/icons/plus.svg';
-import { useEffect, useState } from 'react';
-import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
-
-import { ScrollView } from 'react-native-gesture-handler';
-
-import {
-  ToastMessageType,
-  useToastMessage,
-} from '@/components/modals/ToastMessageProvider';
+import Error from '@/components/Error';
+import { useImagePicker } from '@/components/ImagePickerProvider';
+import Loading from '@/components/Loading';
+import MilitaryEditionModalContents from '@/components/MilitaryEditionModalContents';
+import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
 import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useAddRecipientMutation } from '@/lib/hooks';
-import { SetupParams, useStripe } from '@stripe/stripe-react-native';
-import { useQueryClient } from '@tanstack/react-query';
+import { useAddRecipientMutation, useGetPriceQuery } from '@/lib/hooks';
+import { getNextMonthName } from '@/lib/utility';
 import { Image } from 'expo-image';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { launchImageLibraryAsync } from 'expo-image-picker';
 import { router } from 'expo-router';
-
+import { useEffect, useState } from 'react';
+import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 export default function AddRecipient() {
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
-  const showToastMessage = useToastMessage();
-  const queryClient = useQueryClient();
+  const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
+  const pickImageAsync = useImagePicker();
+  const getPriceQuery = useGetPriceQuery();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-
-  const [avatar, setAvatar] = useState('');
-  const [title, setTitle] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [unitNumber, setUnitNumber] = useState('');
-  const [street, setStreet] = useState('');
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [addressLine1, setAddressLine1] = useState('');
+  const [addressLine2, setAddressLine2] = useState<string | null>(null);
   const [city, setCity] = useState('');
   const [provinceOrState, setProvinceOrState] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('United States');
+  const [isVeteran, setIsVeteran] = useState(false);
 
-  const addRecipientMutation = useAddRecipientMutation(
-    () => {
-      showToastMessage('Recipient added!', ToastMessageType.Success);
-      queryClient.invalidateQueries({ queryKey: ['Circle'] });
-      router.back();
-    },
-    (error) => {
-      showToastMessage('Network error. Try again.', ToastMessageType.Error);
-    },
-  );
-
-  useEffect(() => {
-    const initializePaymentSheet = async () => {
-      const params: SetupParams = {
-        paymentIntentClientSecret: '',
-        returnURL: 'stripe-example://payment-sheet',
-        allowsDelayedPaymentMethods: true,
-        merchantDisplayName: 'Hollow Inc',
-      };
-
-      const { error } = await initPaymentSheet(params);
-      if (error) {
-        // Handle error
-      }
-    };
-
-    initializePaymentSheet();
-  }, [initPaymentSheet]);
+  const addRecipientMutation = useAddRecipientMutation();
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -82,10 +48,8 @@ export default function AddRecipient() {
 
   function buttonDisabled() {
     return (
-      avatar === '' ||
-      firstName === '' ||
-      lastName === '' ||
-      street === '' ||
+      name === '' ||
+      addressLine1 === '' ||
       city === '' ||
       provinceOrState === '' ||
       postalCode === '' ||
@@ -94,40 +58,42 @@ export default function AddRecipient() {
     );
   }
 
-  async function pickImageAsync() {
-    let result = await launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
+  function pickImage() {
+    pickImageAsync({
+      height: 96,
+      width: 96,
+      cropping: true,
+    }).then((x) => {
+      setAvatar(x);
     });
-
-    if (!result.canceled) {
-      const image = await ImageManipulator.manipulate(
-        result.assets[0].uri,
-      ).renderAsync();
-      const jpgImage = await image.saveAsync({
-        format: SaveFormat.JPEG,
-      });
-
-      setAvatar(jpgImage.uri);
-    }
   }
 
   function handleAdd() {
     addRecipientMutation.mutate({
       avatarUri: avatar,
       avatarName: 'avatar.jpg',
-      title: title,
-      firstName: firstName,
-      lastName: lastName,
-      unitNumber: unitNumber,
-      street: street,
-      city: city,
-      provinceOrState: provinceOrState,
-      postalCode: postalCode,
-      country: country,
+      name,
+      addressLine1,
+      addressLine2,
+      city,
+      provinceOrState,
+      postalCode,
+      country,
+      isVeteran,
     });
+    router.back();
+  }
+
+  if (getPriceQuery.isError) {
+    return <Error />;
+  }
+
+  if (getPriceQuery.isLoading) {
+    return <Loading />;
+  }
+
+  if (getPriceQuery.data === undefined) {
+    return null;
   }
 
   return (
@@ -140,7 +106,7 @@ export default function AddRecipient() {
       ]}
       overScrollMode="never"
       showsVerticalScrollIndicator={false}>
-      <PopPressable style={styles.avatarContainer} onPress={pickImageAsync}>
+      <PopPressable style={styles.avatarContainer} onPress={pickImage}>
         {avatar ? (
           <Image source={avatar} style={styles.avatar} />
         ) : (
@@ -158,105 +124,144 @@ export default function AddRecipient() {
       </Text>
       <View style={styles.textInputs}>
         <TextInput
-          title={'Title'}
-          maxLength={25}
-          value={title}
-          onChangeText={setTitle}
+          title="Name*"
+          maxLength={60}
+          value={name}
+          onChangeText={setName}
+          autoCapitalize="words"
+          textContentType="givenName"
+          autoComplete="name-given"
         />
         <TextInput
-          title={'First name'}
+          title="Address Line 1*"
           maxLength={100}
-          value={firstName}
-          onChangeText={setFirstName}
+          value={addressLine1}
+          onChangeText={setAddressLine1}
+          keyboardType="default"
+          autoCapitalize="words"
+          autoCorrect={true}
+          textContentType="streetAddressLine1"
+          autoComplete="street-address"
         />
         <TextInput
-          title={'Last name'}
+          title="Address Line 2"
           maxLength={100}
-          value={lastName}
-          onChangeText={setLastName}
+          value={addressLine2 ?? ''}
+          onChangeText={setAddressLine2}
+          autoCapitalize="characters"
+          autoCorrect={false}
+          textContentType="none"
+          autoComplete="off"
         />
         <TextInput
-          title={'Street address'}
-          maxLength={150}
-          value={street}
-          onChangeText={setStreet}
-        />
-        <TextInput
-          title={'Unit number'}
-          maxLength={15}
-          value={unitNumber}
-          onChangeText={setUnitNumber}
-        />
-        <TextInput
-          title={'City'}
+          title="City*"
           maxLength={50}
           value={city}
           onChangeText={setCity}
+          autoCapitalize="words"
+          textContentType="addressCity"
         />
-        <View
-          style={{
-            flexDirection: 'row',
-            columnGap: 20,
-          }}>
+        <View style={{ flexDirection: 'row', columnGap: 20 }}>
           <TextInput
-            title={'State'}
+            title="State*"
             maxLength={50}
             value={provinceOrState}
             onChangeText={setProvinceOrState}
+            autoCapitalize="words"
+            textContentType="addressState"
             containerStyle={{
               width: Dimensions.get('window').width / 2 - 20 - 10,
             }}
           />
           <TextInput
-            title={'ZIP code'}
+            title="ZIP code*"
             maxLength={20}
             value={postalCode}
             onChangeText={setPostalCode}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            textContentType="postalCode"
+            autoComplete="postal-code"
             containerStyle={{
               width: Dimensions.get('window').width / 2 - 20 - 10,
             }}
           />
         </View>
         <TextInput
-          title={'Country'}
+          title="Country*"
           maxLength={56}
           value={country}
           onChangeText={setCountry}
           editable={false}
+          selectTextOnFocus={false}
+          keyboardType="default"
+          autoCapitalize="words"
+          autoCorrect={false}
         />
-      </View>
-      {/* <Text style={[textStyles.heading3, styles.sectionHeader]}>
-            Summary
+        <PopPressable
+          onPress={() => {
+            if (isVeteran) {
+              setIsVeteran(false);
+            } else {
+              displayBottomSheet(
+                <MilitaryEditionModalContents
+                  dismissModal={dismissBottomSheetModal}
+                  setIsVeteran={setIsVeteran}
+                />,
+              );
+            }
+          }}
+          style={[
+            styles.button,
+            {
+              backgroundColor: isVeteran ? '#ECEDEF' : '#779443',
+              borderColor: isVeteran ? '#ECEDEF' : '#779443',
+            },
+          ]}>
+          <Text
+            style={[
+              textStyles.buttonTextWhite,
+              { color: isVeteran ? '#A8ABB3' : '#FFFFFF' },
+              { fontWeight: isVeteran ? 'bold' : 'normal' },
+            ]}>
+            {isVeteran
+              ? 'Military Edition Activated'
+              : 'Activate Military Edition'}
           </Text>
-          <View style={styles.summaryItemList}>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>Renewal</Text>
-              <Text style={textStyles.labelSmall}>Monthly</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>1 Magazine</Text>
-              <Text style={textStyles.labelSmall}>Monthly</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>Delivery</Text>
-              <Text style={textStyles.labelSmall}>FREE</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelLargeBlack}>
-                Estimated sales tax
-              </Text>
-              <Text style={textStyles.labelSmall}>---</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.summaryItem}>
-              <Text style={textStyles.labelSmall}>Total</Text>
-              <Text style={textStyles.labelSmall}>$12,00</Text>
-            </View>
-            <Text style={[textStyles.caption, styles.disclaimer]}>
-              *Monthly subscription that charges you every month, starting
-              October 1.
-            </Text>
-          </View> */}
+        </PopPressable>
+      </View>
+      <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
+      <View style={styles.summaryItemList}>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>Renewal</Text>
+          <Text style={textStyles.labelSmall}>Monthly</Text>
+        </View>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>1 Magazine</Text>
+          <Text style={textStyles.labelSmall}>Monthly</Text>
+        </View>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>Delivery</Text>
+          <Text style={textStyles.labelSmall}>FREE</Text>
+        </View>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>Estimated sales tax</Text>
+          <Text style={textStyles.labelSmall}>---</Text>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelSmall}>Total</Text>
+          <Text style={textStyles.labelSmall}>
+            $
+            {(isVeteran
+              ? getPriceQuery.data.militaryEditionPrice
+              : getPriceQuery.data.standardEditionPrice) / 100}
+          </Text>
+        </View>
+        <Text style={[textStyles.caption, styles.disclaimer]}>
+          {`*Monthly subscription that charges you every month, starting ${getNextMonthName()} 1st.`}
+        </Text>
+      </View>
       <PopPressable
         onPress={handleAdd}
         disabled={buttonDisabled()}

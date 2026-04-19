@@ -11,9 +11,7 @@ import {
 } from './modals/ToastMessageProvider';
 import PopPressable from './PopPressable';
 
-interface LeaveCircleContentsProps {}
-
-export default function LeaveCircleContents({}: LeaveCircleContentsProps) {
+export default function LeaveCircleContents() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const { data } = useGetCircleQuery();
@@ -22,7 +20,7 @@ export default function LeaveCircleContents({}: LeaveCircleContentsProps) {
     async () => {
       await queryClient.invalidateQueries({ queryKey: ['Circle'] });
       router.replace('/feed');
-      showToastMessage('Successfully left circle.', ToastMessageType.Success);
+      showToastMessage('Left circle.', ToastMessageType.Success);
     },
     (error) => {
       console.log(error);

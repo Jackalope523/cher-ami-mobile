@@ -21,10 +21,7 @@ export default function LastName() {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const userMutation = useUpdateUserMutation(
     () => {
-      showToastMessage(
-        'Successfully created account!',
-        ToastMessageType.Success,
-      );
+      showToastMessage('Created account!', ToastMessageType.Success);
       updateOnboarded(true);
     },
     (error) => {
@@ -37,6 +34,7 @@ export default function LastName() {
     userMutation.mutate({
       firstName: firstName as string,
       lastName: lastName as string,
+      avatarUrl: null,
     });
   }
 
@@ -79,15 +77,19 @@ export default function LastName() {
           value={lastName}
           onChangeText={setLastName}
           containerStyle={{ marginBottom: Spacings.md }}
+          autoCapitalize="words"
+          autoCorrect={true}
+          textContentType="familyName"
+          autoComplete="name-family"
         />
       </View>
 
       <PopPressable
         onPress={handleUpdateUser}
-        disabled={!lastName}
+        disabled={!lastName || userMutation.isPending}
         style={[
           styles.button,
-          !lastName && {
+          (!lastName || userMutation.isPending) && {
             backgroundColor: '#ECEDEF',
             borderColor: '#ECEDEF',
           },
@@ -95,7 +97,7 @@ export default function LastName() {
         <Text
           style={[
             textStyles.buttonTextWhite,
-            !lastName && { color: '#A8ABB3' },
+            (!lastName || userMutation.isPending) && { color: '#A8ABB3' },
           ]}>
           Continue
         </Text>

@@ -1,36 +1,35 @@
-import { StyleSheet, Text, View } from 'react-native';
-
+import UserIcon from '@/assets/icons/user-round.svg';
+import Placeholder from '@/assets/images/placeholder.png';
+import { useAuth } from '@/components/AuthProvider';
 import Error from '@/components/Error';
 import Loading from '@/components/Loading';
 import {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
-import NetworkImage from '@/components/NetworkImage';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useDeleteRecipientMutation, useGetRecipientQuery } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DeleteRecipient() {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const { id } = useLocalSearchParams();
+  const { getToken } = useAuth();
   const { data, status } = useGetRecipientQuery(Number(id));
   const mutation = useDeleteRecipientMutation(
     () => {
-      showToastMessage(
-        'Successfully removed recipient.',
-        ToastMessageType.Success,
-      );
       queryClient.invalidateQueries({ queryKey: ['Circle'] });
       router.replace('/(drawer)/manage');
     },
     () => {
-      showToastMessage('Failed to remove recipient.', ToastMessageType.Error);
+      showToastMessage('Network error. Try again.', ToastMessageType.Error);
     },
   );
 
@@ -52,16 +51,37 @@ export default function DeleteRecipient() {
         <Text style={[textStyles.heading1, styles.screenHeader]}>
           Remove recipient?
         </Text>
-        <NetworkImage
-          style={styles.avatar}
-          source={data.avatarPath + `?timestamp=${data.avatarTimestamp}`}
-        />
+
+        {data.avatarUrl ? (
+          <Image
+            style={styles.avatar}
+            placeholder={Placeholder}
+            placeholderContentFit="fill"
+            source={{
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              },
+              uri: data.avatarUrl,
+            }}
+          />
+        ) : (
+          <View
+            style={[
+              styles.avatar,
+              {
+                backgroundColor: '#F4F1EA',
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+            ]}>
+            <UserIcon height={48} width={48} color={'#868581'} />
+          </View>
+        )}
         <Text style={[textStyles.heading2, styles.recipientName]}>
-          {`${data.firstName} ${data.lastName}`}
+          {data.name}
         </Text>
         <Text style={textStyles.body}>
-          By removing {`${data.firstName} ${data.lastName}`} from the
-          recipients, they will{' '}
+          By removing {data.name} from the recipients, they will{' '}
           <Text style={[textStyles.body, { fontWeight: 'bold' }]}>
             stop receiving
           </Text>{' '}
@@ -82,13 +102,7 @@ export default function DeleteRecipient() {
             router.back();
           }}
           disabled={false}
-          style={[
-            styles.cancelButton,
-            false && {
-              backgroundColor: '#ECEDEF',
-              borderColor: '#ECEDEF',
-            },
-          ]}>
+          style={styles.cancelButton}>
           <Text style={textStyles.buttonTextWhite}>Cancel</Text>
         </PopPressable>
       </View>
