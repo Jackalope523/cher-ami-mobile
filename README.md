@@ -29,7 +29,7 @@ The codebase is ~9,200 lines of TypeScript spanning 21 screens and ~30 reusable 
 | Framework | Expo SDK 54, React Native 0.81, React 19 (New Architecture enabled) |
 | Language | TypeScript (strict, fully typed request/response DTOs) |
 | Navigation | [expo-router](https://docs.expo.dev/router/introduction/) — file-based, typed routes, drawer navigation |
-| Data layer | TanStack Query + Axios (with automatic retry) |
+| Data layer | [TanStack Query](https://tanstack.com/query) + Axios (with automatic retry) |
 | Payments | `@stripe/stripe-react-native` |
 | Auth | `expo-auth-session`, `expo-apple-authentication`, `expo-secure-store` |
 | Media | `expo-image`, `expo-image-manipulator`, `react-native-image-crop-picker` |
