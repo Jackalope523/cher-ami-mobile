@@ -69,7 +69,8 @@ const SIZES: ImageSize[] = [
 ];
 
 export default function Size() {
-  const { issueTitle, imageUri, uploadId } = useLocalSearchParams();
+  const { issueTitle, issueCloseDate, imageUri, uploadId } =
+    useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useSharedValue(0);
@@ -103,6 +104,7 @@ export default function Size() {
           pathname: '/post/caption',
           params: {
             issueTitle,
+            issueCloseDate,
             uploadId,
             imageUri: image.path,
             width: image.cropRect?.width,

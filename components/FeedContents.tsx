@@ -61,7 +61,7 @@ export default function FeedContents() {
   async function handleCreatePost() {
     if (data?.pages[0].posts.length === 20) {
       showToastMessage(
-        "This month's issue is complete!",
+        "This month's magazine is full!",
         ToastMessageType.Informational,
       );
     } else {
@@ -77,6 +77,9 @@ export default function FeedContents() {
             pathname: '/post/size',
             params: {
               issueTitle: data?.pages[0].issueTitle,
+              issueCloseDate: data?.pages[0].issueCloseDate
+                ? new Date(data.pages[0].issueCloseDate).toISOString()
+                : undefined,
               imageUri: x,
               uploadId,
             },
@@ -126,7 +129,7 @@ export default function FeedContents() {
     return `${diffYears} Years Ago`;
   }
 
-  function renderEmptyComponent() {
+  function renderEmptyComponent(isCurrentIssue: boolean = true) {
     return (
       <View style={{ paddingVertical: 100 }}>
         <View
@@ -150,9 +153,20 @@ export default function FeedContents() {
             />
           </View>
 
-          <Text style={[textStyles.fancyText, { marginBottom: Spacings.xxl }]}>
-            {'Nothing to see here :('}
-          </Text>
+          <Text style={textStyles.fancyText}>{'No photos yet'}</Text>
+          {isCurrentIssue && (
+            <Text
+              style={[
+                textStyles.body,
+                {
+                  textAlign: 'center',
+                  color: '#868581',
+                  marginBottom: Spacings.xxl,
+                },
+              ]}>
+              Tap the + button to add the first one!
+            </Text>
+          )}
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Image
@@ -179,7 +193,7 @@ export default function FeedContents() {
 
     if (data?.pages[0].id === id) {
       if (postCount === 0) {
-        return renderEmptyComponent();
+        return renderEmptyComponent(true);
       } else {
         return <View />;
       }
@@ -228,7 +242,7 @@ export default function FeedContents() {
             </View>
           </View>
         </View>
-        {postCount === 0 && renderEmptyComponent()}
+        {postCount === 0 && renderEmptyComponent(false)}
       </View>
     );
   }
@@ -236,7 +250,10 @@ export default function FeedContents() {
   function renderListHeader() {
     return (
       <View>
-        <PostCounter issueTitle={data?.pages[0].issueTitle} />
+        <PostCounter
+          issueTitle={data?.pages[0].issueTitle}
+          issueCloseDate={data?.pages[0].issueCloseDate}
+        />
         <View style={{ rowGap: Spacings.lg }}>
           {circleQuery.data?.recipients.length === 0 && !hideBanner && (
             <ImageBackground
@@ -273,12 +290,13 @@ export default function FeedContents() {
                 Who is this magazine for?
               </Text>
               <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
-                You haven&apos;t added a recipient yet. Add an address so we can
-                mail these memories to your loved ones at the end of the month!
+                Add the name and address of the person you&apos;d like to
+                surprise — we&apos;ll mail them this month&apos;s magazine at
+                the end of the month.
               </Text>
 
               <PopPressable onPress={handleAddRecipient} style={styles.button}>
-                <Text style={textStyles.buttonTextWhite}>Add recipient</Text>
+                <Text style={textStyles.buttonTextWhite}>Add a recipient</Text>
               </PopPressable>
             </ImageBackground>
           )}
@@ -291,7 +309,7 @@ export default function FeedContents() {
                     flexShrink: 1,
                   },
                 ]}>
-                {"Be the first to upload to this month's issue!"}
+                {"Be the first to add a photo to this month's magazine!"}
               </Text>
               <Image source={CameraImage} style={{ height: 64, width: 64 }} />
             </View>
@@ -320,7 +338,7 @@ export default function FeedContents() {
                     flexShrink: 1,
                   },
                 ]}>
-                {"This month's issue is full!"}
+                {"This month's magazine is full!"}
               </Text>
               <Image source={MailboxImage} style={{ height: 64, width: 64 }} />
             </View>

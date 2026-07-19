@@ -72,6 +72,7 @@ export interface FeedPageResponse {
   id: number | null;
   issueTitle: string | null;
   issueDate: Date | null;
+  issueCloseDate: Date | null;
   posts: FeedPost[];
   nextPage: number | null;
 }

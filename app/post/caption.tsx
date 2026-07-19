@@ -20,7 +20,7 @@ const { width: windowWidth } = Dimensions.get('window');
 const IMAGE_CONTAINER_SIZE = windowWidth - 80;
 
 export default function Caption() {
-  const { issueTitle, imageUri, width, height, x, y, uploadId } =
+  const { issueTitle, issueCloseDate, imageUri, width, height, x, y, uploadId } =
     useLocalSearchParams();
 
   const [caption, setCaption] = useState('');
@@ -88,7 +88,10 @@ export default function Caption() {
       <View>
         {!keyboardVisible && (
           <View>
-            <PostCounter issueTitle={issueTitle as string} />
+            <PostCounter
+              issueTitle={issueTitle as string}
+              issueCloseDate={issueCloseDate as string}
+            />
             <View style={styles.imageContainer}>
               <View style={[styles.imageWrapper, imageStyle]}>
                 <Image
