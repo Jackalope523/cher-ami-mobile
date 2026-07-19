@@ -9,8 +9,10 @@ import {
 } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
+import TutorialSlideshow from '@/components/TutorialSlideshow';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   useEmailAuthMutation,
   useExchangeAppleTokenMutation,
@@ -63,6 +65,7 @@ export default function Index() {
   const { updateToken, updateOnboarded } = useAuth();
   const [email, setEmail] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [showTutorial, setShowTutorial] = useState<boolean | null>(null);
   const [googleRequest, googleResponse, promptGoogleAsync] = useAuthRequest(
     googleConfig,
     googleDiscovery,
@@ -134,8 +137,28 @@ export default function Index() {
     };
   }, []);
 
+  useEffect(() => {
+    AsyncStorage.getItem('HasSeenTutorial').then((value) => {
+      setShowTutorial(value !== 'true');
+    });
+  }, []);
+
+  function handleTutorialDone() {
+    AsyncStorage.setItem('HasSeenTutorial', 'true');
+    setShowTutorial(false);
+  }
+
   function continueDisabled() {
     return emailAuthMutation.isPending || email === '';
+  }
+
+  // Wait for the stored flag so the login screen doesn't flash first.
+  if (showTutorial === null) {
+    return null;
+  }
+
+  if (showTutorial) {
+    return <TutorialSlideshow onDone={handleTutorialDone} />;
   }
 
   return (

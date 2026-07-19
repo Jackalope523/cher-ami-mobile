@@ -8,6 +8,7 @@ import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useUpdateUserMutation } from '@/lib/hooks';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
@@ -21,7 +22,9 @@ export default function LastName() {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const userMutation = useUpdateUserMutation(
     () => {
-      showToastMessage('Created account!', ToastMessageType.Success);
+      showToastMessage('Welcome to Cher Ami!', ToastMessageType.Success);
+      // Show the welcome introduction once the feed loads for the first time.
+      AsyncStorage.setItem('ShowWelcomeIntro', 'true');
       updateOnboarded(true);
     },
     (error) => {

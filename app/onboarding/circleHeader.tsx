@@ -22,7 +22,7 @@ export default function CircleHeader() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const circleMutation = useCreateCircleMutation(
     () => {
-      showToastMessage('Circle created.', ToastMessageType.Success);
+      showToastMessage('Family circle created!', ToastMessageType.Success);
       queryClient.invalidateQueries({ queryKey: ['Circle'] });
       router.replace('/feed');
     },
@@ -67,7 +67,17 @@ export default function CircleHeader() {
               marginBottom: Spacings.md,
             },
           ]}>
-          Add a header image for your circle.
+          Add a cover photo.
+        </Text>
+        <Text
+          style={[
+            textStyles.body,
+            {
+              marginBottom: Spacings.lg,
+            },
+          ]}>
+          Pick a favorite family photo — it will sit at the top of your family
+          circle.
         </Text>
         <PopPressable style={styles.imageContainer} onPress={pickImage}>
           {selectedImage ? (
@@ -102,7 +112,7 @@ export default function CircleHeader() {
             textStyles.buttonTextWhite,
             buttonDisabled() && { color: '#A8ABB3' },
           ]}>
-          Create Circle
+          Create Family Circle
         </Text>
       </PopPressable>
     </View>

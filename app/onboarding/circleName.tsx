@@ -42,10 +42,20 @@ export default function CircleName() {
               marginBottom: Spacings.md,
             },
           ]}>
-          Name your circle.
+          Name your family circle.
+        </Text>
+        <Text
+          style={[
+            textStyles.body,
+            {
+              marginBottom: Spacings.lg,
+            },
+          ]}>
+          This is the name your family will see in the app — something like
+          &ldquo;The Harper Family.&rdquo;
         </Text>
         <TextInput
-          placeholder="Circle name"
+          placeholder="Family circle name"
           maxLength={100}
           value={circleName}
           onChangeText={setCircleName}
