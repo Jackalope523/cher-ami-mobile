@@ -108,11 +108,11 @@ export default function EditRecipient() {
         )}
       </PopPressable>
       <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
-        Change Header
+        Change cover photo
       </Text>
       <View style={styles.textInputs}>
         <TextInput
-          title="Title*"
+          title="Family circle name*"
           maxLength={100}
           value={title}
           onChangeText={setTitle}

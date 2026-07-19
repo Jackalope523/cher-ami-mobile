@@ -81,11 +81,11 @@ export default function DeleteRecipient() {
           {data.name}
         </Text>
         <Text style={textStyles.body}>
-          By removing {data.name} from the recipients, they will{' '}
+          If you remove {data.name}, they will{' '}
           <Text style={[textStyles.body, { fontWeight: 'bold' }]}>
             stop receiving
           </Text>{' '}
-          print-out magazines.
+          the printed magazine, and their monthly subscription ends.
         </Text>
       </View>
       <View style={styles.buttonContainer}>

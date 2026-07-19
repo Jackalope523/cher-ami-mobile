@@ -42,7 +42,15 @@ export default function Update() {
           textStyles.heading2,
           { color: '#83C4F1', textAlign: 'center' },
         ]}>
-        Please Update
+        Time for an update
+      </Text>
+      <Text
+        style={[
+          textStyles.body,
+          { textAlign: 'center', paddingHorizontal: Spacings.xl },
+        ]}>
+        A new version of Cher Ami is ready. Please update the app from the App
+        Store to keep going.
       </Text>
     </View>
   );

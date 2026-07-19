@@ -255,7 +255,7 @@ export function useAddPostMutation(
       });
     },
     onSuccess: async () => {
-      showToastMessage('Upload success!', ToastMessageType.Success);
+      showToastMessage('Photo added!', ToastMessageType.Success);
       OneSignal.User.addTag(
         'last_posted_at',
         String(Math.floor(Date.now() / 1000)),
@@ -267,7 +267,10 @@ export function useAddPostMutation(
     },
     onError: (error) => {
       console.error('Upload failed:', error);
-      showToastMessage('Upload failed.', ToastMessageType.Error);
+      showToastMessage(
+        "Couldn't add your photo. Try again.",
+        ToastMessageType.Error,
+      );
     },
   });
 }
@@ -479,7 +482,7 @@ export function useUpdateAvatarMutation() {
       });
     },
     onSuccess: async () => {
-      showToastMessage('Upload success!', ToastMessageType.Success);
+      showToastMessage('Profile photo updated!', ToastMessageType.Success);
 
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['User', 'Self'] }),
@@ -490,7 +493,10 @@ export function useUpdateAvatarMutation() {
       ]);
     },
     onError: () => {
-      showToastMessage('Upload failed.', ToastMessageType.Error);
+      showToastMessage(
+        "Couldn't update your photo. Try again.",
+        ToastMessageType.Error,
+      );
     },
   });
 }
@@ -898,7 +904,10 @@ export function useUploadImageDetailsMutation() {
     },
     onError: (error) => {
       console.error('Upload failed:', error);
-      showToastMessage('Upload failed.', ToastMessageType.Error);
+      showToastMessage(
+        "Couldn't add your photo. Try again.",
+        ToastMessageType.Error,
+      );
     },
   });
 }

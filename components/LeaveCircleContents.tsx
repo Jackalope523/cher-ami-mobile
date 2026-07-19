@@ -20,7 +20,7 @@ export default function LeaveCircleContents() {
     async () => {
       await queryClient.invalidateQueries({ queryKey: ['Circle'] });
       router.replace('/feed');
-      showToastMessage('Left circle.', ToastMessageType.Success);
+      showToastMessage('You left the family circle.', ToastMessageType.Success);
     },
     (error) => {
       console.log(error);
@@ -40,7 +40,7 @@ export default function LeaveCircleContents() {
           textStyles.heading3,
           { textAlign: 'center', marginBottom: Spacings.md },
         ]}>
-        Leave Circle?
+        Leave this family circle?
       </Text>
       <Text
         style={[
@@ -48,8 +48,8 @@ export default function LeaveCircleContents() {
           { textAlign: 'center', marginBottom: Spacings.xxl },
         ]}>
         If you leave
-        <Text style={{ fontWeight: 'bold' }}> {data?.title} </Text>
-        {"you'll lose access to its posts and updates."}
+        <Text style={{ fontWeight: 'bold' }}> {data?.title}</Text>
+        {", you'll no longer see its photos or magazines."}
       </Text>
       <PopPressable
         onPress={handleDelete}

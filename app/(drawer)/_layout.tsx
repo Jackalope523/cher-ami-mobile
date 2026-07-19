@@ -155,7 +155,7 @@ export default function Layout() {
                   ? textStyles.buttonTextOrange
                   : textStyles.buttonTextGrey
               }>
-              My Circle
+              My Family Circle
             </Text>
           </PopPressable>
         </View>

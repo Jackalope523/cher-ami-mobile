@@ -1,4 +1,5 @@
 import PlusIcon from '@/assets/icons/plus.svg';
+import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -43,7 +44,16 @@ export default function Error() {
         />
       </Animated.View>
 
-      <Text style={[textStyles.heading3, { color: '#F47A70' }]}>ERROR</Text>
+      <Text
+        style={[
+          textStyles.heading3,
+          { color: '#F47A70', marginBottom: Spacings.sm },
+        ]}>
+        Something went wrong
+      </Text>
+      <Text style={[textStyles.body, { textAlign: 'center' }]}>
+        Please check your connection and try again.
+      </Text>
     </View>
   );
 }
@@ -53,5 +63,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FCFBF8',
+    paddingHorizontal: Spacings.xl,
   },
 });

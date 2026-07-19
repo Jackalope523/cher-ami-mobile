@@ -104,7 +104,7 @@ function RootNavigator() {
             <Stack.Screen
               name="circle/edit"
               options={{
-                title: 'Edit Circle',
+                title: 'Edit Family Circle',
               }}
             />
             <Stack.Screen
@@ -133,7 +133,7 @@ function RootNavigator() {
             <Stack.Screen
               name="post/size"
               options={{
-                title: 'Choose Image Shape',
+                title: 'Choose a Photo Shape',
               }}
             />
             <Stack.Screen
@@ -151,7 +151,7 @@ function RootNavigator() {
             <Stack.Screen
               name="circle/recipients/add"
               options={{
-                title: 'Add Recipient',
+                title: 'Add a Recipient',
               }}
             />
             <Stack.Screen
