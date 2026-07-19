@@ -7,7 +7,7 @@ import { textStyles } from '@/constants/TextStyles';
 import { useGetCircleQuery, useRerollCodeMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { setStringAsync } from 'expo-clipboard';
-import { StyleSheet, Text, View } from 'react-native';
+import { Share, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
@@ -34,7 +34,11 @@ export default function InviteModalContents({
     (_) => {
       queryClient.invalidateQueries({ queryKey: ['Circle'] });
     },
-    (_) => showToastMessage('Failed to reroll code', ToastMessageType.Error),
+    (_) =>
+      showToastMessage(
+        "Couldn't create a new code. Try again.",
+        ToastMessageType.Error,
+      ),
   );
 
   const rotation = useSharedValue(0);
@@ -53,9 +57,24 @@ export default function InviteModalContents({
     });
   }
 
+  async function handleShare() {
+    const circleName = data?.title ? `"${data.title}"` : 'our family circle';
+
+    await Share.share({
+      message:
+        `Hi! Come join ${circleName} on Cher Ami — we share family photos there, ` +
+        `and every month they become a printed magazine for the people we love.\n\n` +
+        `Here's how to join:\n` +
+        `1. Download the Cher Ami app: https://thecherami.com\n` +
+        `2. Sign up, then choose "Join your family's circle"\n` +
+        `3. Enter our invite code: ${data?.inviteCode}\n\n` +
+        `See you there!`,
+    });
+  }
+
   const copyToClipboard = async () => {
     await setStringAsync(data?.inviteCode ?? '');
-    showToastMessage('Invitation code copied to clipboard');
+    showToastMessage('Invite code copied!');
   };
 
   return (
@@ -63,7 +82,7 @@ export default function InviteModalContents({
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text
           style={[textStyles.labelLargeBlack, { marginBottom: Spacings.smxs }]}>
-          Invite to circle
+          Invite family &amp; friends
         </Text>
         <PopPressable onPress={dismissModal}>
           <XIcon height={24} width={24} color="#868581" />
@@ -75,9 +94,14 @@ export default function InviteModalContents({
           textStyles.caption,
           { marginBottom: Spacings.lgmd, paddingRight: 45 },
         ]}>
-        Share this code to invite people to this circle. They can enter it at
-        sign-up to join.
+        Send an invitation by text, email, or however you like — it includes
+        your invite code and simple instructions.
       </Text>
+
+      <PopPressable onPress={handleShare} style={styles.shareButton}>
+        <Text style={textStyles.buttonTextWhite}>Send an invitation</Text>
+      </PopPressable>
+
       <View
         style={{
           borderColor: '#DEDBD5',
@@ -87,7 +111,11 @@ export default function InviteModalContents({
       />
       <Text
         style={[textStyles.labelLargeBlack, { marginBottom: Spacings.smxs }]}>
-        Invitation code
+        Or share the code yourself
+      </Text>
+      <Text style={[textStyles.caption, { marginBottom: Spacings.mdsm }]}>
+        Tap to copy. They&apos;ll enter it when choosing &ldquo;Join your
+        family&apos;s circle.&rdquo;
       </Text>
       <PopPressable
         onPress={copyToClipboard}
@@ -117,7 +145,25 @@ export default function InviteModalContents({
           <RefreshIcon height={24} width={24} />
         </Animated.View>
       </Pressable>
+      <Text
+        style={[
+          textStyles.caption,
+          { textAlign: 'center', marginBottom: Spacings.sm },
+        ]}>
+        Generating a new code stops the old one from working.
+      </Text>
     </View>
   );
 }
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  shareButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#C15F3C',
+    paddingVertical: Spacings.md,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#C15F3C',
+    marginBottom: Spacings.lgmd,
+  },
+});

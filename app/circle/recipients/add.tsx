@@ -2,23 +2,37 @@ import PlusIcon from '@/assets/icons/plus.svg';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
-import MilitaryEditionModalContents from '@/components/MilitaryEditionModalContents';
-import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
+import MilitaryQuestion from '@/components/MilitaryQuestion';
+import {
+  ToastMessageType,
+  useToastMessage,
+} from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useAddRecipientMutation, useGetPriceQuery } from '@/lib/hooks';
+import {
+  useAddPaymentMethodMutation,
+  useAddRecipientMutation,
+  useGetPaymentMethodQuery,
+  useGetPriceQuery,
+  useGetSelfQuery,
+} from '@/lib/hooks';
 import { getNextMonthName } from '@/lib/utility';
+import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+
 export default function AddRecipient() {
-  const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
   const pickImageAsync = useImagePicker();
+  const queryClient = useQueryClient();
+  const showToastMessage = useToastMessage();
   const getPriceQuery = useGetPriceQuery();
+  const getPaymentMethodQuery = useGetPaymentMethodQuery();
+  const userQuery = useGetSelfQuery();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -31,6 +45,25 @@ export default function AddRecipient() {
   const [isVeteran, setIsVeteran] = useState(false);
 
   const addRecipientMutation = useAddRecipientMutation();
+  const addPaymentMethodMutation = useAddPaymentMethodMutation(
+    (gotPaymentDetails) => {
+      if (gotPaymentDetails) {
+        queryClient.invalidateQueries({ queryKey: ['PaymentMethod'] });
+        submitRecipient();
+      } else {
+        showToastMessage(
+          'A payment method is needed to add a recipient.',
+          ToastMessageType.Informational,
+        );
+      }
+    },
+    (_) => {
+      showToastMessage('Network error. Try again.', ToastMessageType.Error);
+    },
+  );
+
+  const needsBilling =
+    !getPaymentMethodQuery.data && !userQuery.data?.isBillingExempt;
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -54,7 +87,8 @@ export default function AddRecipient() {
       provinceOrState === '' ||
       postalCode === '' ||
       country === '' ||
-      addRecipientMutation.isPending
+      addRecipientMutation.isPending ||
+      addPaymentMethodMutation.isPending
     );
   }
 
@@ -68,7 +102,7 @@ export default function AddRecipient() {
     });
   }
 
-  function handleAdd() {
+  function submitRecipient() {
     addRecipientMutation.mutate({
       avatarUri: avatar,
       avatarName: 'avatar.jpg',
@@ -84,11 +118,23 @@ export default function AddRecipient() {
     router.back();
   }
 
-  if (getPriceQuery.isError) {
+  function handleAdd() {
+    if (needsBilling) {
+      addPaymentMethodMutation.mutate();
+    } else {
+      submitRecipient();
+    }
+  }
+
+  if (getPriceQuery.isError || getPaymentMethodQuery.isError) {
     return <Error />;
   }
 
-  if (getPriceQuery.isLoading) {
+  if (
+    getPriceQuery.isLoading ||
+    getPaymentMethodQuery.isLoading ||
+    userQuery.isLoading
+  ) {
     return <Loading />;
   }
 
@@ -117,10 +163,13 @@ export default function AddRecipient() {
       </PopPressable>
 
       <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
-        Change avatar
+        Add a photo of them
       </Text>
       <Text style={[textStyles.heading3, styles.sectionHeader]}>
         Mailing address
+      </Text>
+      <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
+        This is where we&apos;ll mail the magazine each month.
       </Text>
       <View style={styles.textInputs}>
         <TextInput
@@ -198,37 +247,7 @@ export default function AddRecipient() {
           autoCapitalize="words"
           autoCorrect={false}
         />
-        <PopPressable
-          onPress={() => {
-            if (isVeteran) {
-              setIsVeteran(false);
-            } else {
-              displayBottomSheet(
-                <MilitaryEditionModalContents
-                  dismissModal={dismissBottomSheetModal}
-                  setIsVeteran={setIsVeteran}
-                />,
-              );
-            }
-          }}
-          style={[
-            styles.button,
-            {
-              backgroundColor: isVeteran ? '#ECEDEF' : '#779443',
-              borderColor: isVeteran ? '#ECEDEF' : '#779443',
-            },
-          ]}>
-          <Text
-            style={[
-              textStyles.buttonTextWhite,
-              { color: isVeteran ? '#A8ABB3' : '#FFFFFF' },
-              { fontWeight: isVeteran ? 'bold' : 'normal' },
-            ]}>
-            {isVeteran
-              ? 'Military Edition Activated'
-              : 'Activate Military Edition'}
-          </Text>
-        </PopPressable>
+        <MilitaryQuestion isVeteran={isVeteran} onChange={setIsVeteran} />
       </View>
       <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
       <View style={styles.summaryItemList}>
@@ -237,7 +256,9 @@ export default function AddRecipient() {
           <Text style={textStyles.labelSmall}>Monthly</Text>
         </View>
         <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLargeBlack}>1 Magazine</Text>
+          <Text style={textStyles.labelLargeBlack}>
+            {isVeteran ? '1 Magazine (Military Edition)' : '1 Magazine'}
+          </Text>
           <Text style={textStyles.labelSmall}>Monthly</Text>
         </View>
         <View style={styles.summaryItem}>
@@ -250,7 +271,7 @@ export default function AddRecipient() {
         </View>
         <View style={styles.divider} />
         <View style={styles.summaryItem}>
-          <Text style={textStyles.labelSmall}>Total</Text>
+          <Text style={textStyles.labelSmall}>Total per month</Text>
           <Text style={textStyles.labelSmall}>
             $
             {(isVeteran
@@ -259,9 +280,15 @@ export default function AddRecipient() {
           </Text>
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>
-          {`*Monthly subscription that charges you every month, starting ${getNextMonthName()} 1st.`}
+          {`*This is a monthly subscription, billed on the 1st of each month starting ${getNextMonthName()} 1st. Cancel anytime.`}
         </Text>
       </View>
+      {needsBilling && (
+        <Text style={[textStyles.caption, { marginBottom: Spacings.md }]}>
+          Next, we&apos;ll ask for a payment method. You won&apos;t be charged
+          until {getNextMonthName()} 1st.
+        </Text>
+      )}
       <PopPressable
         onPress={handleAdd}
         disabled={buttonDisabled()}

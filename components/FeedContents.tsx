@@ -15,7 +15,6 @@ import { textStyles } from '@/constants/TextStyles';
 import {
   useFeedPostsInfiniteQuery,
   useGetCircleQuery,
-  useGetPaymentMethodQuery,
   useGetSelfQuery,
   useUploadImageMutation,
 } from '@/lib/hooks';
@@ -40,7 +39,6 @@ export default function FeedContents() {
   const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
   const circleQuery = useGetCircleQuery();
   const userQuery = useGetSelfQuery();
-  const getPaymentMethodQuery = useGetPaymentMethodQuery();
   const showToastMessage = useToastMessage();
   const [hideBanner, setHideBanner] = useState(false);
   const pickImageAsync = useImagePicker();
@@ -51,11 +49,7 @@ export default function FeedContents() {
   });
 
   function handleAddRecipient() {
-    if (getPaymentMethodQuery.data || userQuery.data?.isBillingExempt) {
-      router.push('/circle/recipients/add');
-    } else {
-      router.push('/billing/add');
-    }
+    router.push('/circle/recipients/add');
   }
 
   async function handleCreatePost() {
