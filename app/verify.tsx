@@ -7,7 +7,7 @@ import OTPInput from '@/components/OTPInput/OTPInput';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useEmailVerifyMutation } from '@/lib/hooks';
+import { useEmailAuthMutation, useEmailVerifyMutation } from '@/lib/hooks';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
@@ -25,7 +25,19 @@ export default function Verify() {
       updateOnboarded(response.onboarded);
     },
     (_) => {
-      showToast('Network error. Try again.', ToastMessageType.Error);
+      showToast(
+        "That code didn't work. Please try again.",
+        ToastMessageType.Error,
+      );
+    },
+  );
+  const resendCodeMutation = useEmailAuthMutation(
+    () => {
+      setCode('');
+      showToast('We sent you a new code!', ToastMessageType.Success);
+    },
+    (_) => {
+      showToast("Couldn't send a new code. Try again.", ToastMessageType.Error);
     },
   );
 
@@ -58,18 +70,34 @@ export default function Verify() {
       <View style={{ marginBottom: Spacings.md }}>
         <Pressable onPress={Keyboard.dismiss}>
           <Text style={[textStyles.heading1, { marginBottom: Spacings.md }]}>
-            Verification
+            Check your email
           </Text>
           <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
-            Please enter the code we sent to your email{' '}
-            <Text style={{ fontWeight: 'bold' }}>{email}</Text>
+            We sent a 6-digit code to{' '}
+            <Text style={{ fontWeight: 'bold' }}>{email}</Text>. Enter it below
+            to continue.
           </Text>
-          <Text style={[textStyles.body, { marginBottom: Spacings.xxl }]}>
-            Can&apos;t find it? Check your spam folder.
+          <Text style={[textStyles.caption, { marginBottom: Spacings.xxl }]}>
+            Can&apos;t find it? Check your spam or junk folder.
           </Text>
         </Pressable>
 
         <OTPInput codeLength={6} code={code} setCode={setCode} />
+
+        <Pressable
+          onPress={() => {
+            if (!resendCodeMutation.isPending) {
+              resendCodeMutation.mutate({ email: email as string });
+            }
+          }}
+          style={{ paddingVertical: Spacings.mdsm }}>
+          <Text style={[textStyles.caption, { textAlign: 'center' }]}>
+            Didn&apos;t get an email?{' '}
+            <Text style={{ textDecorationLine: 'underline' }}>
+              Send a new code
+            </Text>
+          </Text>
+        </Pressable>
       </View>
 
       <PopPressable

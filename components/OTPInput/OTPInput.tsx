@@ -1,6 +1,8 @@
 import { Spacings } from '@/constants/Spacings';
+import { textStyles } from '@/constants/TextStyles';
+import { getStringAsync } from 'expo-clipboard';
 import { Dispatch, RefObject, SetStateAction, useRef } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import OTPSquare from './OTPSquare';
 
 interface OTPInputProps {
@@ -19,7 +21,17 @@ export default function OTPInput({ codeLength, code, setCode }: OTPInputProps) {
   };
 
   const handleChangeText = (text: string) => {
-    setCode(text);
+    // Keep only digits so pasted text like "Your code is 123456" still works.
+    setCode(text.replace(/\D/g, '').slice(0, codeLength));
+  };
+
+  const handlePasteFromClipboard = async () => {
+    const text = await getStringAsync();
+    const digits = text.replace(/\D/g, '').slice(0, codeLength);
+
+    if (digits.length > 0) {
+      setCode(digits);
+    }
   };
 
   return (
@@ -33,6 +45,14 @@ export default function OTPInput({ codeLength, code, setCode }: OTPInputProps) {
           />
         ))}
       </Pressable>
+      <Pressable
+        onPress={handlePasteFromClipboard}
+        style={styles.pasteButton}
+        hitSlop={Spacings.sm}>
+        <Text style={[textStyles.buttonTextOrange, { textAlign: 'center' }]}>
+          Paste code
+        </Text>
+      </Pressable>
       <TextInput
         ref={textInputRef}
         style={styles.hiddenTextInput}
@@ -41,6 +61,7 @@ export default function OTPInput({ codeLength, code, setCode }: OTPInputProps) {
         keyboardType="number-pad"
         returnKeyType="done"
         textContentType="oneTimeCode"
+        autoComplete="one-time-code"
         onChangeText={handleChangeText}
       />
     </View>
@@ -51,6 +72,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     columnGap: Spacings.sm,
+  },
+
+  pasteButton: {
+    alignSelf: 'center',
+    paddingVertical: Spacings.mdsm,
   },
 
   hiddenTextInput: {
