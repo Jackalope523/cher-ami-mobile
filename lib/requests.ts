@@ -15,11 +15,18 @@ export interface UploadImageRequest {
 export interface UploadImageDetailsRequest {
   uploadId: string;
   caption: string;
+  photoDate: string;
   x: number;
   y: number;
   width: number;
   height: number;
   imageUri: string;
+}
+
+export interface UpdatePostRequest {
+  id: number;
+  caption: string;
+  photoDate: string;
 }
 
 export interface ImageRequest {

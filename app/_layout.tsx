@@ -137,6 +137,12 @@ function RootNavigator() {
               }}
             />
             <Stack.Screen
+              name="post/edit"
+              options={{
+                title: 'Edit Photo',
+              }}
+            />
+            <Stack.Screen
               name="billing/manage"
               options={{
                 title: 'Manage Billing',

@@ -15,7 +15,43 @@ export function formatPhotoDate(date: Date) {
       ? 'rd'
       : 'th';
 
-  return `Photo uploaded on ${month} ${day}${suffix}, ${year}`;
+  return `Photo taken on ${month} ${day}${suffix}, ${year}`;
+}
+
+/**
+ * The default photo date for a new post: when the photo was taken, if we know
+ * it and it falls within the current magazine's month — otherwise right now.
+ */
+export function defaultPhotoDate(
+  takenAt: Date | null,
+  issueStart: Date | null,
+): Date {
+  const now = new Date();
+
+  if (!takenAt || isNaN(takenAt.getTime())) return now;
+  if (takenAt > now) return now;
+  if (issueStart && takenAt < issueStart) return now;
+
+  return takenAt;
+}
+
+/**
+ * Move a photo date to another calendar day while keeping its time of day
+ * (the time is never shown, but keeps same-day photos in the order they were
+ * taken). Clamped so the result is never in the future.
+ */
+export function withCalendarDay(day: Date, previous: Date): Date {
+  const merged = new Date(
+    day.getFullYear(),
+    day.getMonth(),
+    day.getDate(),
+    previous.getHours(),
+    previous.getMinutes(),
+    previous.getSeconds(),
+  );
+
+  const now = new Date();
+  return merged > now ? now : merged;
 }
 
 export function getNextMonthName() {

@@ -37,7 +37,7 @@ export default function EditRecipient() {
       cropping: true,
     }).then((x) => {
       if (x !== null) {
-        setHeader(x);
+        setHeader(x.uri);
       }
     });
   }

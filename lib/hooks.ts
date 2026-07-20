@@ -30,6 +30,7 @@ import {
   RecipientRequest,
   TokenRequest,
   UpdateCircleRequest,
+  UpdatePostRequest,
   UpdateRecipientRequest,
   UpdateUserRequest,
   UploadImageDetailsRequest,
@@ -271,6 +272,37 @@ export function useAddPostMutation(
         "Couldn't add your photo. Try again.",
         ToastMessageType.Error,
       );
+    },
+  });
+}
+
+export function useUpdatePostMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
+  const api = useAPI();
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, AxiosError, UpdatePostRequest>({
+    mutationKey: ['UpdatePost'],
+    mutationFn: async (request) => {
+      await api.put(`/posts/${request.id}`, {
+        caption: request.caption,
+        photoDate: request.photoDate,
+      });
+    },
+    onSuccess: async () => {
+      showToastMessage('Photo updated!', ToastMessageType.Success);
+      await queryClient.invalidateQueries({ queryKey: ['FeedPages'] });
+      if (onSuccess) onSuccess();
+    },
+    onError: (error) => {
+      showToastMessage(
+        "Couldn't save your changes. Try again.",
+        ToastMessageType.Error,
+      );
+      if (onError) onError(error);
     },
   });
 }

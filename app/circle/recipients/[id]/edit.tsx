@@ -112,7 +112,7 @@ export default function EditRecipient() {
       width: 96,
       cropping: true,
     }).then((x) => {
-      setAvatar(x);
+      setAvatar(x?.uri ?? null);
     });
   }
 

@@ -69,7 +69,7 @@ const SIZES: ImageSize[] = [
 ];
 
 export default function Size() {
-  const { issueTitle, issueCloseDate, imageUri, uploadId } =
+  const { issueTitle, issueCloseDate, issueStartDate, photoDate, imageUri, uploadId } =
     useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -105,6 +105,8 @@ export default function Size() {
           params: {
             issueTitle,
             issueCloseDate,
+            issueStartDate,
+            photoDate,
             uploadId,
             imageUri: image.path,
             width: image.cropRect?.width,

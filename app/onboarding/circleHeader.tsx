@@ -38,7 +38,7 @@ export default function CircleHeader() {
       height: 186,
       cropping: true,
     }).then((x) => {
-      setSelectedImage(x);
+      setSelectedImage(x?.uri ?? null);
     });
   }
 

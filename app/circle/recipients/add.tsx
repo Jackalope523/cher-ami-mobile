@@ -98,7 +98,7 @@ export default function AddRecipient() {
       width: 96,
       cropping: true,
     }).then((x) => {
-      setAvatar(x);
+      setAvatar(x?.uri ?? null);
     });
   }
 

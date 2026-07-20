@@ -5,6 +5,7 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetSelfQuery, useGetUserQuery } from '@/lib/hooks';
 import { FeedPost } from '@/lib/responses';
+import { formatPhotoDate } from '@/lib/utility';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
@@ -13,14 +14,23 @@ import { useAuth } from './AuthProvider';
 import DeletePostContents from './DeletePostContents';
 import { useDialogueModal } from './modals/DialogueModalProvider';
 import PopPressable from './PopPressable';
+import PostOptionsContents from './PostOptionsContents';
 import ReportPostContents from './ReportPostContents';
 
 type PostProps = {
   post: FeedPost;
   loading?: boolean;
+  /** Whether the post belongs to a magazine that is still open for changes. */
+  editable?: boolean;
+  issueStartDate?: Date | null;
 };
 
-export default function Post({ post, loading = false }: PostProps) {
+export default function Post({
+  post,
+  loading = false,
+  editable = false,
+  issueStartDate = null,
+}: PostProps) {
   const { displayDialogue } = useDialogueModal();
   const userQuery = useGetUserQuery(post.authorId);
   const selfQuery = useGetSelfQuery();
@@ -28,7 +38,13 @@ export default function Post({ post, loading = false }: PostProps) {
 
   function handlePostSettings(postId: number) {
     if (post.authorId === selfQuery.data?.id) {
-      displayDialogue(<DeletePostContents postId={postId} />);
+      if (editable) {
+        displayDialogue(
+          <PostOptionsContents post={post} issueStartDate={issueStartDate} />,
+        );
+      } else {
+        displayDialogue(<DeletePostContents postId={postId} />);
+      }
     } else {
       displayDialogue(<ReportPostContents postId={postId} />);
     }
@@ -88,23 +104,23 @@ export default function Post({ post, loading = false }: PostProps) {
               </View>
             )}
           </PopPressable>
-          {/* <View> */}
-          <PopPressable
-            onPress={() =>
-              router.push({
-                pathname: '/profile/[id]',
-                params: { id: post.authorId },
-              })
-            }>
-            <Text
-              style={
-                textStyles.labelLargeBlack
-              }>{`${userQuery.data.firstName} ${userQuery.data.lastName}`}</Text>
-          </PopPressable>
-          {/* <Text style={textStyles.captionMedium}>
+          <View style={{ flexShrink: 1 }}>
+            <PopPressable
+              onPress={() =>
+                router.push({
+                  pathname: '/profile/[id]',
+                  params: { id: post.authorId },
+                })
+              }>
+              <Text
+                style={
+                  textStyles.labelLargeBlack
+                }>{`${userQuery.data.firstName} ${userQuery.data.lastName}`}</Text>
+            </PopPressable>
+            <Text style={[textStyles.captionMedium, { color: '#868581' }]}>
               {formatPhotoDate(post.photoDate)}
-            </Text> */}
-          {/* </View> */}
+            </Text>
+          </View>
         </View>
 
         {!loading ? (

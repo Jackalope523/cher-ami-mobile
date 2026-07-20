@@ -12,6 +12,7 @@ import PostCounter from '@/components/PostCounter';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { IssueStatus } from '@/lib/enums';
 import {
   useFeedPostsInfiniteQuery,
   useGetCircleQuery,
@@ -19,6 +20,7 @@ import {
   useUploadImageMutation,
 } from '@/lib/hooks';
 import { UploadImageDetailsRequest } from '@/lib/requests';
+import { defaultPhotoDate } from '@/lib/utility';
 import { useMutationState } from '@tanstack/react-query';
 import { Image, ImageBackground } from 'expo-image';
 import { router } from 'expo-router';
@@ -65,8 +67,13 @@ export default function FeedContents() {
         if (x !== null) {
           uploadImageMutation.mutate({
             uploadId,
-            imageUri: x,
+            imageUri: x.uri,
           });
+
+          const issueStartDate = data?.pages[0].issueDate
+            ? new Date(data.pages[0].issueDate)
+            : null;
+
           router.push({
             pathname: '/post/size',
             params: {
@@ -74,7 +81,12 @@ export default function FeedContents() {
               issueCloseDate: data?.pages[0].issueCloseDate
                 ? new Date(data.pages[0].issueCloseDate).toISOString()
                 : undefined,
-              imageUri: x,
+              issueStartDate: issueStartDate?.toISOString(),
+              photoDate: defaultPhotoDate(
+                x.takenAt,
+                issueStartDate,
+              ).toISOString(),
+              imageUri: x.uri,
               uploadId,
             },
           });
@@ -314,7 +326,9 @@ export default function FeedContents() {
               post={{
                 id: -1,
                 authorId: userQuery.data?.id ?? 0,
-                photoDate: new Date(),
+                photoDate: variables[0].photoDate
+                  ? new Date(variables[0].photoDate)
+                  : new Date(),
                 photoUrl: variables[0].imageUri,
                 photoPath: '',
                 imageWidth: variables[0].width,
@@ -363,15 +377,23 @@ export default function FeedContents() {
       <SectionList
         showsVerticalScrollIndicator={false}
         overScrollMode="never"
+        stickySectionHeadersEnabled={false}
         sections={
           data.pages.map((page) => ({
             id: page.id,
             title: page.issueTitle,
             date: page.issueDate,
+            status: page.status,
             data: page.posts,
           })) ?? []
         }
-        renderItem={({ item }) => <Post post={item} />}
+        renderItem={({ item, section }) => (
+          <Post
+            post={item}
+            editable={section.status === IssueStatus.Drafting}
+            issueStartDate={section.date}
+          />
+        )}
         renderSectionHeader={({ section }) =>
           renderIssueHeader(
             section.id,

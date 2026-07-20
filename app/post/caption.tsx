@@ -1,3 +1,4 @@
+import PhotoDateRow from '@/components/PhotoDateRow';
 import PopPressable from '@/components/PopPressable';
 import PostCounter from '@/components/PostCounter';
 import { Spacings } from '@/constants/Spacings';
@@ -20,11 +21,29 @@ const { width: windowWidth } = Dimensions.get('window');
 const IMAGE_CONTAINER_SIZE = windowWidth - 80;
 
 export default function Caption() {
-  const { issueTitle, issueCloseDate, imageUri, width, height, x, y, uploadId } =
-    useLocalSearchParams();
+  const {
+    issueTitle,
+    issueCloseDate,
+    issueStartDate,
+    photoDate: photoDateParam,
+    imageUri,
+    width,
+    height,
+    x,
+    y,
+    uploadId,
+  } = useLocalSearchParams();
 
   const [caption, setCaption] = useState('');
+  const [photoDate, setPhotoDate] = useState<Date>(() => {
+    const parsed = new Date(photoDateParam as string);
+    return isNaN(parsed.getTime()) ? new Date() : parsed;
+  });
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  const issueStart = issueStartDate
+    ? new Date(issueStartDate as string)
+    : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
   const uploadImageDetailsMutation = useUploadImageDetailsMutation();
 
@@ -64,6 +83,7 @@ export default function Caption() {
     uploadImageDetailsMutation.mutate({
       uploadId: uploadId as string,
       caption,
+      photoDate: photoDate.toISOString(),
       x: Number(x),
       y: Number(y),
       width: Number(width),
@@ -103,6 +123,12 @@ export default function Caption() {
             </View>
           </View>
         )}
+
+        <PhotoDateRow
+          value={photoDate}
+          issueStart={issueStart}
+          onChange={setPhotoDate}
+        />
 
         <View
           style={{
