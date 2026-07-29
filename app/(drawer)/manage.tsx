@@ -1,21 +1,21 @@
 import CreditCardIcon from '@/assets/icons/credit-card.svg';
 import HelpIcon from '@/assets/icons/help.svg';
 import ImageIcon from '@/assets/icons/image.svg';
-import SettingsIcon from '@/assets/icons/settings.svg';
 import PlusIcon from '@/assets/icons/plus.svg';
+import SettingsIcon from '@/assets/icons/settings.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
 import Placeholder from '@/assets/images/placeholder.png';
 import { useAuth } from '@/components/AuthProvider';
-import Error from '@/components/Error';
 import CircleSettingsContents from '@/components/CircleSettingsContents';
-import LeaveCircleContents from '@/components/LeaveCircleContents';
+import Error from '@/components/Error';
 import InviteModalContents from '@/components/InviteModalContents';
+import LeaveCircleContents from '@/components/LeaveCircleContents';
 import Loading from '@/components/Loading';
-import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
-import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
 import PopPressable from '@/components/PopPressable';
 import RecipientsHelpContents from '@/components/RecipientsHelpContents';
 import UserItem from '@/components/UserItem';
+import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
+import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetCircleQuery, useGetSelfQuery } from '@/lib/hooks';
@@ -223,9 +223,13 @@ export default function Manage() {
             alignItems: 'center',
             columnGap: Spacings.sm,
             marginBottom: Spacings.md,
+            justifyContent: 'space-between'
           }}>
           <Text style={textStyles.heading3}>Recipients</Text>
-          <PopPressable onPress={handleRecipientsHelp} hitSlop={Spacings.sm}>
+          <PopPressable
+            onPress={handleRecipientsHelp}
+            style={{ paddingHorizontal: Spacings.mdsm, }}
+            hitSlop={Spacings.sm}>
             <HelpIcon height={22} width={22} color={'#B05637'} />
           </PopPressable>
         </View>

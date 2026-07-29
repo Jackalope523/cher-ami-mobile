@@ -287,7 +287,7 @@ export default function FeedContents() {
               </Text>
               <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
                 Add the name and address of the person you&apos;d like to
-                surprise — we&apos;ll mail them this month&apos;s magazine at
+                mail your photos to at
                 the end of the month.
               </Text>
 
