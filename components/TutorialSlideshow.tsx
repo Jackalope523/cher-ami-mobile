@@ -1,6 +1,6 @@
-import CameraImage from '@/assets/images/camera.png';
-import Hedgehog from '@/assets/images/hedgehog.png';
-import MailboxImage from '@/assets/images/mailbox.png';
+import Bears from '@/assets/images/bears.png';
+import Mice from '@/assets/images/mice.png';
+import Pigeon from '@/assets/images/pigeon.png';
 import Squirrel from '@/assets/images/squirrel.png';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
@@ -38,21 +38,21 @@ const SLIDES: Slide[] = [
   },
   {
     id: 'share',
-    image: CameraImage,
+    image: Mice,
     imageAspectRatio: 1,
     title: 'Share photos together',
     body: 'Everyone in your family circle can add photos and captions all month long.',
   },
   {
     id: 'print',
-    image: MailboxImage,
+    image: Pigeon,
     imageAspectRatio: 1,
     title: 'We print and mail it',
     body: 'At the end of the month, your photos become a beautiful glossy magazine, delivered right to their mailbox.',
   },
   {
     id: 'simple',
-    image: Hedgehog,
+    image: Bears,
     imageAspectRatio: 160 / 223,
     title: 'No tech needed on their end',
     body: 'Whoever receives it doesn’t need an app, an account, or Wi-Fi. The magazine simply arrives.',
