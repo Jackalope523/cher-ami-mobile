@@ -160,7 +160,7 @@ export function useConfigQuery() {
   });
 }
 
-export function useGetSelfQuery() {
+export function useGetSelfQuery(enabled: boolean = true) {
   const api = useAPI();
 
   return useQuery<UserDTO, AxiosError>({
@@ -169,6 +169,7 @@ export function useGetSelfQuery() {
       const response = await api.get<UserDTO>('/user');
       return response.data;
     },
+    enabled,
   });
 }
 
@@ -600,6 +601,10 @@ export function useUpdateUserMutation(
       formData.append('FirstName', request.firstName);
       formData.append('LastName', request.lastName);
 
+      if (request.dateOfBirth) {
+        formData.append('DateOfBirth', request.dateOfBirth);
+      }
+
       if (request.avatarUrl) {
         formData.append('Avatar', {
           uri: request.avatarUrl,
@@ -671,6 +676,21 @@ export function useUpdateCircleMutation(
     onError: (error) => {
       showToastMessage('Network error. Try again.', ToastMessageType.Error);
       if (onError) onError(error);
+    },
+  });
+}
+
+export function useCompleteOnboardingMutation() {
+  const api = useAPI();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, AxiosError, void>({
+    mutationKey: ['CompleteOnboarding'],
+    mutationFn: async () => {
+      await api.post('/user/onboarding/complete');
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['User', 'Self'] });
     },
   });
 }
@@ -749,11 +769,14 @@ export function useCreateCircleMutation(
       const formData = new FormData();
 
       formData.append('Title', request.title);
-      formData.append('Image', {
-        uri: request.imageUri,
-        type: 'image/jpeg',
-        name: 'header.jpg',
-      } as any);
+
+      if (request.imageUri) {
+        formData.append('Image', {
+          uri: request.imageUri,
+          type: 'image/jpeg',
+          name: 'header.jpg',
+        } as any);
+      }
 
       const response = await api.post('/circle', formData, {
         headers: {

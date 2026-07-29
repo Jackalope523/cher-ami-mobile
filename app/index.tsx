@@ -79,6 +79,9 @@ export default function Index() {
     (response) => {
       updateToken(response.token);
       updateOnboarded(response.onboarded);
+      if (!response.onboarded) {
+        router.replace('/onboarding/welcome');
+      }
     },
     () => {
       showToast('Failed to log in. Try again.', ToastMessageType.Error);
@@ -88,6 +91,9 @@ export default function Index() {
     (response) => {
       updateToken(response.token);
       updateOnboarded(response.onboarded);
+      if (!response.onboarded) {
+        router.replace('/onboarding/welcome');
+      }
     },
     () => {
       showToast('Failed to log in. Try again.', ToastMessageType.Error);

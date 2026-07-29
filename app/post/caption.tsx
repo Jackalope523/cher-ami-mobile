@@ -32,6 +32,7 @@ export default function Caption() {
     x,
     y,
     uploadId,
+    next,
   } = useLocalSearchParams();
 
   const [caption, setCaption] = useState('');
@@ -91,7 +92,9 @@ export default function Caption() {
       imageUri: imageUri as string,
     });
 
-    router.replace('/feed');
+    // Onboarding passes its next step so posting doesn't drop the user into
+    // the feed mid-flow.
+    router.replace(next === '/onboarding/setup' ? next : '/feed');
   }
 
   function buttonDisabled() {

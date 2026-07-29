@@ -5,6 +5,7 @@ import {
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
+import TextInput from '@/components/TextInput';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useCreateCircleMutation } from '@/lib/hooks';
@@ -12,19 +13,29 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
-export default function CircleHeader() {
-  const { circleName } = useLocalSearchParams();
+export default function CircleSetup() {
+  const { onboarding } = useLocalSearchParams();
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const pickImageAsync = useImagePicker();
+
+  const [circleName, setCircleName] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const isOnboarding = onboarding === '1';
   const circleMutation = useCreateCircleMutation(
-    () => {
+    async () => {
       showToastMessage('Family circle created!', ToastMessageType.Success);
-      queryClient.invalidateQueries({ queryKey: ['Circle'] });
-      router.replace('/feed');
+      await queryClient.invalidateQueries({ queryKey: ['Circle'] });
+
+      if (isOnboarding) {
+        router.push('/onboarding/setup');
+      } else {
+        router.replace('/feed');
+      }
     },
     (error) => {
       console.log(error);
@@ -38,44 +49,53 @@ export default function CircleHeader() {
       height: 186,
       cropping: true,
     }).then((x) => {
-      setSelectedImage(x?.uri ?? null);
+      if (x !== null) {
+        setSelectedImage(x.uri);
+      }
     });
   }
 
   function handleCreateCircle() {
-    if (!selectedImage) {
-      throw new Error('Selected image is null.');
-    }
-
+    Keyboard.dismiss();
     circleMutation.mutate({
-      title: circleName as string,
+      title: circleName.trim(),
       imageUri: selectedImage,
     });
   }
 
+  // A cover photo is still required: the deployed server's create-circle
+  // validator dereferences the image without a null check, so skipping it
+  // would 500. Relax this once the matching server fix ships.
   function buttonDisabled() {
-    return !selectedImage || circleMutation.isPending;
+    return !circleName.trim() || !selectedImage || circleMutation.isPending;
   }
 
   return (
     <View style={styles.container}>
-      <View>
-        <Text
-          style={[
-            textStyles.heading1,
-            {
-              marginBottom: Spacings.md,
-            },
-          ]}>
-          Add a cover photo.
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        overScrollMode="never">
+        <Text style={[textStyles.heading1, { marginBottom: Spacings.md }]}>
+          Name your family circle.
         </Text>
-        <Text
-          style={[
-            textStyles.body,
-            {
-              marginBottom: Spacings.lg,
-            },
-          ]}>
+        <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
+          This is the name your family will see in the app — something like
+          &ldquo;The Harper Family.&rdquo;
+        </Text>
+        <TextInput
+          placeholder="Family circle name"
+          maxLength={100}
+          value={circleName}
+          onChangeText={setCircleName}
+          autoCapitalize="words"
+          containerStyle={{ marginBottom: Spacings.xl }}
+        />
+
+        <Text style={[textStyles.heading4, { marginBottom: Spacings.sm }]}>
+          Add a cover photo
+        </Text>
+        <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
           Pick a favorite family photo — it will sit at the top of your family
           circle.
         </Text>
@@ -83,20 +103,13 @@ export default function CircleHeader() {
           {selectedImage ? (
             <Image source={selectedImage} style={styles.image} />
           ) : (
-            <View
-              style={{
-                backgroundColor: '#F4F1EA',
-                borderRadius: 32,
-                width: Dimensions.get('window').width - 40,
-                aspectRatio: 2 / 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <PlusIcon height={96} width={96} color={'#868581'} />
+            <View style={styles.imagePlaceholder}>
+              <PlusIcon height={64} width={64} color={'#868581'} />
             </View>
           )}
         </PopPressable>
-      </View>
+      </ScrollView>
+
       <PopPressable
         onPress={handleCreateCircle}
         disabled={buttonDisabled()}
@@ -130,10 +143,20 @@ const styles = StyleSheet.create({
   imageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: Spacings.lg,
+  },
+
+  imagePlaceholder: {
+    backgroundColor: '#F4F1EA',
+    borderRadius: 32,
+    width: Dimensions.get('window').width - 2 * Spacings.lgmd,
+    aspectRatio: 2 / 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   image: {
-    width: Dimensions.get('window').width - 40,
+    width: Dimensions.get('window').width - 2 * Spacings.lgmd,
     aspectRatio: 2 / 1,
     borderRadius: 32,
   },
@@ -146,6 +169,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 2,
     borderColor: '#C15F3C',
-    marginBottom: Spacings.lgmd,
+    marginVertical: Spacings.lgmd,
   },
 });

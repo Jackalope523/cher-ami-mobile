@@ -8,7 +8,7 @@ import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useEmailAuthMutation, useEmailVerifyMutation } from '@/lib/hooks';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
@@ -23,6 +23,9 @@ export default function Verify() {
     (response) => {
       updateToken(response.token);
       updateOnboarded(response.onboarded);
+      if (!response.onboarded) {
+        router.replace('/onboarding/welcome');
+      }
     },
     (_) => {
       showToast(

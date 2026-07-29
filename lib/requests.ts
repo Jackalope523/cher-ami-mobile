@@ -45,12 +45,13 @@ export interface EmailVerifyRequest {
 export interface UpdateUserRequest {
   firstName: string;
   lastName: string;
+  dateOfBirth?: string | null;
   avatarUrl: string | null;
 }
 
 export interface CreateCircleRequest {
   title: string;
-  imageUri: string;
+  imageUri: string | null;
 }
 
 export interface UpdateCircleRequest {

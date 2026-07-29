@@ -14,7 +14,16 @@ import { useState } from 'react';
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-export default function JoinOrCreateCircle() {
+interface JoinOrCreateCircleProps {
+  /** Set during first-run onboarding, which continues the flow after either choice. */
+  onboarding?: boolean;
+  onJoined?: () => void;
+}
+
+export default function JoinOrCreateCircle({
+  onboarding = false,
+  onJoined,
+}: JoinOrCreateCircleProps) {
   const queryClient = useQueryClient();
   const showToastMessage = useToastMessage();
   const [circleCode, setCircleCode] = useState('');
@@ -22,6 +31,7 @@ export default function JoinOrCreateCircle() {
     async () => {
       await queryClient.invalidateQueries({ queryKey: ['Circle'] });
       showToastMessage("You're in!", ToastMessageType.Success);
+      onJoined?.();
     },
     (error) => {
       console.log(error);
@@ -40,7 +50,10 @@ export default function JoinOrCreateCircle() {
   }
 
   function handleCreatePress() {
-    router.push('/onboarding/circleName');
+    router.push({
+      pathname: '/onboarding/circleSetup',
+      params: onboarding ? { onboarding: '1' } : {},
+    });
   }
 
   function joinButtonDisabled() {
