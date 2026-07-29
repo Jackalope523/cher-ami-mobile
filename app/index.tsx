@@ -1,8 +1,8 @@
 import AppleIcon from '@/assets/icons/apple-logo.svg';
 import GoogleIcon from '@/assets/icons/google-logo.svg';
-import Squirrel from '@/assets/images/squirrel.png';
 import Title from '@/assets/images/title.png';
 import { useAuth } from '@/components/AuthProvider';
+import LandingIllustration from '@/components/LandingIllustration';
 import {
   ToastMessageType,
   useToastMessage,
@@ -202,16 +202,7 @@ export default function Index() {
             justifyContent: 'center',
             marginBottom: Spacings.lgmd,
           }}>
-          <Image
-            source={Squirrel}
-            style={{
-              width: '90%',
-              height: '90%',
-              aspectRatio: 288 / 228,
-              maxWidth: 288,
-              maxHeight: 228,
-            }}
-          />
+          <LandingIllustration />
         </View>
       )}
 
