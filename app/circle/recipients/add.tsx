@@ -2,25 +2,30 @@ import PlusIcon from '@/assets/icons/plus.svg';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
-import MilitaryQuestion from '@/components/MilitaryQuestion';
+import MilitaryQuestionContents from '@/components/MilitaryQuestionContents';
 import {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
+import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
 import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
+import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
   useAddPaymentMethodMutation,
   useAddRecipientMutation,
+  useFeedPostsInfiniteQuery,
+  useGetCircleQuery,
   useGetPaymentMethodQuery,
   useGetPriceQuery,
   useGetSelfQuery,
 } from '@/lib/hooks';
-import { getNextMonthName } from '@/lib/utility';
+import { billingSchedule } from '@/lib/utility';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
+import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
@@ -30,7 +35,10 @@ export default function AddRecipient() {
   const pickImageAsync = useImagePicker();
   const queryClient = useQueryClient();
   const showToastMessage = useToastMessage();
+  const { displayDialogue } = useDialogueModal();
   const getPriceQuery = useGetPriceQuery();
+  const feedQuery = useFeedPostsInfiniteQuery();
+  const circleQuery = useGetCircleQuery();
   const getPaymentMethodQuery = useGetPaymentMethodQuery();
   const userQuery = useGetSelfQuery();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -52,7 +60,7 @@ export default function AddRecipient() {
         submitRecipient();
       } else {
         showToastMessage(
-          'A payment method is needed to add a recipient.',
+          'We need a card on file before we can send magazines.',
           ToastMessageType.Informational,
         );
       }
@@ -64,6 +72,36 @@ export default function AddRecipient() {
 
   const needsBilling =
     !getPaymentMethodQuery.data && !userQuery.data?.isBillingExempt;
+
+  // The free magazine is one per circle, so it only applies while nobody in
+  // the circle receives one yet — a second recipient is billed from their
+  // first shipment.
+  const freeFirstMagazine = (circleQuery.data?.recipients.length ?? 0) === 0;
+
+  // Dates come from the magazine they're actually joining, not from "now" —
+  // a late-in-the-month sign-up rolls onto the following issue.
+  const schedule = billingSchedule(
+    feedQuery.data?.pages[0].issueCloseDate ?? null,
+    freeFirstMagazine,
+  );
+
+  const standardPrice = getPriceQuery.data?.standardEditionPrice ?? 0;
+  const militaryPrice = getPriceQuery.data?.militaryEditionPrice ?? 0;
+  const priceFor = (veteran: boolean) =>
+    veteran ? militaryPrice : standardPrice;
+
+  // What they already pay for, so the total reflects every magazine rather
+  // than just the one being added.
+  const existingRecipients = userQuery.data?.recipients ?? [];
+  const existingCost = existingRecipients.reduce(
+    (total, recipient) => total + priceFor(recipient.isVeteran),
+    0,
+  );
+  const newCost = priceFor(isVeteran);
+  const monthlyTotal = existingCost + newCost;
+  const magazineCount = existingRecipients.length + 1;
+
+  const asDollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -116,6 +154,15 @@ export default function AddRecipient() {
       isVeteran,
     });
     router.back();
+  }
+
+  function handleMilitaryQuestion() {
+    displayDialogue(
+      <MilitaryQuestionContents
+        isVeteran={isVeteran}
+        onChange={setIsVeteran}
+      />,
+    );
   }
 
   function handleAdd() {
@@ -247,7 +294,13 @@ export default function AddRecipient() {
           autoCapitalize="words"
           autoCorrect={false}
         />
-        <MilitaryQuestion isVeteran={isVeteran} onChange={setIsVeteran} />
+        <PopPressable onPress={handleMilitaryQuestion} hitSlop={Spacings.sm}>
+          <Text style={[textStyles.caption, styles.militaryLink]}>
+            {isVeteran
+              ? 'Military Edition applied — 20% off. Change'
+              : 'Sending to a veteran or service member?'}
+          </Text>
+        </PopPressable>
       </View>
       <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
       <View style={styles.summaryItemList}>
@@ -255,11 +308,23 @@ export default function AddRecipient() {
           <Text style={textStyles.labelLargeBlack}>Renewal</Text>
           <Text style={textStyles.labelSmall}>Monthly</Text>
         </View>
+        {existingRecipients.length > 0 && (
+          <View style={styles.summaryItem}>
+            <Text style={textStyles.labelLargeBlack}>
+              {existingRecipients.length === 1
+                ? 'Magazine you already send'
+                : `Magazines you already send (${existingRecipients.length})`}
+            </Text>
+            <Text style={textStyles.labelSmall}>{asDollars(existingCost)}</Text>
+          </View>
+        )}
         <View style={styles.summaryItem}>
           <Text style={textStyles.labelLargeBlack}>
-            {isVeteran ? '1 Magazine (Military Edition)' : '1 Magazine'}
+            {isVeteran
+              ? `${name || 'This recipient'} (Military Edition)`
+              : name || 'This recipient'}
           </Text>
-          <Text style={textStyles.labelSmall}>Monthly</Text>
+          <Text style={textStyles.labelSmall}>{asDollars(newCost)}</Text>
         </View>
         <View style={styles.summaryItem}>
           <Text style={textStyles.labelLargeBlack}>Delivery</Text>
@@ -270,25 +335,92 @@ export default function AddRecipient() {
           <Text style={textStyles.labelSmall}>---</Text>
         </View>
         <View style={styles.divider} />
+        {freeFirstMagazine && (
+          <View style={styles.summaryItem}>
+            <Text style={[textStyles.labelLargeBlack, styles.freeLabel]}>
+              {schedule
+                ? `First magazine (${schedule.firstShipmentMonth}) — on us`
+                : 'First magazine — on us'}
+            </Text>
+            <Text style={[textStyles.labelLargeBlack, styles.freeLabel]}>
+              FREE
+            </Text>
+          </View>
+        )}
         <View style={styles.summaryItem}>
-          <Text style={textStyles.labelSmall}>Total per month</Text>
-          <Text style={textStyles.labelSmall}>
-            $
-            {(isVeteran
-              ? getPriceQuery.data.militaryEditionPrice
-              : getPriceQuery.data.standardEditionPrice) / 100}
+          <Text style={textStyles.labelLargeBlack}>Due today</Text>
+          <Text style={textStyles.labelLargeBlack}>$0.00</Text>
+        </View>
+        <View style={styles.summaryItem}>
+          <Text style={textStyles.labelLargeBlack}>
+            {schedule
+              ? `Then from ${schedule.firstChargeDate}`
+              : 'Then each month'}
+            {magazineCount > 1 ? ` (${magazineCount} magazines)` : ''}
+          </Text>
+          <Text style={textStyles.labelLargeBlack}>
+            {asDollars(monthlyTotal)}/mo
           </Text>
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>
-          {`*This is a monthly subscription, billed on the 1st of each month starting ${getNextMonthName()} 1st. Cancel anytime.`}
+          {schedule
+            ? `*Billed on the 1st of a month only when a magazine goes out that month, starting ${schedule.firstChargeDate}. Cancel anytime.`
+            : '*Billed monthly, and only when a magazine goes out. Cancel anytime.'}
         </Text>
       </View>
-      {needsBilling && (
-        <Text style={[textStyles.caption, { marginBottom: Spacings.md }]}>
-          Next, we&apos;ll ask for a payment method. You won&apos;t be charged
-          until {getNextMonthName()} 1st.
+      <View style={styles.billingNote}>
+        <Text
+          style={[textStyles.labelLargeBlack, { marginBottom: Spacings.xs }]}>
+          {needsBilling ? 'Why we ask for a card now' : 'How billing works'}
         </Text>
-      )}
+        {schedule ? (
+          <Text style={[textStyles.body, { marginBottom: Spacings.sm }]}>
+            This month&apos;s magazine closes {schedule.closesOn} and goes in
+            the mail in {schedule.firstShipmentMonth}
+            {freeFirstMagazine
+              ? ` — that one is on us, so there is nothing to pay for it. Your first payment is ${schedule.firstChargeDate}, for ${schedule.firstChargeMonth}'s magazine.`
+              : `, and that is what your first payment on ${schedule.firstChargeDate} covers.`}
+          </Text>
+        ) : (
+          // Without the issue's closing date we can still explain the rhythm,
+          // just not the exact months.
+          <Text style={[textStyles.body, { marginBottom: Spacings.sm }]}>
+            Each magazine closes at the end of its month and goes in the mail
+            at the start of the next one.
+            {freeFirstMagazine
+              ? ' Your first one is on us — your first payment comes when the magazine after it is sent.'
+              : ' Your first payment comes when their first magazine is sent.'}
+          </Text>
+        )}
+        <Text style={textStyles.body}>
+          We only charge when a magazine is actually sent. If no photos are
+          added one month, no magazine goes out and there&apos;s nothing to pay.
+        </Text>
+        {needsBilling && (
+          <Text style={[textStyles.body, { marginTop: Spacings.sm }]}>
+            Nothing is charged today.
+            {schedule
+              ? ` Your first payment would be ${schedule.firstChargeDate}, for ${schedule.firstChargeMonth}'s magazine, and you can cancel any time before then.`
+              : ' We ask for a card now so later magazines keep arriving without us having to interrupt you each month.'}
+          </Text>
+        )}
+      </View>
+      <Text style={[textStyles.caption, styles.terms]}>
+        By adding a recipient you agree to our{' '}
+        <Text
+          onPress={() => openURL('https://thecherami.com/legal/terms')}
+          style={[textStyles.caption, styles.termsLink]}>
+          Terms and Conditions
+        </Text>{' '}
+        and{' '}
+        <Text
+          onPress={() => openURL('https://thecherami.com/legal/privacy')}
+          style={[textStyles.caption, styles.termsLink]}>
+          Privacy Policy
+        </Text>
+        .
+      </Text>
+
       <PopPressable
         onPress={handleAdd}
         disabled={buttonDisabled()}
@@ -315,6 +447,32 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
     backgroundColor: '#FCFBF8',
+  },
+
+  freeLabel: {
+    color: '#779443',
+  },
+
+  terms: {
+    textAlign: 'center',
+    marginBottom: Spacings.md,
+  },
+
+  termsLink: {
+    textDecorationLine: 'underline',
+  },
+
+  militaryLink: {
+    color: '#868581',
+    textDecorationLine: 'underline',
+    marginBottom: Spacings.md,
+  },
+
+  billingNote: {
+    backgroundColor: '#F4F1EA',
+    borderRadius: borderRadius.mdsm,
+    padding: Spacings.md,
+    marginBottom: Spacings.md,
   },
 
   avatarContainer: {

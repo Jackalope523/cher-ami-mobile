@@ -1,15 +1,15 @@
 import CreditCardIcon from '@/assets/icons/credit-card.svg';
 import HelpIcon from '@/assets/icons/help.svg';
 import ImageIcon from '@/assets/icons/image.svg';
-import SettingsIcon from '@/assets/icons/log-out.svg';
-import EditIcon from '@/assets/icons/pencil.svg';
+import SettingsIcon from '@/assets/icons/settings.svg';
 import PlusIcon from '@/assets/icons/plus.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
 import Placeholder from '@/assets/images/placeholder.png';
 import { useAuth } from '@/components/AuthProvider';
 import Error from '@/components/Error';
-import InviteModalContents from '@/components/InviteModalContents';
+import CircleSettingsContents from '@/components/CircleSettingsContents';
 import LeaveCircleContents from '@/components/LeaveCircleContents';
+import InviteModalContents from '@/components/InviteModalContents';
 import Loading from '@/components/Loading';
 import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
 import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
@@ -63,16 +63,9 @@ export default function Manage() {
         updateCircleVariables.length > 0
           ? updateCircleVariables[0].title
           : circleQuery.data?.title ?? '',
-      headerRight: () => (
-        <PopPressable onPress={() => router.push('/circle/edit')}>
-          <EditIcon
-            height={24}
-            width={24}
-            color={'#C15F3C'}
-            style={{ marginRight: 10 }}
-          />
-        </PopPressable>
-      ),
+      // Editing now lives in the circle settings sheet at the bottom of this
+      // screen, so the header stays clean.
+      headerRight: undefined,
     });
   }, [circleQuery.data, navigation, updateCircleVariables]);
 
@@ -93,7 +86,15 @@ export default function Manage() {
   }
 
   function handleCircleSettings() {
-    displayDialogue(<LeaveCircleContents />);
+    displayBottomSheet(
+      <CircleSettingsContents
+        dismissModal={dismissBottomSheetModal}
+        onLeave={() => {
+          dismissBottomSheetModal();
+          displayDialogue(<LeaveCircleContents />);
+        }}
+      />,
+    );
   }
 
   if (circleQuery.isError || userQuery.isError) {
@@ -333,7 +334,7 @@ export default function Manage() {
               columnGap: Spacings.sm,
             }}>
             <SettingsIcon height={24} width={24} color={'#FFFFFF'} />
-            <Text style={textStyles.buttonTextWhite}>Leave</Text>
+            <Text style={textStyles.buttonTextWhite}>Settings</Text>
           </PopPressable>
         </Animated.View>
       )}

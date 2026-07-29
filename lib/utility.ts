@@ -54,6 +54,91 @@ export function withCalendarDay(day: Date, previous: Date): Date {
   return merged > now ? now : merged;
 }
 
+/**
+ * Builds an ISO `YYYY-MM-DD` string from separate fields, or null when the
+ * pieces don't describe a real past date. Rejects roll-over dates like
+ * Feb 31st, which `new Date()` would silently accept.
+ */
+export function toIsoDate(
+  year: string,
+  month: string,
+  day: string,
+): string | null {
+  if (!year || !month || !day) return null;
+
+  const y = Number(year);
+  const m = Number(month);
+  const d = Number(day);
+
+  if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d)) {
+    return null;
+  }
+  if (y < 1900 || m < 1 || m > 12 || d < 1 || d > 31) return null;
+
+  const date = new Date(y, m - 1, d);
+  if (
+    date.getFullYear() !== y ||
+    date.getMonth() !== m - 1 ||
+    date.getDate() !== d
+  ) {
+    return null;
+  }
+  if (date > new Date()) return null;
+
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${y}-${pad(m)}-${pad(d)}`;
+}
+
+/**
+ * When the first magazine ships and when billing actually starts.
+ *
+ * A magazine closes at the end of its drafting window and is printed and
+ * mailed the month after. Billing only ever happens when a magazine is sent,
+ * so a charge lands on the 1st of the month a magazine goes out.
+ *
+ * The free first magazine (one per circle) shifts that by a month: the first
+ * shipment costs nothing, so the first charge is for the one after it.
+ * Signing up on July 30th is the case worth checking — that magazine closes
+ * August 31st and ships in September, so the first charge is October 1st with
+ * the free magazine, or September 1st without it.
+ */
+export function billingSchedule(
+  issueCloseDate: Date | string | null,
+  freeFirstMagazine: boolean,
+) {
+  const close = issueCloseDate ? new Date(issueCloseDate) : null;
+
+  if (!close || isNaN(close.getTime())) return null;
+
+  const shipMonthOffset = 1;
+  const chargeMonthOffset = freeFirstMagazine ? 2 : 1;
+
+  const firstShipment = new Date(
+    close.getFullYear(),
+    close.getMonth() + shipMonthOffset,
+    1,
+  );
+  const firstCharge = new Date(
+    close.getFullYear(),
+    close.getMonth() + chargeMonthOffset,
+    1,
+  );
+
+  const monthName = (date: Date) =>
+    date.toLocaleDateString('en-US', { month: 'long' });
+
+  return {
+    closesOn: close.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'UTC',
+    }),
+    firstShipmentMonth: monthName(firstShipment),
+    firstChargeMonth: monthName(firstCharge),
+    firstChargeDate: `${monthName(firstCharge)} 1st`,
+  };
+}
+
 export function getNextMonthName() {
   const monthNames = [
     'January',
