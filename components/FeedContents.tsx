@@ -20,6 +20,7 @@ import {
   useUploadImageMutation,
 } from '@/lib/hooks';
 import { UploadImageDetailsRequest } from '@/lib/requests';
+import { FeedPost } from '@/lib/responses';
 import { defaultPhotoDate } from '@/lib/utility';
 import { useMutationState } from '@tanstack/react-query';
 import { Image, ImageBackground } from 'expo-image';
@@ -37,6 +38,9 @@ import {
   useToastMessage,
 } from './modals/ToastMessageProvider';
 
+/** Stand-in id for the photo currently uploading, which has no server id yet. */
+const PENDING_POST_ID = -1;
+
 export default function FeedContents() {
   const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
   const circleQuery = useGetCircleQuery();
@@ -49,6 +53,21 @@ export default function FeedContents() {
     filters: { mutationKey: ['ImageDetails'], status: 'pending' },
     select: (mutation) => mutation.state.variables as UploadImageDetailsRequest,
   });
+
+  const pendingPost: FeedPost | null = variables[0]
+    ? {
+        id: PENDING_POST_ID,
+        authorId: userQuery.data?.id ?? 0,
+        photoDate: variables[0].photoDate
+          ? new Date(variables[0].photoDate)
+          : new Date(),
+        photoUrl: variables[0].imageUri,
+        photoPath: '',
+        imageWidth: variables[0].width,
+        imageHeight: variables[0].height,
+        caption: variables[0].caption,
+      }
+    : null;
 
   function handleAddRecipient() {
     router.push('/circle/recipients/add');
@@ -189,66 +208,40 @@ export default function FeedContents() {
     );
   }
 
+  /**
+   * Each issue's header pins while you scroll that issue, and the next one
+   * pushes it up and takes its place.
+   *
+   * The current issue keeps the post counter's shape — title on the left with
+   * the progress bar beneath it, "x% full" and the chevron on the right — so
+   * its close date has no room and is left out. Past issues are closed, so they
+   * get a single compact row with how long ago they went out instead. Both are
+   * opaque: they sit over the feed while pinned.
+   */
   function renderIssueHeader(
     id: number | null,
     title: string | null,
     date: Date | null,
-    postCount: number | null,
   ) {
-    if (!title || !date) return <View />;
+    if (!title || !date) return null;
 
-    if (data?.pages[0].id === id) {
-      if (postCount === 0) {
-        return renderEmptyComponent(true);
-      } else {
-        return <View />;
-      }
+    if (id === data?.pages[0].id) {
+      return (
+        <View style={styles.currentIssueHeader}>
+          <PostCounter
+            issueTitle={title}
+            issueCloseDate={data?.pages[0].issueCloseDate}
+          />
+        </View>
+      );
     }
 
     return (
-      <View>
-        <View style={styles.issueStateContainer}>
-          <View style={styles.issueStateInfo}>
-            <Text style={textStyles.labelLargeBlack}>{title}</Text>
-            <Text
-              style={[
-                textStyles.captionMedium,
-                {
-                  textAlign: 'right',
-                },
-              ]}>
-              {date.toLocaleString('en-US', {
-                month: 'long',
-                year: 'numeric',
-                timeZone: 'UTC',
-              })}
-            </Text>
-          </View>
-          <View
-            style={{
-              paddingBottom: Spacings.md,
-              alignItems: 'center',
-            }}>
-            <View
-              style={{
-                paddingHorizontal: Spacings.mdsm,
-                paddingVertical: Spacings.xs,
-                borderRadius: borderRadius.sm,
-                backgroundColor: '#F4F1EA',
-              }}>
-              <Text
-                style={[
-                  textStyles.labelSmall,
-                  {
-                    textAlign: 'center',
-                  },
-                ]}>
-                {mapDateToText(date)}
-              </Text>
-            </View>
-          </View>
+      <View style={styles.issueHeader}>
+        <Text style={textStyles.labelLargeBlack}>{title}</Text>
+        <View style={styles.issueHeaderChip}>
+          <Text style={textStyles.labelSmall}>{mapDateToText(date)}</Text>
         </View>
-        {postCount === 0 && renderEmptyComponent(false)}
       </View>
     );
   }
@@ -256,10 +249,7 @@ export default function FeedContents() {
   function renderListHeader() {
     return (
       <View>
-        <PostCounter
-          issueTitle={data?.pages[0].issueTitle}
-          issueCloseDate={data?.pages[0].issueCloseDate}
-        />
+        {/* The post counter lives in the pinned issue header, not here. */}
         <View style={{ rowGap: Spacings.lg }}>
           {circleQuery.data?.recipients.length === 0 && !hideBanner && (
             <ImageBackground
@@ -320,23 +310,6 @@ export default function FeedContents() {
               <Image source={CameraImage} style={{ height: 64, width: 64 }} />
             </View>
           )}
-          {variables[0] && (
-            <Post
-              loading={variables[0] !== undefined}
-              post={{
-                id: -1,
-                authorId: userQuery.data?.id ?? 0,
-                photoDate: variables[0].photoDate
-                  ? new Date(variables[0].photoDate)
-                  : new Date(),
-                photoUrl: variables[0].imageUri,
-                photoPath: '',
-                imageWidth: variables[0].width,
-                imageHeight: variables[0].height,
-                caption: variables[0].caption,
-              }}
-            />
-          )}
           {data?.pages[0].posts.length === 20 && (
             <View style={styles.toast}>
               <Text
@@ -377,30 +350,42 @@ export default function FeedContents() {
       <SectionList
         showsVerticalScrollIndicator={false}
         overScrollMode="never"
-        stickySectionHeadersEnabled={false}
+        stickySectionHeadersEnabled
         sections={
-          data.pages.map((page) => ({
+          data.pages.map((page, index) => ({
             id: page.id,
             title: page.issueTitle,
             date: page.issueDate,
             status: page.status,
-            data: page.posts,
+            // The photo being uploaded belongs under the current issue's
+            // header, not above it.
+            data:
+              index === 0 && pendingPost ? [pendingPost, ...page.posts] : page.posts,
           })) ?? []
         }
+        keyExtractor={(item) => String(item.id)}
         renderItem={({ item, section }) => (
           <Post
             post={item}
-            editable={section.status === IssueStatus.Drafting}
+            loading={item.id === PENDING_POST_ID}
+            editable={
+              item.id !== PENDING_POST_ID &&
+              section.status === IssueStatus.Drafting
+            }
             issueStartDate={section.date}
           />
         )}
         renderSectionHeader={({ section }) =>
-          renderIssueHeader(
-            section.id,
-            section.title,
-            section.date,
-            section.data.length,
-          )
+          renderIssueHeader(section.id, section.title, section.date)
+        }
+        // The empty-state art belongs to the issue but must scroll with it —
+        // section footers are never pinned, unlike headers.
+        renderSectionFooter={({ section }) =>
+          // A page past the last issue comes back with everything null and no
+          // posts — it isn't a real issue, so it gets no empty state.
+          section.id !== null && section.data.length === 0
+            ? renderEmptyComponent(section.id === data.pages[0].id)
+            : null
         }
         ListHeaderComponent={renderListHeader()}
         onEndReached={handleOnEndReached}
@@ -449,15 +434,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  issueStateContainer: {
+  currentIssueHeader: {
+    // Opaque: this sits over the feed while pinned.
     backgroundColor: '#FCFBF8',
-    paddingHorizontal: 20,
-    rowGap: Spacings.sm,
+    paddingTop: Spacings.sm,
+    borderBottomWidth: 1.5 / 2,
+    borderBottomColor: '#DEDBD5',
   },
 
-  issueStateInfo: {
+  issueHeader: {
+    // Opaque: this sits over the feed while pinned.
+    backgroundColor: '#FCFBF8',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: Spacings.sm,
+    columnGap: Spacings.sm,
+    borderBottomWidth: 1.5 / 2,
+    borderBottomColor: '#DEDBD5',
+  },
+
+  issueHeaderChip: {
+    paddingHorizontal: Spacings.mdsm,
+    paddingVertical: Spacings.xs,
+    borderRadius: borderRadius.sm,
+    backgroundColor: '#F4F1EA',
   },
 
   button: {
