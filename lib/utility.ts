@@ -110,22 +110,20 @@ export function billingSchedule(
 
   if (!close || isNaN(close.getTime())) return null;
 
-  const shipMonthOffset = 1;
   const chargeMonthOffset = freeFirstMagazine ? 2 : 1;
 
+  // All arithmetic and formatting stays in UTC. The close date is the last
+  // instant of a month in UTC, so reading it with local getters rolls into the
+  // next month for anyone east of UTC and reports every date a month late.
   const firstShipment = new Date(
-    close.getFullYear(),
-    close.getMonth() + shipMonthOffset,
-    1,
+    Date.UTC(close.getUTCFullYear(), close.getUTCMonth() + 1, 1),
   );
   const firstCharge = new Date(
-    close.getFullYear(),
-    close.getMonth() + chargeMonthOffset,
-    1,
+    Date.UTC(close.getUTCFullYear(), close.getUTCMonth() + chargeMonthOffset, 1),
   );
 
   const monthName = (date: Date) =>
-    date.toLocaleDateString('en-US', { month: 'long' });
+    date.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
 
   return {
     closesOn: close.toLocaleDateString('en-US', {

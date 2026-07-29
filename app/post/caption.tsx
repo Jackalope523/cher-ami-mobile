@@ -92,9 +92,11 @@ export default function Caption() {
       imageUri: imageUri as string,
     });
 
-    // Onboarding passes its next step so posting doesn't drop the user into
-    // the feed mid-flow.
-    router.replace(next === '/onboarding/setup' ? next : '/feed');
+    if (next === '/onboarding/setup') {
+      router.dismissTo(next);
+    } else {
+      router.replace('/feed');
+    }
   }
 
   function buttonDisabled() {

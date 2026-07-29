@@ -173,14 +173,19 @@ export default function AddRecipient() {
     }
   }
 
-  if (getPriceQuery.isError || getPaymentMethodQuery.isError) {
+  if (
+    getPriceQuery.isError ||
+    getPaymentMethodQuery.isError ||
+    circleQuery.isError
+  ) {
     return <Error />;
   }
 
   if (
     getPriceQuery.isLoading ||
     getPaymentMethodQuery.isLoading ||
-    userQuery.isLoading
+    userQuery.isLoading ||
+    circleQuery.isLoading
   ) {
     return <Loading />;
   }

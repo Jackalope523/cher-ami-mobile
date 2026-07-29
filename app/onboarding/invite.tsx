@@ -18,8 +18,7 @@ export default function Invite() {
           now, or share the code whenever you like.
         </Text>
 
-        {/* Same share sheet and code the app uses everywhere else. */}
-        <InviteModalContents />
+        <InviteModalContents dismissModal={() => router.back()} />
       </ScrollView>
 
       <PopPressable onPress={() => router.back()} style={styles.button}>
