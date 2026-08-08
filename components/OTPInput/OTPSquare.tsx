@@ -1,6 +1,7 @@
 import { textStyles } from '@/constants/TextStyles';
 import { Dimensions, StyleSheet, Text } from 'react-native';
 import Animated, {
+  interpolateColor,
   useAnimatedStyle,
   useDerivedValue,
   withTiming,
@@ -12,14 +13,25 @@ interface OTPSquareProps {
 }
 
 export default function OTPSquare({ value, focused }: OTPSquareProps) {
-  const bw = useDerivedValue(() => {
-    return withTiming(focused ? 4 : 2, { duration: 200 });
+  const progress = useDerivedValue(() => {
+    return withTiming(focused ? 1 : 0, { duration: 150 });
   }, [focused]);
 
+  // The square being typed into is called out in the brand orange, with a
+  // faint fill, so it reads as "you are here" rather than merely thicker.
   const focusStyle = useAnimatedStyle(() => {
     return {
-      borderWidth: bw.value,
-      borderColor: focused ? '#242832' : '#DEDBD5',
+      borderWidth: 2 + 2 * progress.value,
+      borderColor: interpolateColor(
+        progress.value,
+        [0, 1],
+        ['#DEDBD5', '#C15F3C'],
+      ),
+      backgroundColor: interpolateColor(
+        progress.value,
+        [0, 1],
+        ['#FCFBF8', '#F4F1EA'],
+      ),
     };
   });
 

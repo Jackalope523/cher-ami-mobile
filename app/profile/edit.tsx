@@ -40,7 +40,7 @@ export default function EditProfile() {
       cropping: true,
     }).then((x) => {
       if (x !== null) {
-        setAvatar(x);
+        setAvatar(x.uri);
       }
     });
   }

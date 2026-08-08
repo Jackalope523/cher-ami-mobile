@@ -15,11 +15,18 @@ export interface UploadImageRequest {
 export interface UploadImageDetailsRequest {
   uploadId: string;
   caption: string;
+  photoDate: string;
   x: number;
   y: number;
   width: number;
   height: number;
   imageUri: string;
+}
+
+export interface UpdatePostRequest {
+  id: number;
+  caption: string;
+  photoDate: string;
 }
 
 export interface ImageRequest {
@@ -38,12 +45,13 @@ export interface EmailVerifyRequest {
 export interface UpdateUserRequest {
   firstName: string;
   lastName: string;
+  dateOfBirth?: string | null;
   avatarUrl: string | null;
 }
 
 export interface CreateCircleRequest {
   title: string;
-  imageUri: string;
+  imageUri: string | null;
 }
 
 export interface UpdateCircleRequest {

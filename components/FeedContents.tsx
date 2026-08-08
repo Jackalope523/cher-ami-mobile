@@ -12,14 +12,16 @@ import PostCounter from '@/components/PostCounter';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { IssueStatus } from '@/lib/enums';
 import {
   useFeedPostsInfiniteQuery,
   useGetCircleQuery,
-  useGetPaymentMethodQuery,
   useGetSelfQuery,
   useUploadImageMutation,
 } from '@/lib/hooks';
 import { UploadImageDetailsRequest } from '@/lib/requests';
+import { FeedPost } from '@/lib/responses';
+import { defaultPhotoDate } from '@/lib/utility';
 import { useMutationState } from '@tanstack/react-query';
 import { Image, ImageBackground } from 'expo-image';
 import { router } from 'expo-router';
@@ -36,11 +38,13 @@ import {
   useToastMessage,
 } from './modals/ToastMessageProvider';
 
+/** Stand-in id for the photo currently uploading, which has no server id yet. */
+const PENDING_POST_ID = -1;
+
 export default function FeedContents() {
   const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
   const circleQuery = useGetCircleQuery();
   const userQuery = useGetSelfQuery();
-  const getPaymentMethodQuery = useGetPaymentMethodQuery();
   const showToastMessage = useToastMessage();
   const [hideBanner, setHideBanner] = useState(false);
   const pickImageAsync = useImagePicker();
@@ -50,18 +54,29 @@ export default function FeedContents() {
     select: (mutation) => mutation.state.variables as UploadImageDetailsRequest,
   });
 
+  const pendingPost: FeedPost | null = variables[0]
+    ? {
+        id: PENDING_POST_ID,
+        authorId: userQuery.data?.id ?? 0,
+        photoDate: variables[0].photoDate
+          ? new Date(variables[0].photoDate)
+          : new Date(),
+        photoUrl: variables[0].imageUri,
+        photoPath: '',
+        imageWidth: variables[0].width,
+        imageHeight: variables[0].height,
+        caption: variables[0].caption,
+      }
+    : null;
+
   function handleAddRecipient() {
-    if (getPaymentMethodQuery.data || userQuery.data?.isBillingExempt) {
-      router.push('/circle/recipients/add');
-    } else {
-      router.push('/billing/add');
-    }
+    router.push('/circle/recipients/add');
   }
 
   async function handleCreatePost() {
     if (data?.pages[0].posts.length === 20) {
       showToastMessage(
-        "This month's issue is complete!",
+        "This month's magazine is full!",
         ToastMessageType.Informational,
       );
     } else {
@@ -71,13 +86,26 @@ export default function FeedContents() {
         if (x !== null) {
           uploadImageMutation.mutate({
             uploadId,
-            imageUri: x,
+            imageUri: x.uri,
           });
+
+          const issueStartDate = data?.pages[0].issueDate
+            ? new Date(data.pages[0].issueDate)
+            : null;
+
           router.push({
             pathname: '/post/size',
             params: {
               issueTitle: data?.pages[0].issueTitle,
-              imageUri: x,
+              issueCloseDate: data?.pages[0].issueCloseDate
+                ? new Date(data.pages[0].issueCloseDate).toISOString()
+                : undefined,
+              issueStartDate: issueStartDate?.toISOString(),
+              photoDate: defaultPhotoDate(
+                x.takenAt,
+                issueStartDate,
+              ).toISOString(),
+              imageUri: x.uri,
               uploadId,
             },
           });
@@ -126,7 +154,7 @@ export default function FeedContents() {
     return `${diffYears} Years Ago`;
   }
 
-  function renderEmptyComponent() {
+  function renderEmptyComponent(isCurrentIssue: boolean = true) {
     return (
       <View style={{ paddingVertical: 100 }}>
         <View
@@ -150,9 +178,20 @@ export default function FeedContents() {
             />
           </View>
 
-          <Text style={[textStyles.fancyText, { marginBottom: Spacings.xxl }]}>
-            {'Nothing to see here :('}
-          </Text>
+          <Text style={textStyles.fancyText}>{'No photos yet'}</Text>
+          {isCurrentIssue && (
+            <Text
+              style={[
+                textStyles.body,
+                {
+                  textAlign: 'center',
+                  color: '#868581',
+                  marginBottom: Spacings.xxl,
+                },
+              ]}>
+              Tap the + button to add the first one!
+            </Text>
+          )}
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Image
@@ -169,66 +208,40 @@ export default function FeedContents() {
     );
   }
 
+  /**
+   * Each issue's header pins while you scroll that issue, and the next one
+   * pushes it up and takes its place.
+   *
+   * The current issue keeps the post counter's shape — title on the left with
+   * the progress bar beneath it, "x% full" and the chevron on the right — so
+   * its close date has no room and is left out. Past issues are closed, so they
+   * get a single compact row with how long ago they went out instead. Both are
+   * opaque: they sit over the feed while pinned.
+   */
   function renderIssueHeader(
     id: number | null,
     title: string | null,
     date: Date | null,
-    postCount: number | null,
   ) {
-    if (!title || !date) return <View />;
+    if (!title || !date) return null;
 
-    if (data?.pages[0].id === id) {
-      if (postCount === 0) {
-        return renderEmptyComponent();
-      } else {
-        return <View />;
-      }
+    if (id === data?.pages[0].id) {
+      return (
+        <View style={styles.currentIssueHeader}>
+          <PostCounter
+            issueTitle={title}
+            issueCloseDate={data?.pages[0].issueCloseDate}
+          />
+        </View>
+      );
     }
 
     return (
-      <View>
-        <View style={styles.issueStateContainer}>
-          <View style={styles.issueStateInfo}>
-            <Text style={textStyles.labelLargeBlack}>{title}</Text>
-            <Text
-              style={[
-                textStyles.captionMedium,
-                {
-                  textAlign: 'right',
-                },
-              ]}>
-              {date.toLocaleString('en-US', {
-                month: 'long',
-                year: 'numeric',
-                timeZone: 'UTC',
-              })}
-            </Text>
-          </View>
-          <View
-            style={{
-              paddingBottom: Spacings.md,
-              alignItems: 'center',
-            }}>
-            <View
-              style={{
-                paddingHorizontal: Spacings.mdsm,
-                paddingVertical: Spacings.xs,
-                borderRadius: borderRadius.sm,
-                backgroundColor: '#F4F1EA',
-              }}>
-              <Text
-                style={[
-                  textStyles.labelSmall,
-                  {
-                    textAlign: 'center',
-                  },
-                ]}>
-                {mapDateToText(date)}
-              </Text>
-            </View>
-          </View>
+      <View style={styles.issueHeader}>
+        <Text style={textStyles.labelLargeBlack}>{title}</Text>
+        <View style={styles.issueHeaderChip}>
+          <Text style={textStyles.labelSmall}>{mapDateToText(date)}</Text>
         </View>
-        {postCount === 0 && renderEmptyComponent()}
       </View>
     );
   }
@@ -236,7 +249,7 @@ export default function FeedContents() {
   function renderListHeader() {
     return (
       <View>
-        <PostCounter issueTitle={data?.pages[0].issueTitle} />
+        {/* The post counter lives in the pinned issue header, not here. */}
         <View style={{ rowGap: Spacings.lg }}>
           {circleQuery.data?.recipients.length === 0 && !hideBanner && (
             <ImageBackground
@@ -273,12 +286,13 @@ export default function FeedContents() {
                 Who is this magazine for?
               </Text>
               <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
-                You haven&apos;t added a recipient yet. Add an address so we can
-                mail these memories to your loved ones at the end of the month!
+                Add the name and address of the person you&apos;d like to
+                mail your photos to at
+                the end of the month.
               </Text>
 
               <PopPressable onPress={handleAddRecipient} style={styles.button}>
-                <Text style={textStyles.buttonTextWhite}>Add recipient</Text>
+                <Text style={textStyles.buttonTextWhite}>Add a recipient</Text>
               </PopPressable>
             </ImageBackground>
           )}
@@ -291,25 +305,10 @@ export default function FeedContents() {
                     flexShrink: 1,
                   },
                 ]}>
-                {"Be the first to upload to this month's issue!"}
+                {"Be the first to add a photo to this month's magazine!"}
               </Text>
               <Image source={CameraImage} style={{ height: 64, width: 64 }} />
             </View>
-          )}
-          {variables[0] && (
-            <Post
-              loading={variables[0] !== undefined}
-              post={{
-                id: -1,
-                authorId: userQuery.data?.id ?? 0,
-                photoDate: new Date(),
-                photoUrl: variables[0].imageUri,
-                photoPath: '',
-                imageWidth: variables[0].width,
-                imageHeight: variables[0].height,
-                caption: variables[0].caption,
-              }}
-            />
           )}
           {data?.pages[0].posts.length === 20 && (
             <View style={styles.toast}>
@@ -320,7 +319,7 @@ export default function FeedContents() {
                     flexShrink: 1,
                   },
                 ]}>
-                {"This month's issue is full!"}
+                {"This month's magazine is full!"}
               </Text>
               <Image source={MailboxImage} style={{ height: 64, width: 64 }} />
             </View>
@@ -351,22 +350,42 @@ export default function FeedContents() {
       <SectionList
         showsVerticalScrollIndicator={false}
         overScrollMode="never"
+        stickySectionHeadersEnabled
         sections={
-          data.pages.map((page) => ({
+          data.pages.map((page, index) => ({
             id: page.id,
             title: page.issueTitle,
             date: page.issueDate,
-            data: page.posts,
+            status: page.status,
+            // The photo being uploaded belongs under the current issue's
+            // header, not above it.
+            data:
+              index === 0 && pendingPost ? [pendingPost, ...page.posts] : page.posts,
           })) ?? []
         }
-        renderItem={({ item }) => <Post post={item} />}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item, section }) => (
+          <Post
+            post={item}
+            loading={item.id === PENDING_POST_ID}
+            editable={
+              item.id !== PENDING_POST_ID &&
+              section.status === IssueStatus.Drafting
+            }
+            issueStartDate={section.date}
+          />
+        )}
         renderSectionHeader={({ section }) =>
-          renderIssueHeader(
-            section.id,
-            section.title,
-            section.date,
-            section.data.length,
-          )
+          renderIssueHeader(section.id, section.title, section.date)
+        }
+        // The empty-state art belongs to the issue but must scroll with it —
+        // section footers are never pinned, unlike headers.
+        renderSectionFooter={({ section }) =>
+          // A page past the last issue comes back with everything null and no
+          // posts — it isn't a real issue, so it gets no empty state.
+          section.id !== null && section.data.length === 0
+            ? renderEmptyComponent(section.id === data.pages[0].id)
+            : null
         }
         ListHeaderComponent={renderListHeader()}
         onEndReached={handleOnEndReached}
@@ -415,15 +434,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  issueStateContainer: {
+  currentIssueHeader: {
+    // Opaque: this sits over the feed while pinned.
     backgroundColor: '#FCFBF8',
-    paddingHorizontal: 20,
-    rowGap: Spacings.sm,
+    paddingTop: Spacings.sm,
+    borderBottomWidth: 1.5 / 2,
+    borderBottomColor: '#DEDBD5',
   },
 
-  issueStateInfo: {
+  issueHeader: {
+    // Opaque: this sits over the feed while pinned.
+    backgroundColor: '#FCFBF8',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: Spacings.sm,
+    columnGap: Spacings.sm,
+    borderBottomWidth: 1.5 / 2,
+    borderBottomColor: '#DEDBD5',
+  },
+
+  issueHeaderChip: {
+    paddingHorizontal: Spacings.mdsm,
+    paddingVertical: Spacings.xs,
+    borderRadius: borderRadius.sm,
+    backgroundColor: '#F4F1EA',
   },
 
   button: {

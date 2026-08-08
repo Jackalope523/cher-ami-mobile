@@ -10,11 +10,12 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetCircleQuery, useUpdateCircleMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 
 export default function EditRecipient() {
+  const { focus } = useLocalSearchParams();
   const { getToken } = useAuth();
   const circleQuery = useGetCircleQuery();
   const updateCircleMutation = useUpdateCircleMutation();
@@ -30,6 +31,15 @@ export default function EditRecipient() {
     }
   }, [circleQuery.data]);
 
+  const openedPicker = useRef(false);
+  useEffect(() => {
+    if (focus === 'header' && !openedPicker.current) {
+      openedPicker.current = true;
+      pickImage();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focus]);
+
   function pickImage() {
     pickImageAsync({
       width: 2 * 186,
@@ -37,7 +47,7 @@ export default function EditRecipient() {
       cropping: true,
     }).then((x) => {
       if (x !== null) {
-        setHeader(x);
+        setHeader(x.uri);
       }
     });
   }
@@ -108,11 +118,11 @@ export default function EditRecipient() {
         )}
       </PopPressable>
       <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
-        Change Header
+        Change cover photo
       </Text>
       <View style={styles.textInputs}>
         <TextInput
-          title="Title*"
+          title="Family circle name*"
           maxLength={100}
           value={title}
           onChangeText={setTitle}

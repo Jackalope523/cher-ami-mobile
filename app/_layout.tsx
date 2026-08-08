@@ -13,11 +13,16 @@ import ToastMessageProvider, {
 } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import { textStyles } from '@/constants/TextStyles';
-import { useConfigQuery, usePingMutation } from '@/lib/hooks';
+import {
+  useConfigQuery,
+  useGetSelfQuery,
+  usePingMutation,
+} from '@/lib/hooks';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { router, SplashScreen, Stack } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { OneSignal } from 'react-native-onesignal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
@@ -26,6 +31,7 @@ function RootNavigator() {
   const { loaded, getToken, getOnboarded } = useAuth();
   const showToastMessage = useToastMessage();
   const configQuery = useConfigQuery();
+  const selfQuery = useGetSelfQuery(getToken() !== null);
   const pingMutation = usePingMutation(
     () => {},
     (error) => {
@@ -43,6 +49,20 @@ function RootNavigator() {
       SplashScreen.hide();
     }
   }, [loaded]);
+
+  // Started once we have a signed-in user, not merely an open app: the server
+  // has already created the matching OneSignal user at sign-in, so we can
+  // attach this device to their external id straight away. Initializing any
+  // earlier would register a device for every visitor and begin tracking
+  // before anyone has an account.
+  const oneSignalStarted = useRef(false);
+  useEffect(() => {
+    if (configQuery.data && selfQuery.data && !oneSignalStarted.current) {
+      oneSignalStarted.current = true;
+      OneSignal.initialize(configQuery.data.oneSignalAppId);
+      OneSignal.login(selfQuery.data.externalId);
+    }
+  }, [configQuery.data, selfQuery.data]);
 
   if (!loaded) {
     return null;
@@ -90,9 +110,16 @@ function RootNavigator() {
         </Stack.Protected>
         <Stack.Protected guard={getToken() !== null}>
           <Stack.Protected guard={!getOnboarded()}>
-            <Stack.Screen name="onboarding/firstName" options={{ title: '' }} />
-            <Stack.Screen name="onboarding/lastName" options={{ title: '' }} />
+            <Stack.Screen
+              name="onboarding/welcome"
+              options={{ title: '', headerShown: false }}
+            />
+            <Stack.Screen name="onboarding/about" options={{ title: '' }} />
+            <Stack.Screen name="onboarding/circle" options={{ title: '' }} />
+            <Stack.Screen name="onboarding/setup" options={{ title: '' }} />
+            <Stack.Screen name="onboarding/invite" options={{ title: '' }} />
           </Stack.Protected>
+
           <Stack.Protected guard={getOnboarded() ?? false}>
             <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
             <Stack.Screen
@@ -104,7 +131,7 @@ function RootNavigator() {
             <Stack.Screen
               name="circle/edit"
               options={{
-                title: 'Edit Circle',
+                title: 'Edit Family Circle',
               }}
             />
             <Stack.Screen
@@ -125,33 +152,15 @@ function RootNavigator() {
               }}
             />
             <Stack.Screen
-              name="post/caption"
+              name="post/edit"
               options={{
-                title: 'Write a Caption',
-              }}
-            />
-            <Stack.Screen
-              name="post/size"
-              options={{
-                title: 'Choose Image Shape',
-              }}
-            />
-            <Stack.Screen
-              name="billing/add"
-              options={{
-                headerShown: false,
+                title: 'Edit Photo',
               }}
             />
             <Stack.Screen
               name="billing/manage"
               options={{
                 title: 'Manage Billing',
-              }}
-            />
-            <Stack.Screen
-              name="circle/recipients/add"
-              options={{
-                title: 'Add Recipient',
               }}
             />
             <Stack.Screen
@@ -166,16 +175,28 @@ function RootNavigator() {
                 headerShown: false,
               }}
             />
-            <Stack.Screen
-              name="onboarding/circleName"
-              options={{ title: '' }}
-            />
-            <Stack.Screen
-              name="onboarding/circleHeader"
-              options={{ title: '' }}
-            />
             <Stack.Screen name="blocked" options={{ title: 'Blocked Users' }} />
           </Stack.Protected>
+
+          {/*
+            Shared: reachable both during onboarding and from the feed later.
+            These must stay declared last — expo-router anchors to the first
+            available screen, so putting them above the group would land signed-in
+            users on a circle-setup screen instead of the feed.
+          */}
+          <Stack.Screen name="onboarding/circleSetup" options={{ title: '' }} />
+          <Stack.Screen
+            name="circle/recipients/add"
+            options={{ title: 'Add a Recipient' }}
+          />
+          <Stack.Screen
+            name="post/size"
+            options={{ title: 'Choose a Photo Shape' }}
+          />
+          <Stack.Screen
+            name="post/caption"
+            options={{ title: 'Write a Caption' }}
+          />
         </Stack.Protected>
       </Stack>
     </StripeProvider>

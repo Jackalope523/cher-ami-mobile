@@ -24,7 +24,7 @@ export default function DeleteAccountContents({}: DeleteAccountContentsProps) {
   const { deleteToken, updateOnboarded } = useAuth();
   const deleteAccountMutation = useDeleteUserMutation(
     () => {
-      showToastMessage('Accound Deleted', ToastMessageType.Success);
+      showToastMessage('Account deleted.', ToastMessageType.Success);
       updateOnboarded(false);
       deleteToken();
       dismissDialogue();

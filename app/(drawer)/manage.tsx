@@ -1,26 +1,24 @@
 import CreditCardIcon from '@/assets/icons/credit-card.svg';
+import HelpIcon from '@/assets/icons/help.svg';
 import ImageIcon from '@/assets/icons/image.svg';
-import SettingsIcon from '@/assets/icons/log-out.svg';
-import EditIcon from '@/assets/icons/pencil.svg';
 import PlusIcon from '@/assets/icons/plus.svg';
+import SettingsIcon from '@/assets/icons/settings.svg';
 import UserIcon from '@/assets/icons/user-round.svg';
 import Placeholder from '@/assets/images/placeholder.png';
 import { useAuth } from '@/components/AuthProvider';
+import CircleSettingsContents from '@/components/CircleSettingsContents';
 import Error from '@/components/Error';
 import InviteModalContents from '@/components/InviteModalContents';
 import LeaveCircleContents from '@/components/LeaveCircleContents';
 import Loading from '@/components/Loading';
+import PopPressable from '@/components/PopPressable';
+import RecipientsHelpContents from '@/components/RecipientsHelpContents';
+import UserItem from '@/components/UserItem';
 import { useBottomSheetModal } from '@/components/modals/BottomSheetModalProvider';
 import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
-import PopPressable from '@/components/PopPressable';
-import UserItem from '@/components/UserItem';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import {
-  useGetCircleQuery,
-  useGetPaymentMethodQuery,
-  useGetSelfQuery,
-} from '@/lib/hooks';
+import { useGetCircleQuery, useGetSelfQuery } from '@/lib/hooks';
 import { RecipientRequest, UpdateCircleRequest } from '@/lib/requests';
 import { RecipientItem } from '@/lib/responses';
 import { useMutationState } from '@tanstack/react-query';
@@ -36,7 +34,6 @@ export default function Manage() {
   const { getToken } = useAuth();
   const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
-  const getPaymentMethodQuery = useGetPaymentMethodQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
   const { displayDialogue } = useDialogueModal();
   const updateCircleVariables = useMutationState<UpdateCircleRequest>({
@@ -66,16 +63,9 @@ export default function Manage() {
         updateCircleVariables.length > 0
           ? updateCircleVariables[0].title
           : circleQuery.data?.title ?? '',
-      headerRight: () => (
-        <PopPressable onPress={() => router.push('/circle/edit')}>
-          <EditIcon
-            height={24}
-            width={24}
-            color={'#C15F3C'}
-            style={{ marginRight: 10 }}
-          />
-        </PopPressable>
-      ),
+      // Editing now lives in the circle settings sheet at the bottom of this
+      // screen, so the header stays clean.
+      headerRight: undefined,
     });
   }, [circleQuery.data, navigation, updateCircleVariables]);
 
@@ -86,38 +76,36 @@ export default function Manage() {
   }
 
   function handleAddRecipient() {
-    if (getPaymentMethodQuery.data || userQuery.data?.isBillingExempt) {
-      router.push('/circle/recipients/add');
-    } else {
-      router.push('/billing/add');
-    }
+    router.push('/circle/recipients/add');
+  }
+
+  function handleRecipientsHelp() {
+    displayBottomSheet(
+      <RecipientsHelpContents dismissModal={dismissBottomSheetModal} />,
+    );
   }
 
   function handleCircleSettings() {
-    displayDialogue(<LeaveCircleContents />);
+    displayBottomSheet(
+      <CircleSettingsContents
+        dismissModal={dismissBottomSheetModal}
+        onLeave={() => {
+          dismissBottomSheetModal();
+          displayDialogue(<LeaveCircleContents />);
+        }}
+      />,
+    );
   }
 
-  if (
-    circleQuery.isError ||
-    userQuery.isError ||
-    getPaymentMethodQuery.isError
-  ) {
+  if (circleQuery.isError || userQuery.isError) {
     return <Error />;
   }
 
-  if (
-    circleQuery.isLoading ||
-    userQuery.isLoading ||
-    getPaymentMethodQuery.isLoading
-  ) {
+  if (circleQuery.isLoading || userQuery.isLoading) {
     return <Loading />;
   }
 
-  if (
-    !circleQuery.data ||
-    !userQuery.data ||
-    getPaymentMethodQuery.data === undefined
-  ) {
+  if (!circleQuery.data || !userQuery.data) {
     return null;
   }
 
@@ -182,7 +170,8 @@ export default function Manage() {
             textStyles.body,
             { marginBottom: Spacings.md, marginHorizontal: 20 },
           ]}>
-          Invite family and friends to view and post to the circle!
+          Everyone here can add photos to the monthly magazine. Invite the whole
+          family!
         </Text>
 
         <PopPressable
@@ -199,7 +188,9 @@ export default function Manage() {
             marginHorizontal: 20,
             marginBottom: Spacings.lg,
           }}>
-          <Text style={textStyles.buttonTextOrange}>Invite to Circle</Text>
+          <Text style={textStyles.buttonTextOrange}>
+            Invite Family & Friends
+          </Text>
           <PlusIcon height={24} width={24} color={'#B05637'} />
         </PopPressable>
 
@@ -230,9 +221,17 @@ export default function Manage() {
             flexDirection: 'row',
             marginHorizontal: 20,
             alignItems: 'center',
+            columnGap: Spacings.sm,
             marginBottom: Spacings.md,
+            justifyContent: 'space-between'
           }}>
           <Text style={textStyles.heading3}>Recipients</Text>
+          <PopPressable
+            onPress={handleRecipientsHelp}
+            style={{ paddingHorizontal: Spacings.mdsm, }}
+            hitSlop={Spacings.sm}>
+            <HelpIcon height={22} width={22} color={'#B05637'} />
+          </PopPressable>
         </View>
 
         <Text
@@ -240,7 +239,7 @@ export default function Manage() {
             textStyles.body,
             { marginBottom: Spacings.md, marginHorizontal: 20 },
           ]}>
-          Recipients will recieve a physical magazine each month.
+          They&apos;ll get the printed magazine in their mailbox every month.
         </Text>
 
         <PopPressable
@@ -339,7 +338,7 @@ export default function Manage() {
               columnGap: Spacings.sm,
             }}>
             <SettingsIcon height={24} width={24} color={'#FFFFFF'} />
-            <Text style={textStyles.buttonTextWhite}>Leave</Text>
+            <Text style={textStyles.buttonTextWhite}>Settings</Text>
           </PopPressable>
         </Animated.View>
       )}

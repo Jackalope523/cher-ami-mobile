@@ -12,11 +12,7 @@ import Loading from '@/components/Loading';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import {
-  useConfigQuery,
-  useGetCircleQuery,
-  useGetSelfQuery,
-} from '@/lib/hooks';
+import { useGetCircleQuery, useGetSelfQuery } from '@/lib/hooks';
 import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
@@ -25,22 +21,13 @@ import { Image } from 'expo-image';
 import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
-import { useEffect } from 'react';
 import { Dimensions, Text, View } from 'react-native';
 import { OneSignal } from 'react-native-onesignal';
 
 export default function Layout() {
   const selfQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
-  const configQuery = useConfigQuery();
   const { getToken, deleteToken } = useAuth();
-
-  useEffect(() => {
-    if (selfQuery.data && configQuery.data) {
-      OneSignal.initialize(configQuery.data.oneSignalAppId);
-      OneSignal.login(selfQuery.data.externalId);
-    }
-  }, [selfQuery.data, configQuery.data]);
 
   function handleLogout() {
     deleteToken();
@@ -155,7 +142,7 @@ export default function Layout() {
                   ? textStyles.buttonTextOrange
                   : textStyles.buttonTextGrey
               }>
-              My Circle
+              My Family Circle
             </Text>
           </PopPressable>
         </View>

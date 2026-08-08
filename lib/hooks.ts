@@ -30,6 +30,7 @@ import {
   RecipientRequest,
   TokenRequest,
   UpdateCircleRequest,
+  UpdatePostRequest,
   UpdateRecipientRequest,
   UpdateUserRequest,
   UploadImageDetailsRequest,
@@ -159,7 +160,7 @@ export function useConfigQuery() {
   });
 }
 
-export function useGetSelfQuery() {
+export function useGetSelfQuery(enabled: boolean = true) {
   const api = useAPI();
 
   return useQuery<UserDTO, AxiosError>({
@@ -168,6 +169,7 @@ export function useGetSelfQuery() {
       const response = await api.get<UserDTO>('/user');
       return response.data;
     },
+    enabled,
   });
 }
 
@@ -255,7 +257,7 @@ export function useAddPostMutation(
       });
     },
     onSuccess: async () => {
-      showToastMessage('Upload success!', ToastMessageType.Success);
+      showToastMessage('Photo added!', ToastMessageType.Success);
       OneSignal.User.addTag(
         'last_posted_at',
         String(Math.floor(Date.now() / 1000)),
@@ -267,7 +269,41 @@ export function useAddPostMutation(
     },
     onError: (error) => {
       console.error('Upload failed:', error);
-      showToastMessage('Upload failed.', ToastMessageType.Error);
+      showToastMessage(
+        "Couldn't add your photo. Try again.",
+        ToastMessageType.Error,
+      );
+    },
+  });
+}
+
+export function useUpdatePostMutation(
+  onSuccess?: () => void,
+  onError?: (error: AxiosError) => void,
+) {
+  const api = useAPI();
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, AxiosError, UpdatePostRequest>({
+    mutationKey: ['UpdatePost'],
+    mutationFn: async (request) => {
+      await api.put(`/posts/${request.id}`, {
+        caption: request.caption,
+        photoDate: request.photoDate,
+      });
+    },
+    onSuccess: async () => {
+      showToastMessage('Photo updated!', ToastMessageType.Success);
+      await queryClient.invalidateQueries({ queryKey: ['FeedPages'] });
+      if (onSuccess) onSuccess();
+    },
+    onError: (error) => {
+      showToastMessage(
+        "Couldn't save your changes. Try again.",
+        ToastMessageType.Error,
+      );
+      if (onError) onError(error);
     },
   });
 }
@@ -479,7 +515,7 @@ export function useUpdateAvatarMutation() {
       });
     },
     onSuccess: async () => {
-      showToastMessage('Upload success!', ToastMessageType.Success);
+      showToastMessage('Profile photo updated!', ToastMessageType.Success);
 
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['User', 'Self'] }),
@@ -490,7 +526,10 @@ export function useUpdateAvatarMutation() {
       ]);
     },
     onError: () => {
-      showToastMessage('Upload failed.', ToastMessageType.Error);
+      showToastMessage(
+        "Couldn't update your photo. Try again.",
+        ToastMessageType.Error,
+      );
     },
   });
 }
@@ -561,6 +600,10 @@ export function useUpdateUserMutation(
 
       formData.append('FirstName', request.firstName);
       formData.append('LastName', request.lastName);
+
+      if (request.dateOfBirth) {
+        formData.append('DateOfBirth', request.dateOfBirth);
+      }
 
       if (request.avatarUrl) {
         formData.append('Avatar', {
@@ -633,6 +676,21 @@ export function useUpdateCircleMutation(
     onError: (error) => {
       showToastMessage('Network error. Try again.', ToastMessageType.Error);
       if (onError) onError(error);
+    },
+  });
+}
+
+export function useCompleteOnboardingMutation() {
+  const api = useAPI();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, AxiosError, void>({
+    mutationKey: ['CompleteOnboarding'],
+    mutationFn: async () => {
+      await api.post('/user/onboarding/complete');
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['User', 'Self'] });
     },
   });
 }
@@ -711,11 +769,14 @@ export function useCreateCircleMutation(
       const formData = new FormData();
 
       formData.append('Title', request.title);
-      formData.append('Image', {
-        uri: request.imageUri,
-        type: 'image/jpeg',
-        name: 'header.jpg',
-      } as any);
+
+      if (request.imageUri) {
+        formData.append('Image', {
+          uri: request.imageUri,
+          type: 'image/jpeg',
+          name: 'header.jpg',
+        } as any);
+      }
 
       const response = await api.post('/circle', formData, {
         headers: {
@@ -898,7 +959,10 @@ export function useUploadImageDetailsMutation() {
     },
     onError: (error) => {
       console.error('Upload failed:', error);
-      showToastMessage('Upload failed.', ToastMessageType.Error);
+      showToastMessage(
+        "Couldn't add your photo. Try again.",
+        ToastMessageType.Error,
+      );
     },
   });
 }

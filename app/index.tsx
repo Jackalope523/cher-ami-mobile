@@ -1,16 +1,18 @@
 import AppleIcon from '@/assets/icons/apple-logo.svg';
 import GoogleIcon from '@/assets/icons/google-logo.svg';
-import Squirrel from '@/assets/images/squirrel.png';
 import Title from '@/assets/images/title.png';
 import { useAuth } from '@/components/AuthProvider';
+import LandingIllustration from '@/components/LandingIllustration';
 import {
   ToastMessageType,
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
+import TutorialSlideshow from '@/components/TutorialSlideshow';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   useEmailAuthMutation,
   useExchangeAppleTokenMutation,
@@ -63,6 +65,7 @@ export default function Index() {
   const { updateToken, updateOnboarded } = useAuth();
   const [email, setEmail] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [showTutorial, setShowTutorial] = useState<boolean | null>(null);
   const [googleRequest, googleResponse, promptGoogleAsync] = useAuthRequest(
     googleConfig,
     googleDiscovery,
@@ -76,6 +79,9 @@ export default function Index() {
     (response) => {
       updateToken(response.token);
       updateOnboarded(response.onboarded);
+      if (!response.onboarded) {
+        router.replace('/onboarding/welcome');
+      }
     },
     () => {
       showToast('Failed to log in. Try again.', ToastMessageType.Error);
@@ -85,6 +91,9 @@ export default function Index() {
     (response) => {
       updateToken(response.token);
       updateOnboarded(response.onboarded);
+      if (!response.onboarded) {
+        router.replace('/onboarding/welcome');
+      }
     },
     () => {
       showToast('Failed to log in. Try again.', ToastMessageType.Error);
@@ -134,8 +143,28 @@ export default function Index() {
     };
   }, []);
 
+  useEffect(() => {
+    AsyncStorage.getItem('HasSeenTutorial').then((value) => {
+      setShowTutorial(value !== 'true');
+    });
+  }, []);
+
+  function handleTutorialDone() {
+    AsyncStorage.setItem('HasSeenTutorial', 'true');
+    setShowTutorial(false);
+  }
+
   function continueDisabled() {
     return emailAuthMutation.isPending || email === '';
+  }
+
+  // Wait for the stored flag so the login screen doesn't flash first.
+  if (showTutorial === null) {
+    return null;
+  }
+
+  if (showTutorial) {
+    return <TutorialSlideshow onDone={handleTutorialDone} />;
   }
 
   return (
@@ -173,16 +202,7 @@ export default function Index() {
             justifyContent: 'center',
             marginBottom: Spacings.lgmd,
           }}>
-          <Image
-            source={Squirrel}
-            style={{
-              width: '90%',
-              height: '90%',
-              aspectRatio: 288 / 228,
-              maxWidth: 288,
-              maxHeight: 228,
-            }}
-          />
+          <LandingIllustration />
         </View>
       )}
 

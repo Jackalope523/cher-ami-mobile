@@ -1,4 +1,4 @@
-import { IssueSchedule } from './enums';
+import { IssueSchedule, IssueStatus } from './enums';
 
 export interface UserItem {
   id: number;
@@ -34,6 +34,8 @@ export interface UserDTO {
   lastName: string;
   joinDate: Date;
   isBillingExempt: boolean;
+  nameProvidedByUser: boolean;
+  onboardingCompleted: boolean;
   recipients: RecipientItem[];
 }
 
@@ -72,6 +74,8 @@ export interface FeedPageResponse {
   id: number | null;
   issueTitle: string | null;
   issueDate: Date | null;
+  issueCloseDate: Date | null;
+  status: IssueStatus | null;
   posts: FeedPost[];
   nextPage: number | null;
 }
