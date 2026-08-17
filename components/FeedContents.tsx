@@ -262,33 +262,34 @@ export default function FeedContents() {
               }}
               style={{
                 marginHorizontal: Spacings.lgmd,
-                padding: Spacings.lgmd,
+                padding: Spacings.md,
               }}>
               <View
                 style={{
                   flexDirection: 'row',
-                  justifyContent: 'flex-end',
-                  marginBottom: 56,
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  columnGap: Spacings.sm,
+                  marginBottom: Spacings.xs,
                 }}>
-                <Pressable onPress={() => setHideBanner(true)}>
+                <Text
+                  style={{
+                    fontFamily: 'Poppins',
+                    fontWeight: 600,
+                    fontSize: 18,
+                    color: '#242832',
+                    flexShrink: 1,
+                  }}>
+                  Who is this magazine for?
+                </Text>
+                <Pressable
+                  onPress={() => setHideBanner(true)}
+                  hitSlop={Spacings.sm}>
                   <XIcon height={24} width={24} color="#868581" />
                 </Pressable>
               </View>
-
-              <Text
-                style={{
-                  fontFamily: 'Poppins',
-                  fontWeight: 600,
-                  fontSize: 20,
-                  color: '#242832',
-                  marginBottom: Spacings.sm,
-                }}>
-                Who is this magazine for?
-              </Text>
-              <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
-                Add the name and address of the person you&apos;d like to
-                mail your photos to at
-                the end of the month.
+              <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
+                Add the person who should get it in the mail.
               </Text>
 
               <PopPressable onPress={handleAddRecipient} style={styles.button}>
