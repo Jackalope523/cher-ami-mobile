@@ -5,6 +5,7 @@ export const textStyles = StyleSheet.create({
     fontFamily: 'Damion-Regular',
     fontWeight: 400,
     fontSize: 28,
+    paddingHorizontal: 6,
     color: '#C15F3C',
   },
 
