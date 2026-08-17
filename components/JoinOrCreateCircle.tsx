@@ -33,7 +33,20 @@ export default function JoinOrCreateCircle({
       showToastMessage("You're in!", ToastMessageType.Success);
       onJoined?.();
     },
-    (error) => {
+    async (error) => {
+      // The join endpoint refuses a 403 when the caller is already in a circle.
+      // The invite code was fine, so don't send them looking for a typo — their
+      // local view is just stale. Refresh it and carry on.
+      if (error.response?.status === 403) {
+        showToastMessage(
+          "You're already in a family circle.",
+          ToastMessageType.Informational,
+        );
+        await queryClient.invalidateQueries({ queryKey: ['Circle'] });
+        onJoined?.();
+        return;
+      }
+
       console.log(error);
       showToastMessage(
         "Couldn't join. Double-check the code and try again.",

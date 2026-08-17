@@ -1,4 +1,5 @@
 import Squirrel from '@/assets/images/squirrel.png';
+import Error from '@/components/Error';
 import Loading from '@/components/Loading';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
@@ -8,6 +9,7 @@ import { firstStepHref } from '@/lib/onboarding';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const STEPS = [
   'Add photos — they fill this month’s magazine.',
@@ -20,7 +22,12 @@ export default function Welcome() {
   const circleQuery = useGetCircleQuery();
 
   // Wait for both: they decide whether we ask for a name and whether the user
-  // was already invited into someone's family circle.
+  // was already invited into someone's family circle. Surface a failure rather
+  // than routing on a half-known answer — see circleStepHref.
+  if (userQuery.isError || circleQuery.isError) {
+    return <Error />;
+  }
+
   if (userQuery.isLoading || circleQuery.isLoading) {
     return <Loading />;
   }
@@ -30,14 +37,17 @@ export default function Welcome() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView showsVerticalScrollIndicator={false} overScrollMode="never">
         <View style={{ alignItems: 'center', marginBottom: Spacings.lg }}>
+          {/* The declared ratio has to match squirrel.png's own 500x410, or
+              expo-image's default "cover" crops the difference away. */}
           <Image
             source={Squirrel}
+            contentFit="contain"
             style={{
               width: '100%',
-              aspectRatio: 288 / 228,
+              aspectRatio: 500 / 410,
               maxWidth: 220,
             }}
           />
@@ -82,7 +92,7 @@ export default function Welcome() {
       <PopPressable onPress={handleContinue} style={styles.button}>
         <Text style={textStyles.buttonTextWhite}>Let&apos;s get started</Text>
       </PopPressable>
-    </View>
+    </SafeAreaView>
   );
 }
 

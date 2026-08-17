@@ -114,10 +114,24 @@ function RootNavigator() {
               name="onboarding/welcome"
               options={{ title: '', headerShown: false }}
             />
-            <Stack.Screen name="onboarding/about" options={{ title: '' }} />
-            <Stack.Screen name="onboarding/circle" options={{ title: '' }} />
-            <Stack.Screen name="onboarding/setup" options={{ title: '' }} />
-            <Stack.Screen name="onboarding/invite" options={{ title: '' }} />
+            {/* A titled header reads as part of the flow; an empty one looked
+                like content had been clipped away above the heading. */}
+            <Stack.Screen
+              name="onboarding/about"
+              options={{ title: 'Finish your account' }}
+            />
+            <Stack.Screen
+              name="onboarding/circle"
+              options={{ title: 'Finish your account' }}
+            />
+            <Stack.Screen
+              name="onboarding/setup"
+              options={{ title: 'Finish your account' }}
+            />
+            <Stack.Screen
+              name="onboarding/invite"
+              options={{ title: 'Finish your account' }}
+            />
           </Stack.Protected>
 
           <Stack.Protected guard={getOnboarded() ?? false}>
@@ -184,7 +198,12 @@ function RootNavigator() {
             available screen, so putting them above the group would land signed-in
             users on a circle-setup screen instead of the feed.
           */}
-          <Stack.Screen name="onboarding/circleSetup" options={{ title: '' }} />
+          {/* Titled for the same reason as the onboarding screens, but worded to
+              suit both entry points — this one is also reached from the feed. */}
+          <Stack.Screen
+            name="onboarding/circleSetup"
+            options={{ title: 'Your family circle' }}
+          />
           <Stack.Screen
             name="circle/recipients/add"
             options={{ title: 'Add a Recipient' }}

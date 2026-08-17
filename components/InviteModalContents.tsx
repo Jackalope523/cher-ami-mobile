@@ -21,11 +21,16 @@ import {
 import PopPressable from './PopPressable';
 
 interface InviteModalContentsProps {
+  /**
+   * Only supplied when this renders inside a modal. Onboarding shows the same
+   * contents as a full screen, which has its own back button and Done button —
+   * a close X there is a leftover from a modal that isn't on screen.
+   */
   dismissModal?: () => void;
 }
 
 export default function InviteModalContents({
-  dismissModal = () => {},
+  dismissModal,
 }: InviteModalContentsProps) {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
@@ -84,15 +89,17 @@ export default function InviteModalContents({
           style={[textStyles.labelLargeBlack, { marginBottom: Spacings.smxs }]}>
           Invite family &amp; friends
         </Text>
-        <PopPressable onPress={dismissModal}>
-          <XIcon height={24} width={24} color="#868581" />
-        </PopPressable>
+        {dismissModal && (
+          <PopPressable onPress={dismissModal}>
+            <XIcon height={24} width={24} color="#868581" />
+          </PopPressable>
+        )}
       </View>
 
       <Text
         style={[
           textStyles.caption,
-          { marginBottom: Spacings.lgmd, paddingRight: 45 },
+          { marginBottom: Spacings.lgmd, paddingRight: dismissModal ? 45 : 0 },
         ]}>
         Send an invitation by text, email, or however you like — it includes
         your invite code and simple instructions.

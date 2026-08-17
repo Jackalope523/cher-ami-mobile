@@ -37,7 +37,17 @@ export default function CircleSetup() {
         router.replace('/feed');
       }
     },
-    (error) => {
+    async (error) => {
+      if (error.response?.status === 409) {
+        showToastMessage(
+          "You're already in a family circle.",
+          ToastMessageType.Informational,
+        );
+        await queryClient.invalidateQueries({ queryKey: ['Circle'] });
+        router.replace(isOnboarding ? '/onboarding/setup' : '/feed');
+        return;
+      }
+
       console.log(error);
       showToastMessage('Network error. Try again.', ToastMessageType.Error);
     },
@@ -45,8 +55,8 @@ export default function CircleSetup() {
 
   function pickImage() {
     pickImageAsync({
-      width: 2 * 186,
-      height: 186,
+      width: 1200,
+      height: 600,
       cropping: true,
     }).then((x) => {
       if (x !== null) {
@@ -63,11 +73,8 @@ export default function CircleSetup() {
     });
   }
 
-  // A cover photo is still required: the deployed server's create-circle
-  // validator dereferences the image without a null check, so skipping it
-  // would 500. Relax this once the matching server fix ships.
   function buttonDisabled() {
-    return !circleName.trim() || !selectedImage || circleMutation.isPending;
+    return !circleName.trim() || circleMutation.isPending;
   }
 
   return (
@@ -93,11 +100,11 @@ export default function CircleSetup() {
         />
 
         <Text style={[textStyles.heading4, { marginBottom: Spacings.sm }]}>
-          Add a cover photo
+          Add a cover photo (optional)
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
           Pick a favorite family photo — it will sit at the top of your family
-          circle.
+          circle. You can always add one later.
         </Text>
         <PopPressable style={styles.imageContainer} onPress={pickImage}>
           {selectedImage ? (
