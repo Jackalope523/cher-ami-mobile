@@ -105,8 +105,8 @@ export default function JoinOrCreateCircle({
           Start a family circle
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
-          The first one here? Start your family&apos;s circle — you can invite
-          everyone else in a minute.
+          The first one here? Start your family&apos;s circle, then invite
+          everyone else.
         </Text>
         <PopPressable onPress={handleCreatePress} style={styles.button}>
           <Text style={textStyles.buttonTextWhite}>Start a family circle</Text>
@@ -137,11 +137,10 @@ export default function JoinOrCreateCircle({
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
           Did someone invite you? Ask them for their{' '}
-          <Text style={{ fontWeight: 'bold' }}>invite code</Text> — they can
-          find it in the app by tapping{' '}
-          <Text style={{ fontWeight: 'bold' }}>
-            My Family Circle, then Invite
-          </Text>
+          <Text style={{ fontWeight: 'bold' }}>invite code</Text>. They can find
+          it in the app by tapping{' '}
+          <Text style={{ fontWeight: 'bold' }}>My Family Circle</Text>, then{' '}
+          <Text style={{ fontWeight: 'bold' }}>Invite Family &amp; Friends</Text>
           . Enter it here:
         </Text>
         <View style={{ marginBottom: Spacings.md }}>
