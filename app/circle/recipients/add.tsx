@@ -132,8 +132,8 @@ export default function AddRecipient() {
 
   function pickImage() {
     pickImageAsync({
-      height: 96,
-      width: 96,
+      height: 256,
+      width: 256,
       cropping: true,
     }).then((x) => {
       setAvatar(x?.uri ?? null);

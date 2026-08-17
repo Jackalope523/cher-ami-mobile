@@ -37,8 +37,8 @@ export default function About() {
 
   function pickAvatar() {
     pickImageAsync({
-      height: 96,
-      width: 96,
+      height: 256,
+      width: 256,
       cropping: true,
     }).then((x) => {
       if (x !== null) {
