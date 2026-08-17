@@ -124,7 +124,7 @@ export default function Setup() {
       </ScrollView>
 
       <PopPressable onPress={handleFinish} style={styles.button}>
-        <Text style={textStyles.buttonTextWhite}>Let's go!</Text>
+        <Text style={textStyles.buttonTextWhite}>Let&apos;s go!</Text>
       </PopPressable>
     </View>
   );

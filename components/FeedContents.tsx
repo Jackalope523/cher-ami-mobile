@@ -298,7 +298,7 @@ export default function FeedContents() {
             </ImageBackground>
           )}
           {data?.pages[0].posts.length === 0 && (
-            <View style={styles.toast}>
+            <PopPressable onPress={handleCreatePost} style={styles.toast}>
               <Text
                 style={[
                   textStyles.heading5,
@@ -309,7 +309,7 @@ export default function FeedContents() {
                 {"Be the first to add a photo to this month's magazine!"}
               </Text>
               <Image source={CameraImage} style={{ height: 64, width: 64 }} />
-            </View>
+            </PopPressable>
           )}
           {data?.pages[0].posts.length === 20 && (
             <View style={styles.toast}>

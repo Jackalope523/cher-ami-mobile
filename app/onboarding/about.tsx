@@ -81,7 +81,7 @@ export default function About() {
           About you
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.xl }]}>
-          This is how your family will know it's you. This will appear
+          This is how your family will know it&apos;s you. This will appear
            next to your photos on the app and in the magazine.
         </Text>
 

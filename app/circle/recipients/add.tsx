@@ -407,7 +407,10 @@ export default function AddRecipient() {
             {schedule
               ? `Then from ${schedule.firstChargeDate}`
               : 'Then each month'}
-            {magazineCount > 1 ? ` (${magazineCount} magazines)` : ''}
+            {magazineCount > 1
+              ?
+                ` (${magazineCount} magazines)`
+              : ''}
           </Text>
           <Text style={textStyles.labelLargeBlack}>
             {asDollars(monthlyTotal)}/mo

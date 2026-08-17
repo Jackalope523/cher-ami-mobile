@@ -12,6 +12,7 @@ import ToastMessageProvider, {
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
+import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
   useConfigQuery,
@@ -21,6 +22,7 @@ import {
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { router, SplashScreen, Stack } from 'expo-router';
 import { useEffect, useRef } from 'react';
+import { Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { OneSignal } from 'react-native-onesignal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -86,7 +88,14 @@ function RootNavigator() {
       <Stack
         screenOptions={{
           headerShadowVisible: false,
-          headerTitleStyle: textStyles.screenHeader,
+          // Rendered as our own Text rather than left to headerTitleStyle: the
+          // native header only honours the font properties there and drops the
+          // padding Damion's overhanging strokes need, so they clipped.
+          headerTitle: ({ children }) => (
+            <Text style={textStyles.screenHeader} numberOfLines={1}>
+              {children}
+            </Text>
+          ),
           headerTitleAlign: 'center',
           headerBackButtonDisplayMode: 'minimal',
           headerTintColor: '#C15F3C',
@@ -153,7 +162,9 @@ function RootNavigator() {
               options={{
                 title: 'Profile',
                 headerRight: () => (
-                  <PopPressable onPress={() => router.push('/profile/edit')}>
+                  <PopPressable
+                    onPress={() => router.push('/profile/edit')}
+                    style={{ paddingHorizontal: Spacings.sm }}>
                     <EditIcon height={24} width={24} color={'#C15F3C'} />
                   </PopPressable>
                 ),

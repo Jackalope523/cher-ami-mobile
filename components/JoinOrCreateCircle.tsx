@@ -11,7 +11,14 @@ import { useJoinCircleMutation } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 interface JoinOrCreateCircleProps {
@@ -74,105 +81,109 @@ export default function JoinOrCreateCircle({
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-      overScrollMode="never">
-      <Text
-        style={[
-          textStyles.heading1,
-          {
-            marginBottom: Spacings.md,
-          },
-        ]}>
-        Your family circle
-      </Text>
-      <Text
-        style={[
-          textStyles.body,
-          {
-            marginBottom: Spacings.xl,
-          },
-        ]}>
-        A family circle is a private space where your family shares
-        the photos that turn into your magazines.
-      </Text>
-
-      <View style={styles.card}>
-        <Text style={[textStyles.heading4, { marginBottom: Spacings.sm }]}>
-          Start a family circle
-        </Text>
-        <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
-          The first one here? Start your family&apos;s circle, then invite
-          everyone else!
-        </Text>
-        <PopPressable onPress={handleCreatePress} style={styles.button}>
-          <Text style={textStyles.buttonTextWhite}>Start a family circle</Text>
-        </PopPressable>
-      </View>
-
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: Spacings.xl,
-        }}>
-        <View style={styles.divider} />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView
+        style={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        overScrollMode="never">
         <Text
           style={[
-            textStyles.labelLargeGrey,
-            { marginHorizontal: Spacings.mdsm },
-          ]}>
-          OR
-        </Text>
-        <View style={styles.divider} />
-      </View>
-
-      <View style={[styles.card, { marginBottom: Spacings.xl }]}>
-        <Text style={[textStyles.heading4, { marginBottom: Spacings.sm }]}>
-          Join your family&apos;s circle
-        </Text>
-        <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
-          Did someone invite you? Enter their{' '}
-          <Text style={{ fontWeight: 'bold' }}>invite code</Text> here. They can find
-          it in the app by tapping{' '}
-          <Text style={{ fontWeight: 'bold' }}>My Family Circle</Text>, then{' '}
-          <Text style={{ fontWeight: 'bold' }}>Invite Family &amp; Friends</Text>
-          .
-        </Text>
-        <View style={{ marginBottom: Spacings.md }}>
-          <TextInput
-            placeholder="Invite code (e.g. HappyPigeon)"
-            maxLength={100}
-            value={circleCode}
-            onChangeText={setCircleCode}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-        </View>
-
-        <PopPressable
-          onPress={handleJoinPress}
-          disabled={joinButtonDisabled()}
-          style={[
-            styles.button,
-            joinButtonDisabled() && {
-              backgroundColor: '#ECEDEF',
-              borderColor: '#ECEDEF',
+            textStyles.heading1,
+            {
+              marginBottom: Spacings.md,
             },
           ]}>
+          Your family circle
+        </Text>
+        <Text
+          style={[
+            textStyles.body,
+            {
+              marginBottom: Spacings.xl,
+            },
+          ]}>
+          A family circle is a private space where your family shares
+          the photos that turn into your magazines.
+        </Text>
+
+        <View style={styles.card}>
+          <Text style={[textStyles.heading4, { marginBottom: Spacings.sm }]}>
+            Start a family circle
+          </Text>
+          <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
+            The first one here? Start your family&apos;s circle, then invite
+            everyone else!
+          </Text>
+          <PopPressable onPress={handleCreatePress} style={styles.button}>
+            <Text style={textStyles.buttonTextWhite}>Start a family circle</Text>
+          </PopPressable>
+        </View>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: Spacings.xl,
+          }}>
+          <View style={styles.divider} />
           <Text
             style={[
-              textStyles.buttonTextWhite,
-              joinButtonDisabled() && { color: '#A8ABB3' },
+              textStyles.labelLargeGrey,
+              { marginHorizontal: Spacings.mdsm },
             ]}>
-            Join
+            OR
           </Text>
-        </PopPressable>
-      </View>
-    </ScrollView>
+          <View style={styles.divider} />
+        </View>
+
+        <View style={[styles.card, { marginBottom: Spacings.xl }]}>
+          <Text style={[textStyles.heading4, { marginBottom: Spacings.sm }]}>
+            Join your family&apos;s circle
+          </Text>
+          <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
+            Did someone invite you? Enter their{' '}
+            <Text style={{ fontWeight: 'bold' }}>invite code</Text> here. They can find
+            it in the app by tapping{' '}
+            <Text style={{ fontWeight: 'bold' }}>My Family Circle</Text>, then{' '}
+            <Text style={{ fontWeight: 'bold' }}>Invite Family &amp; Friends</Text>
+            .
+          </Text>
+          <View style={{ marginBottom: Spacings.md }}>
+            <TextInput
+              placeholder="Invite code (e.g. HappyPigeon)"
+              maxLength={100}
+              value={circleCode}
+              onChangeText={setCircleCode}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+
+          <PopPressable
+            onPress={handleJoinPress}
+            disabled={joinButtonDisabled()}
+            style={[
+              styles.button,
+              joinButtonDisabled() && {
+                backgroundColor: '#ECEDEF',
+                borderColor: '#ECEDEF',
+              },
+            ]}>
+            <Text
+              style={[
+                textStyles.buttonTextWhite,
+                joinButtonDisabled() && { color: '#A8ABB3' },
+              ]}>
+              Join
+            </Text>
+          </PopPressable>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

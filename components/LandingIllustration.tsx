@@ -3,8 +3,7 @@ import MouseGift from '@/assets/images/mouse-gift.png';
 import Squirrel from '@/assets/images/squirrel.png';
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
-import { AccessibilityInfo, StyleSheet } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
+import { AccessibilityInfo, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   EntryExitAnimationFunction,
@@ -64,9 +63,8 @@ const popOut: EntryExitAnimationFunction = () => {
 };
 
 /**
- * The illustration on the sign-in screen. It rocks back and forth; every few
- * seconds the character drifts out and the next rises up from below; and
- * tapping it makes the whole thing bounce about its centre.
+ * The illustration on the sign-in screen. It rocks back and forth, and every
+ * few seconds the character drifts out and the next rises up from below.
  *
  * The characters have quite different proportions (the squirrel is landscape,
  * the hedgehog tall), so each is drawn with `contain` inside one fixed slot
@@ -79,7 +77,6 @@ export default function LandingIllustration() {
   const [index, setIndex] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
   const rock = useSharedValue(0);
-  const press = useSharedValue(1);
 
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
@@ -127,34 +124,15 @@ export default function LandingIllustration() {
     return () => clearInterval(timer);
   }, [reduceMotion]);
 
-  // A deliberate tap, so this one is allowed a real bounce — unlike the
-  // arrival, which happens on its own and shouldn't draw the eye.
-  function handlePress() {
-    if (reduceMotion) return;
-
-    press.value = withSequence(
-      withTiming(1.06, { duration: 90, easing: Easing.out(Easing.quad) }),
-      // A spring comes to rest asymptotically, so it can settle a hair off 1.
-      // Any fractional scale leaves the renderer resampling the bitmap and the
-      // illustration stays visibly soft, so land it back on exactly 1.
-      withSpring(1, { damping: 7, stiffness: 200 }, (finished) => {
-        if (finished) press.value = 1;
-      }),
-    );
-  }
-
-  // Scale sits alongside the rotation on the same view, so the bounce grows
-  // from the centre of the illustration. At rest the scale is dropped entirely
-  // rather than passed as an identity — one fewer transform to resample.
+  // The press bounce is out until the blur it left behind is understood — it
+  // wasn't the asset size. Restoring it means a scale on `motionStyle` and a
+  // Pressable back around the container.
   const motionStyle = useAnimatedStyle(() => ({
-    transform: [
-      { rotate: `${rock.value * ROCK_DEGREES}deg` },
-      ...(press.value === 1 ? [] : [{ scale: press.value }]),
-    ],
+    transform: [{ rotate: `${rock.value * ROCK_DEGREES}deg` }],
   }));
 
   return (
-    <Pressable onPress={handlePress} style={styles.container}>
+    <View style={styles.container}>
       <Animated.View style={[styles.rocker, motionStyle]}>
         <Animated.View
           key={index}
@@ -168,7 +146,7 @@ export default function LandingIllustration() {
           />
         </Animated.View>
       </Animated.View>
-    </Pressable>
+    </View>
   );
 }
 

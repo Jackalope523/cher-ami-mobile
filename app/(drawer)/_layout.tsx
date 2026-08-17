@@ -200,11 +200,16 @@ export default function Layout() {
       drawerContent={CustomDrawerContent}
       screenOptions={({ navigation }) => ({
         headerShadowVisible: false,
-        headerTitleStyle: textStyles.screenHeader,
+        headerTitle: ({ children }) => (
+          <Text style={textStyles.screenHeader} numberOfLines={1}>
+            {children}
+          </Text>
+        ),
         headerTitleAlign: 'center',
         headerStyle: {
           backgroundColor: '#FCFBF8',
         },
+        headerRightContainerStyle: { paddingRight: Spacings.sm },
         drawerStyle: {
           backgroundColor: '#FCFBF8',
           width: Dimensions.get('window').width * 0.75,
@@ -212,7 +217,7 @@ export default function Layout() {
         headerLeft: () => (
           <PopPressable
             onPress={() => navigation.toggleDrawer()}
-            style={{ paddingHorizontal: 15 }}>
+            style={{ paddingHorizontal: Spacings.lgmd }}>
             <MenuIcon height={24} width={24} />
           </PopPressable>
         ),
