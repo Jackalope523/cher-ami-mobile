@@ -14,6 +14,7 @@ import {
 } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
+import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
@@ -48,6 +49,9 @@ export default function EditRecipient() {
   const showToastMessage = useToastMessage();
   const { data, status } = useGetRecipientQuery(Number(id));
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  const isOwner =
+    !!data && !!selfQuery.data && data.managerId === selfQuery.data.id;
   const mutation = useUpdateRecipientMutation(
     () => {
       showToastMessage('Updated recipient.', ToastMessageType.Success);
@@ -94,23 +98,26 @@ export default function EditRecipient() {
   }
 
   useEffect(() => {
-    if (data) {
-      navigation.setOptions({
-        headerRight: () => (
-          <PopPressable
-            onPress={() => {
-              router.navigate({
-                pathname: '/circle/recipients/[id]/delete',
-                params: { id: id as string },
-              });
-            }}
-            style={{ paddingHorizontal: Spacings.md }}>
-            <TrashIcon height={24} width={24} color={'#B05637'} />
-          </PopPressable>
-        ),
-      });
-    }
-  }, [data, id, navigation]);
+    if (!data) return;
+
+    navigation.setOptions({
+      title: isOwner ? 'Edit Recipient' : 'Recipient',
+      headerRight: isOwner
+        ? () => (
+            <PopPressable
+              onPress={() => {
+                router.navigate({
+                  pathname: '/circle/recipients/[id]/delete',
+                  params: { id: id as string },
+                });
+              }}
+              style={{ paddingHorizontal: Spacings.md }}>
+              <TrashIcon height={24} width={24} color={'#B05637'} />
+            </PopPressable>
+          )
+        : undefined,
+    });
+  }, [data, id, isOwner, navigation]);
 
   useEffect(() => {
     if (data) {
@@ -219,7 +226,7 @@ export default function EditRecipient() {
       ]}
       overScrollMode="never"
       showsVerticalScrollIndicator={false}>
-      <PopPressable onPress={pickImage}>
+      <PopPressable onPress={isOwner ? pickImage : undefined}>
         {avatar !== data.avatarUrl ? (
           <Image style={styles.avatar} source={avatar} />
         ) : data.avatarUrl ? (
@@ -236,15 +243,30 @@ export default function EditRecipient() {
           />
         ) : (
           <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
-            <PlusIcon height={48} width={48} color={'#868581'} />
+            {isOwner ? (
+              <PlusIcon height={48} width={48} color={'#868581'} />
+            ) : (
+              <Text style={textStyles.heading2}>{data.name.charAt(0)}</Text>
+            )}
           </View>
         )}
       </PopPressable>
-      <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
-        Change avatar
-      </Text>
+      {isOwner && (
+        <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
+          Change avatar
+        </Text>
+      )}
       {addedBy && (
         <Text style={[textStyles.caption, styles.addedBy]}>{addedBy}</Text>
+      )}
+      {!isOwner && (
+        <View style={styles.readOnlyNote}>
+          <Text style={textStyles.body}>
+            {data.managerName
+              ? `Only ${data.managerName} can change this recipient's details, since they added them.`
+              : 'Only the person who added this recipient can change their details.'}
+          </Text>
+        </View>
       )}
       <Text style={[textStyles.heading3, styles.sectionHeader]}>
         Mailing address
@@ -252,6 +274,7 @@ export default function EditRecipient() {
       <View style={styles.textInputs}>
         <TextInput
           title="Name*"
+          editable={isOwner}
           maxLength={100}
           value={name}
           onChangeText={setName}
@@ -265,6 +288,7 @@ export default function EditRecipient() {
         <TextInput
           ref={addressLine1Ref}
           title="Address Line 1*"
+          editable={isOwner}
           maxLength={100}
           value={addressLine1}
           onChangeText={setAddressLine1}
@@ -280,6 +304,7 @@ export default function EditRecipient() {
         <TextInput
           ref={addressLine2Ref}
           title="Address Line 2"
+          editable={isOwner}
           maxLength={100}
           value={addressLine2 ?? ''}
           onChangeText={setAddressLine2}
@@ -294,6 +319,7 @@ export default function EditRecipient() {
         <TextInput
           ref={cityRef}
           title="City*"
+          editable={isOwner}
           maxLength={50}
           value={city}
           onChangeText={setCity}
@@ -307,6 +333,7 @@ export default function EditRecipient() {
           <TextInput
             ref={stateRef}
             title="State*"
+            editable={isOwner}
             maxLength={50}
             value={provinceOrState}
             onChangeText={setProvinceOrState}
@@ -322,6 +349,7 @@ export default function EditRecipient() {
           <TextInput
             ref={postalCodeRef}
             title="ZIP code*"
+            editable={isOwner}
             maxLength={20}
             value={postalCode}
             onChangeText={setPostalCode}
@@ -353,13 +381,21 @@ export default function EditRecipient() {
             more.
           </Text>
         </PopPressable>
-        <PopPressable onPress={handleMilitaryQuestion} hitSlop={Spacings.sm}>
-          <Text style={[textStyles.caption, styles.militaryLink]}>
-            {isVeteran
-              ? 'Military Edition applied — 20% off. Change'
-              : 'Sending to a veteran or service member?'}
-          </Text>
-        </PopPressable>
+        {isOwner ? (
+          <PopPressable onPress={handleMilitaryQuestion} hitSlop={Spacings.sm}>
+            <Text style={[textStyles.caption, styles.militaryLink]}>
+              {isVeteran
+                ? 'Military Edition applied — 20% off. Change'
+                : 'Sending to a veteran or service member?'}
+            </Text>
+          </PopPressable>
+        ) : (
+          isVeteran && (
+            <Text style={[textStyles.caption, { color: '#868581' }]}>
+              Military Edition — 20% off
+            </Text>
+          )
+        )}
       </View>
       <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
       <View style={styles.summaryItemList}>
@@ -395,24 +431,26 @@ export default function EditRecipient() {
           month. You can stop any time by removing this recipient.
         </Text>
       </View>
-      <PopPressable
-        onPress={handleSaveChanges}
-        disabled={buttonDisabled()}
-        style={[
-          styles.button,
-          buttonDisabled() && {
-            backgroundColor: '#ECEDEF',
-            borderColor: '#ECEDEF',
-          },
-        ]}>
-        <Text
+      {isOwner && (
+        <PopPressable
+          onPress={handleSaveChanges}
+          disabled={buttonDisabled()}
           style={[
-            textStyles.buttonTextWhite,
-            buttonDisabled() && { color: '#A8ABB3' },
+            styles.button,
+            buttonDisabled() && {
+              backgroundColor: '#ECEDEF',
+              borderColor: '#ECEDEF',
+            },
           ]}>
-          Save Changes
-        </Text>
-      </PopPressable>
+          <Text
+            style={[
+              textStyles.buttonTextWhite,
+              buttonDisabled() && { color: '#A8ABB3' },
+            ]}>
+            Save Changes
+          </Text>
+        </PopPressable>
+      )}
     </ScrollView>
   );
 }
@@ -443,6 +481,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     color: '#868581',
     marginBottom: Spacings.xxxl,
+  },
+
+  readOnlyNote: {
+    backgroundColor: '#F4F1EA',
+    borderRadius: borderRadius.mdsm,
+    padding: Spacings.md,
+    marginBottom: Spacings.xl,
   },
 
   sectionHeader: {
