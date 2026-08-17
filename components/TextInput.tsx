@@ -1,5 +1,6 @@
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { Ref } from 'react';
 import {
   TextInput as ReactNativeTextInput,
   TextInputProps as ReactNativeTextInputProps,
@@ -14,12 +15,14 @@ interface TextInputProps extends ReactNativeTextInputProps {
   title?: string;
   required?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
+  ref?: Ref<ReactNativeTextInput>;
 }
 
 export default function TextInput({
   title,
   required = false,
   containerStyle,
+  ref,
   ...props
 }: TextInputProps) {
   return (
@@ -27,6 +30,7 @@ export default function TextInput({
       {title && <Text style={textStyles.labelLargeBlack}>{title}</Text>}
 
       <ReactNativeTextInput
+        ref={ref}
         style={[textStyles.body, styles.textInput]}
         placeholderTextColor="#868581"
         underlineColorAndroid="transparent"
