@@ -954,7 +954,15 @@ export function useAddRecipientMutation() {
       });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['Circle'] });
+      // The billing summary reads the caller's own recipients off the user
+      // record and the card off PaymentMethod, so refreshing only Circle left a
+      // second recipient priced as if it were the first, and the card prompt
+      // showing again for a card already on file.
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['Circle'] }),
+        queryClient.invalidateQueries({ queryKey: ['User', 'Self'] }),
+        queryClient.invalidateQueries({ queryKey: ['PaymentMethod'] }),
+      ]);
     },
     onError: (error) => {
       console.log(error.message);

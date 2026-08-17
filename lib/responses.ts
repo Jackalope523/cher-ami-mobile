@@ -48,6 +48,7 @@ export interface CardDTO {
 export interface RecipientDTO {
   id: number;
   managerId: number;
+  managerName: string | null;
   avatarUrl: string | null;
   name: string;
   addressLine1: string;

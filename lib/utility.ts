@@ -101,6 +101,12 @@ export function toIsoDate(
  * Signing up on July 30th is the case worth checking — that magazine closes
  * August 31st and ships in September, so the first charge is October 1st with
  * the free magazine, or September 1st without it.
+ *
+ * A magazine is named for its *drafting* month, not the month it arrives:
+ * photos posted in August make the August magazine, which mails in September.
+ * So the month a charge lands is never the name of the magazine it pays for —
+ * that one is always the month before. Use `firstChargeIssueMonth` when naming
+ * it and never the charge date's own month.
  */
 export function billingSchedule(
   issueCloseDate: Date | string | null,
@@ -122,6 +128,16 @@ export function billingSchedule(
     Date.UTC(close.getUTCFullYear(), close.getUTCMonth() + chargeMonthOffset, 1),
   );
 
+  // The magazine that charge pays for, named by its drafting month — always the
+  // month before the charge lands.
+  const firstChargeIssue = new Date(
+    Date.UTC(
+      close.getUTCFullYear(),
+      close.getUTCMonth() + chargeMonthOffset - 1,
+      1,
+    ),
+  );
+
   const monthName = (date: Date) =>
     date.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
 
@@ -131,32 +147,12 @@ export function billingSchedule(
       day: 'numeric',
       timeZone: 'UTC',
     }),
+    /** The magazine now being filled, named by its drafting month. */
+    issueMonth: monthName(close),
     firstShipmentMonth: monthName(firstShipment),
-    firstChargeMonth: monthName(firstCharge),
+    firstChargeIssueMonth: monthName(firstChargeIssue),
     firstChargeDate: `${monthName(firstCharge)} 1st`,
   };
-}
-
-export function getNextMonthName() {
-  const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-
-  const today = new Date();
-  const nextMonthIndex = (today.getMonth() + 1) % 12; // wraps December → January
-
-  return monthNames[nextMonthIndex];
 }
 
 export type PrintSharpness = {

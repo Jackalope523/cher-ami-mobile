@@ -2,10 +2,12 @@ import PlusIcon from '@/assets/icons/plus.svg';
 import TrashIcon from '@/assets/icons/trash.svg';
 import Placeholder from '@/assets/images/placeholder.png';
 import { useAuth } from '@/components/AuthProvider';
+import CountryHelpContents from '@/components/CountryHelpContents';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
-import MilitaryQuestion from '@/components/MilitaryQuestion';
+import MilitaryQuestionContents from '@/components/MilitaryQuestionContents';
+import { useDialogueModal } from '@/components/modals/DialogueModalProvider';
 import {
   ToastMessageType,
   useToastMessage,
@@ -17,23 +19,32 @@ import { textStyles } from '@/constants/TextStyles';
 import {
   useGetPriceQuery,
   useGetRecipientQuery,
+  useGetSelfQuery,
   useUpdateRecipientMutation,
 } from '@/lib/hooks';
-import { getNextMonthName } from '@/lib/utility';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Dimensions,
+  Keyboard,
+  TextInput as ReactNativeTextInput,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function EditRecipient() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
   const { getToken } = useAuth();
+  const { displayDialogue } = useDialogueModal();
   const queryClient = useQueryClient();
   const pickImageAsync = useImagePicker();
   const getPriceQuery = useGetPriceQuery();
+  const selfQuery = useGetSelfQuery();
   const showToastMessage = useToastMessage();
   const { data, status } = useGetRecipientQuery(Number(id));
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -42,6 +53,7 @@ export default function EditRecipient() {
       showToastMessage('Updated recipient.', ToastMessageType.Success);
       queryClient.invalidateQueries({ queryKey: ['Circle'] });
       queryClient.invalidateQueries({ queryKey: ['Recipient', Number(id)] });
+      queryClient.invalidateQueries({ queryKey: ['User', 'Self'] });
       router.back();
     },
     () => {
@@ -58,6 +70,28 @@ export default function EditRecipient() {
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('United States');
   const [isVeteran, setIsVeteran] = useState(false);
+
+  const addressLine1Ref = useRef<ReactNativeTextInput>(null);
+  const addressLine2Ref = useRef<ReactNativeTextInput>(null);
+  const cityRef = useRef<ReactNativeTextInput>(null);
+  const stateRef = useRef<ReactNativeTextInput>(null);
+  const postalCodeRef = useRef<ReactNativeTextInput>(null);
+
+  const asDollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+
+  function handleMilitaryQuestion() {
+    displayDialogue(
+      <MilitaryQuestionContents
+        isVeteran={isVeteran}
+        onChange={setIsVeteran}
+      />,
+    );
+  }
+
+  function handleCountryQuestion() {
+    Keyboard.dismiss();
+    displayDialogue(<CountryHelpContents />);
+  }
 
   useEffect(() => {
     if (data) {
@@ -164,6 +198,17 @@ export default function EditRecipient() {
     return null;
   }
 
+  const price = isVeteran
+    ? getPriceQuery.data.militaryEditionPrice
+    : getPriceQuery.data.standardEditionPrice;
+
+  const addedBy =
+    selfQuery.data && data.managerId === selfQuery.data.id
+      ? 'Added by you'
+      : data.managerName
+        ? `Added by ${data.managerName}`
+        : null;
+
   return (
     <ScrollView
       contentContainerStyle={[
@@ -198,6 +243,9 @@ export default function EditRecipient() {
       <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
         Change avatar
       </Text>
+      {addedBy && (
+        <Text style={[textStyles.caption, styles.addedBy]}>{addedBy}</Text>
+      )}
       <Text style={[textStyles.heading3, styles.sectionHeader]}>
         Mailing address
       </Text>
@@ -210,8 +258,12 @@ export default function EditRecipient() {
           autoCapitalize="words"
           textContentType="givenName"
           autoComplete="name-given"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => addressLine1Ref.current?.focus()}
         />
         <TextInput
+          ref={addressLine1Ref}
           title="Address Line 1*"
           maxLength={100}
           value={addressLine1}
@@ -221,8 +273,12 @@ export default function EditRecipient() {
           autoCorrect={true}
           textContentType="streetAddressLine1"
           autoComplete="street-address"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => addressLine2Ref.current?.focus()}
         />
         <TextInput
+          ref={addressLine2Ref}
           title="Address Line 2"
           maxLength={100}
           value={addressLine2 ?? ''}
@@ -231,28 +287,40 @@ export default function EditRecipient() {
           autoCorrect={false}
           textContentType="none"
           autoComplete="off"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => cityRef.current?.focus()}
         />
         <TextInput
+          ref={cityRef}
           title="City*"
           maxLength={50}
           value={city}
           onChangeText={setCity}
           autoCapitalize="words"
           textContentType="addressCity"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => stateRef.current?.focus()}
         />
         <View style={{ flexDirection: 'row', columnGap: 20 }}>
           <TextInput
+            ref={stateRef}
             title="State*"
             maxLength={50}
             value={provinceOrState}
             onChangeText={setProvinceOrState}
             autoCapitalize="words"
             textContentType="addressState"
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => postalCodeRef.current?.focus()}
             containerStyle={{
               width: Dimensions.get('window').width / 2 - 20 - 10,
             }}
           />
           <TextInput
+            ref={postalCodeRef}
             title="ZIP code*"
             maxLength={20}
             value={postalCode}
@@ -261,23 +329,37 @@ export default function EditRecipient() {
             autoCorrect={false}
             textContentType="postalCode"
             autoComplete="postal-code"
+            returnKeyType="done"
+            onSubmitEditing={() => Keyboard.dismiss()}
             containerStyle={{
               width: Dimensions.get('window').width / 2 - 20 - 10,
             }}
           />
         </View>
-        <TextInput
-          title="Country*"
-          maxLength={56}
-          value={country}
-          onChangeText={setCountry}
-          editable={false}
-          selectTextOnFocus={false}
-          keyboardType="default"
-          autoCapitalize="words"
-          autoCorrect={false}
-        />
-        <MilitaryQuestion isVeteran={isVeteran} onChange={setIsVeteran} />
+        <PopPressable onPress={handleCountryQuestion}>
+          <TextInput
+            title="Country*"
+            maxLength={56}
+            value={country}
+            onChangeText={setCountry}
+            editable={false}
+            selectTextOnFocus={false}
+            keyboardType="default"
+            autoCapitalize="words"
+            autoCorrect={false}
+          />
+          <Text style={[textStyles.caption, styles.countryHint]}>
+            We mail anywhere in the US, including military addresses. Tap to read
+            more.
+          </Text>
+        </PopPressable>
+        <PopPressable onPress={handleMilitaryQuestion} hitSlop={Spacings.sm}>
+          <Text style={[textStyles.caption, styles.militaryLink]}>
+            {isVeteran
+              ? 'Military Edition applied — 20% off. Change'
+              : 'Sending to a veteran or service member?'}
+          </Text>
+        </PopPressable>
       </View>
       <Text style={[textStyles.heading3, styles.sectionHeader]}>Summary</Text>
       <View style={styles.summaryItemList}>
@@ -286,10 +368,12 @@ export default function EditRecipient() {
           <Text style={textStyles.labelSmall}>Monthly</Text>
         </View>
         <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLargeBlack}>
-            {isVeteran ? '1 Magazine (Military Edition)' : '1 Magazine'}
+          <Text style={[textStyles.labelLargeBlack, styles.summaryLabel]}>
+            {isVeteran
+              ? `${name || 'This recipient'} (Military Edition)`
+              : name || 'This recipient'}
           </Text>
-          <Text style={textStyles.labelSmall}>Monthly</Text>
+          <Text style={textStyles.labelSmall}>{asDollars(price)}</Text>
         </View>
         <View style={styles.summaryItem}>
           <Text style={textStyles.labelLargeBlack}>Delivery</Text>
@@ -301,16 +385,14 @@ export default function EditRecipient() {
         </View>
         <View style={styles.divider} />
         <View style={styles.summaryItem}>
-          <Text style={textStyles.labelSmall}>Total per month</Text>
-          <Text style={textStyles.labelSmall}>
-            $
-            {(isVeteran
-              ? getPriceQuery.data.militaryEditionPrice
-              : getPriceQuery.data.standardEditionPrice) / 100}
+          <Text style={[textStyles.labelLargeBlack, styles.summaryLabel]}>
+            Total per month
           </Text>
+          <Text style={textStyles.labelLargeBlack}>{asDollars(price)}/mo</Text>
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>
-          {`*This is a monthly subscription, billed on the 1st of each month starting ${getNextMonthName()} 1st. Cancel anytime.`}
+          *Billed on the 1st of a month, and only when a magazine goes out that
+          month. You can stop any time by removing this recipient.
         </Text>
       </View>
       <PopPressable
@@ -354,6 +436,12 @@ const styles = StyleSheet.create({
 
   changeAvatar: {
     alignSelf: 'center',
+    marginBottom: Spacings.sm,
+  },
+
+  addedBy: {
+    alignSelf: 'center',
+    color: '#868581',
     marginBottom: Spacings.xxxl,
   },
 
@@ -373,6 +461,21 @@ const styles = StyleSheet.create({
   summaryItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    columnGap: Spacings.md,
+  },
+
+  summaryLabel: {
+    flexShrink: 1,
+  },
+
+  countryHint: {
+    color: '#868581',
+    marginTop: Spacings.xs,
+  },
+
+  militaryLink: {
+    color: '#868581',
+    textDecorationLine: 'underline',
   },
 
   divider: {
