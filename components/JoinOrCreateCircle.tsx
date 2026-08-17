@@ -95,9 +95,8 @@ export default function JoinOrCreateCircle({
             marginBottom: Spacings.xl,
           },
         ]}>
-        A family circle is a private space where your family shares photos.
-        Every month, those photos become a printed magazine, mailed to the
-        people you love.
+        A family circle is a private space where your family shares
+        the photos that turn into your magazines.
       </Text>
 
       <View style={styles.card}>
@@ -106,7 +105,7 @@ export default function JoinOrCreateCircle({
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
           The first one here? Start your family&apos;s circle, then invite
-          everyone else.
+          everyone else!
         </Text>
         <PopPressable onPress={handleCreatePress} style={styles.button}>
           <Text style={textStyles.buttonTextWhite}>Start a family circle</Text>
@@ -136,12 +135,12 @@ export default function JoinOrCreateCircle({
           Join your family&apos;s circle
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
-          Did someone invite you? Ask them for their{' '}
-          <Text style={{ fontWeight: 'bold' }}>invite code</Text>. They can find
+          Did someone invite you? Enter their{' '}
+          <Text style={{ fontWeight: 'bold' }}>invite code</Text> here. They can find
           it in the app by tapping{' '}
           <Text style={{ fontWeight: 'bold' }}>My Family Circle</Text>, then{' '}
           <Text style={{ fontWeight: 'bold' }}>Invite Family &amp; Friends</Text>
-          . Enter it here:
+          .
         </Text>
         <View style={{ marginBottom: Spacings.md }}>
           <TextInput

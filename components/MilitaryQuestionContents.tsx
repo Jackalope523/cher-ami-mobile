@@ -36,8 +36,8 @@ export default function MilitaryQuestionContents({
       </Text>
       <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
         If this magazine is going to a veteran or service member, the Military
-        Edition takes 20% off every month. We deliver to APO, FPO, and DPO
-        addresses too.
+        Edition takes 20% off every month. Whether they live at home or
+        have an APO, FPO, or DPO, we'll make sure they get it.
       </Text>
 
       <Pressable

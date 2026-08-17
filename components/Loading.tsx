@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: '70%',
+    width: '50%',
     aspectRatio: 772 / 173,
     maxWidth: 268,
     marginBottom: Spacings.xl,

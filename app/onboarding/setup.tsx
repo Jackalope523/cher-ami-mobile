@@ -90,11 +90,11 @@ export default function Setup() {
         showsVerticalScrollIndicator={false}
         overScrollMode="never">
         <Text style={[textStyles.heading1, { marginBottom: Spacings.sm }]}>
-          Your family circle is ready.
+          Your family circle is ready!
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
-          A couple of things that make the first magazine special. Do them now or
-          any time — neither is required.
+          A couple of things to speed up the first magazine. Or, 
+          do them later and get started adding photos right away!
         </Text>
 
         <View style={{ rowGap: Spacings.mdsm }}>
@@ -124,7 +124,7 @@ export default function Setup() {
       </ScrollView>
 
       <PopPressable onPress={handleFinish} style={styles.button}>
-        <Text style={textStyles.buttonTextWhite}>Go to my feed</Text>
+        <Text style={textStyles.buttonTextWhite}>Let's go!</Text>
       </PopPressable>
     </View>
   );

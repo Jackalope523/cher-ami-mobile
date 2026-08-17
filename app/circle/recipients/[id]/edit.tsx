@@ -376,10 +376,6 @@ export default function EditRecipient() {
             autoCapitalize="words"
             autoCorrect={false}
           />
-          <Text style={[textStyles.caption, styles.countryHint]}>
-            We mail anywhere in the US, including military addresses. Tap to read
-            more.
-          </Text>
         </PopPressable>
         {isOwner ? (
           <PopPressable onPress={handleMilitaryQuestion} hitSlop={Spacings.sm}>
@@ -406,8 +402,8 @@ export default function EditRecipient() {
         <View style={styles.summaryItem}>
           <Text style={[textStyles.labelLargeBlack, styles.summaryLabel]}>
             {isVeteran
-              ? `${name || 'This recipient'} (Military Edition)`
-              : name || 'This recipient'}
+              ? `${'This recipient'} (Military Edition)`
+              : 'This recipient'}
           </Text>
           <Text style={textStyles.labelSmall}>{asDollars(price)}</Text>
         </View>
@@ -428,7 +424,7 @@ export default function EditRecipient() {
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>
           *Billed on the 1st of a month, and only when a magazine goes out that
-          month. You can stop any time by removing this recipient.
+          month. You can also stop any time by removing this recipient.
         </Text>
       </View>
       {isOwner && (

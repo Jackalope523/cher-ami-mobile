@@ -87,8 +87,9 @@ export default function CircleSetup() {
           Name your family circle.
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
-          This is the name your family will see in the app — something like
-          &ldquo;The Harper Family.&rdquo;
+          This is the name your family will see in the app and on the front cover
+          of your magazine. Anything from
+          &ldquo;The Harper Family&rdquo; to &ldquo;William's Bunch&rdquo;!
         </Text>
         <TextInput
           placeholder="Family circle name"
@@ -103,8 +104,8 @@ export default function CircleSetup() {
           Add a cover photo (optional)
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
-          Pick a favorite family photo — it will sit at the top of your family
-          circle. You can always add one later.
+          Pick a favorite family photo to sit at the top of your family
+          circle. It won't appear in the magazine and you can change it later.
         </Text>
         <PopPressable style={styles.imageContainer} onPress={pickImage}>
           {selectedImage ? (

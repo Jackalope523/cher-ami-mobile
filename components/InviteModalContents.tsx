@@ -14,11 +14,11 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import PopPressable from './PopPressable';
 import {
   ToastMessageType,
   useToastMessage,
 } from './modals/ToastMessageProvider';
-import PopPressable from './PopPressable';
 
 interface InviteModalContentsProps {
   /**
@@ -101,7 +101,7 @@ export default function InviteModalContents({
           textStyles.caption,
           { marginBottom: Spacings.lgmd, paddingRight: dismissModal ? 45 : 0 },
         ]}>
-        Send an invitation by text, email, or however you like — it includes
+        Send an invitation by text, email, or however you like! It includes
         your invite code and simple instructions.
       </Text>
 
@@ -121,8 +121,7 @@ export default function InviteModalContents({
         Or share the code yourself
       </Text>
       <Text style={[textStyles.caption, { marginBottom: Spacings.mdsm }]}>
-        Tap to copy. They&apos;ll enter it when choosing &ldquo;Join your
-        family&apos;s circle.&rdquo;
+        Tap to copy and share it with others, they&apos;ll enter the code during sign up.
       </Text>
       <PopPressable
         onPress={copyToClipboard}

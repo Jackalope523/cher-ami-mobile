@@ -17,9 +17,9 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  TextInput as ReactNativeTextInput,
   StyleSheet,
   Text,
-  TextInput as ReactNativeTextInput,
   View,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -81,7 +81,8 @@ export default function About() {
           About you
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.xl }]}>
-          This is how your family will see you when you add photos.
+          This is how your family will know it's you. This will appear
+           next to your photos on the app and in the magazine.
         </Text>
 
         <PopPressable onPress={pickAvatar} style={styles.avatarContainer}>
@@ -95,7 +96,7 @@ export default function About() {
         </PopPressable>
         <PopPressable onPress={pickAvatar}>
           <Text style={[textStyles.buttonTextOrange, styles.changeAvatar]}>
-            {avatar ? 'Change photo' : 'Add a photo (optional)'}
+            {avatar ? 'Change photo' : 'Add a photo\n(optional, but we recommend it)'}
           </Text>
         </PopPressable>
 

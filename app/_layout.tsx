@@ -118,19 +118,19 @@ function RootNavigator() {
                 like content had been clipped away above the heading. */}
             <Stack.Screen
               name="onboarding/about"
-              options={{ title: 'Finish your account' }}
+              options={{ title: 'Getting started' }}
             />
             <Stack.Screen
               name="onboarding/circle"
-              options={{ title: 'Finish your account' }}
+              options={{ title: 'Getting started' }}
             />
             <Stack.Screen
               name="onboarding/setup"
-              options={{ title: 'Finish your account' }}
+              options={{ title: 'Getting Started' }}
             />
             <Stack.Screen
               name="onboarding/invite"
-              options={{ title: 'Finish your account' }}
+              options={{ title: 'Getting started' }}
             />
           </Stack.Protected>
 

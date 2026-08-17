@@ -12,9 +12,9 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const STEPS = [
-  'Add photos — they fill this month’s magazine.',
-  'Invite family so everyone can add their photos too.',
-  'Add a recipient — the person who gets the magazine in the mail.',
+  'Add photos to fill the current month’s magazine.',
+  'Invite the family so everyone can add their photos too.',
+  'Add a recipient who will get the magazine in the mail.',
 ];
 
 export default function Welcome() {
@@ -79,18 +79,10 @@ export default function Welcome() {
             </View>
           ))}
         </View>
-
-        <Text
-          style={[
-            textStyles.caption,
-            { textAlign: 'center', marginBottom: Spacings.lg },
-          ]}>
-          Your first magazine is on us.
-        </Text>
       </ScrollView>
 
       <PopPressable onPress={handleContinue} style={styles.button}>
-        <Text style={textStyles.buttonTextWhite}>Let&apos;s get started</Text>
+        <Text style={textStyles.buttonTextWhite}>Let&apos;s get started!</Text>
       </PopPressable>
     </SafeAreaView>
   );

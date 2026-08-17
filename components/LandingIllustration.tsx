@@ -134,16 +134,22 @@ export default function LandingIllustration() {
 
     press.value = withSequence(
       withTiming(1.06, { duration: 90, easing: Easing.out(Easing.quad) }),
-      withSpring(1, { damping: 7, stiffness: 200 }),
+      // A spring comes to rest asymptotically, so it can settle a hair off 1.
+      // Any fractional scale leaves the renderer resampling the bitmap and the
+      // illustration stays visibly soft, so land it back on exactly 1.
+      withSpring(1, { damping: 7, stiffness: 200 }, (finished) => {
+        if (finished) press.value = 1;
+      }),
     );
   }
 
   // Scale sits alongside the rotation on the same view, so the bounce grows
-  // from the centre of the illustration.
+  // from the centre of the illustration. At rest the scale is dropped entirely
+  // rather than passed as an identity — one fewer transform to resample.
   const motionStyle = useAnimatedStyle(() => ({
     transform: [
       { rotate: `${rock.value * ROCK_DEGREES}deg` },
-      { scale: press.value },
+      ...(press.value === 1 ? [] : [{ scale: press.value }]),
     ],
   }));
 

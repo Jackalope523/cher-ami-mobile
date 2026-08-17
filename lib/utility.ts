@@ -197,14 +197,14 @@ export function printSharpness(
     return {
       level: 'soft',
       message:
-        'This photo may look a little soft in print. It will still look lovely — a larger original would be a touch sharper.',
+        'This photo may look a little soft in print. It will still look lovely but a larger original would be a touch sharper.',
     };
   }
 
   return {
     level: 'poor',
     message:
-      'This photo is quite small, so it may look blurry in print. If you have the original — not a screenshot or a copy from a message — that version would print much better.',
+      'This photo is quite small, so it may look blurry in print. Zooming in less or using a higher quality photo will print much better.',
   };
 }
 

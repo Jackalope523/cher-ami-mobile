@@ -17,16 +17,12 @@ export default function CountryHelpContents() {
         Where we deliver
       </Text>
       <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
-        We mail magazines anywhere in the United States, and shipping is always
-        free. That includes military addresses — APO, FPO, and DPO all arrive
-        just fine.
-      </Text>
-      <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
-        If this magazine is going to a veteran or service member, the Military
-        Edition takes 20% off every month.
+        We mail magazines anywhere in the United States and
+        military addresses such as APO, FPO, and DPOs. Shipping is
+        always free.
       </Text>
       <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
-        We can&apos;t mail outside the US yet. Family living abroad can still
+        We don&apos;t mail to other countries yet but family living abroad can still
         join your family circle and add photos from the app.
       </Text>
 

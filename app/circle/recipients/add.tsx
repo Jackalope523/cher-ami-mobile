@@ -341,10 +341,6 @@ export default function AddRecipient() {
             autoCapitalize="words"
             autoCorrect={false}
           />
-          <Text style={[textStyles.caption, styles.countryHint]}>
-            We mail anywhere in the US, including military addresses. Tap to read
-            more.
-          </Text>
         </PopPressable>
         <PopPressable onPress={handleMilitaryQuestion} hitSlop={Spacings.sm}>
           <Text style={[textStyles.caption, styles.militaryLink]}>
@@ -363,9 +359,7 @@ export default function AddRecipient() {
         {existingRecipients.length > 0 && (
           <View style={styles.summaryItem}>
             <Text style={[textStyles.labelLargeBlack, styles.summaryLabel]}>
-              {existingRecipients.length === 1
-                ? 'Magazine you already send'
-                : `Magazines you already send (${existingRecipients.length})`}
+              Your other recipients ({existingRecipients.length})
             </Text>
             <Text style={textStyles.labelSmall}>{asDollars(existingCost)}</Text>
           </View>
@@ -373,8 +367,8 @@ export default function AddRecipient() {
         <View style={styles.summaryItem}>
           <Text style={[textStyles.labelLargeBlack, styles.summaryLabel]}>
             {isVeteran
-              ? `${name || 'This recipient'} (Military Edition)`
-              : name || 'This recipient'}
+              ? `${'This recipient'} (Military Edition)`
+              : 'This recipient'}
           </Text>
           <Text style={textStyles.labelSmall}>{asDollars(newCost)}</Text>
         </View>
