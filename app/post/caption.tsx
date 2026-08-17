@@ -1,9 +1,11 @@
+import InfoIcon from '@/assets/icons/info.svg';
 import PhotoDateRow from '@/components/PhotoDateRow';
 import PopPressable from '@/components/PopPressable';
 import PostCounter from '@/components/PostCounter';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useUploadImageDetailsMutation } from '@/lib/hooks';
+import { printSharpness } from '@/lib/utility';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -33,6 +35,8 @@ export default function Caption() {
     y,
     uploadId,
     next,
+    targetWidth,
+    targetHeight,
   } = useLocalSearchParams();
 
   const [caption, setCaption] = useState('');
@@ -65,6 +69,13 @@ export default function Caption() {
     height: displayHeight,
     borderRadius: aspectRatio > 1.5 ? 24 : 32,
   };
+
+  const sharpness = printSharpness(
+    Number(width),
+    Number(height),
+    Number(targetWidth),
+    Number(targetHeight),
+  );
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -117,7 +128,11 @@ export default function Caption() {
               issueTitle={issueTitle as string}
               issueCloseDate={issueCloseDate as string}
             />
-            <View style={styles.imageContainer}>
+            <View
+              style={[
+                styles.imageContainer,
+                sharpness && { marginBottom: Spacings.md },
+              ]}>
               <View style={[styles.imageWrapper, imageStyle]}>
                 <Image
                   source={imageUri}
@@ -126,6 +141,19 @@ export default function Caption() {
                 />
               </View>
             </View>
+
+            {sharpness && (
+              <View
+                style={[
+                  styles.sharpnessNote,
+                  sharpness.level === 'poor' && { borderColor: '#F0C9A8' },
+                ]}>
+                <InfoIcon height={20} width={20} color="#B05637" />
+                <Text style={[textStyles.caption, { flexShrink: 1 }]}>
+                  {sharpness.message}
+                </Text>
+              </View>
+            )}
           </View>
         )}
 
@@ -209,6 +237,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: Spacings.xl,
     marginBottom: Spacings.xxl,
+  },
+
+  sharpnessNote: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    columnGap: Spacings.sm,
+    marginHorizontal: 20,
+    marginBottom: Spacings.lg,
+    padding: Spacings.mdsm,
+    borderWidth: 1.5,
+    borderColor: '#DEDBD5',
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
   },
 
   button: {

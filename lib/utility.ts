@@ -159,6 +159,59 @@ export function getNextMonthName() {
   return monthNames[nextMonthIndex];
 }
 
+export type PrintSharpness = {
+  level: 'fine' | 'soft' | 'poor';
+  message: string;
+};
+
+/**
+ * How well a crop will hold up in print.
+ *
+ * The layouts in `post/size.tsx` state the pixels each slot needs at 300 DPI, so
+ * the crop's own pixel size against that target is the whole answer — a ratio of
+ * 1 needs no upscaling, 0.5 means the printer has to double it and prints at
+ * roughly 150 DPI. Returns null when there's nothing worth saying.
+ */
+export function printSharpness(
+  cropWidth: number,
+  cropHeight: number,
+  targetWidth: number,
+  targetHeight: number,
+): PrintSharpness | null {
+  if (
+    !cropWidth ||
+    !cropHeight ||
+    !targetWidth ||
+    !targetHeight ||
+    cropWidth < 0 ||
+    cropHeight < 0
+  ) {
+    return null;
+  }
+
+  // The tighter of the two axes decides it: that's the one that has to stretch
+  // furthest to fill the slot.
+  const ratio = Math.min(cropWidth / targetWidth, cropHeight / targetHeight);
+
+  // ~225 DPI and up looks fine on glossy stock.
+  if (ratio >= 0.75) return null;
+
+  // Down to ~150 DPI: noticeable to a careful eye, fine for a casual snapshot.
+  if (ratio >= 0.5) {
+    return {
+      level: 'soft',
+      message:
+        'This photo may look a little soft in print. It will still look lovely — a larger original would be a touch sharper.',
+    };
+  }
+
+  return {
+    level: 'poor',
+    message:
+      'This photo is quite small, so it may look blurry in print. If you have the original — not a screenshot or a copy from a message — that version would print much better.',
+  };
+}
+
 export function splitName(fullName: string) {
   if (!fullName) {
     return { firstName: '', lastName: '' };

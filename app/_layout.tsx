@@ -160,12 +160,6 @@ function RootNavigator() {
               }}
             />
             <Stack.Screen
-              name="post/create"
-              options={{
-                title: 'New Post',
-              }}
-            />
-            <Stack.Screen
               name="post/edit"
               options={{
                 title: 'Edit Photo',

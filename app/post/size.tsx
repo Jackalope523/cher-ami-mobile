@@ -121,6 +121,10 @@ export default function Size() {
             height: image.cropRect?.height,
             x: image.cropRect?.x,
             y: image.cropRect?.y,
+            // What this layout needs in print, so the next screen can tell
+            // whether the crop has to be upscaled to fill it.
+            targetWidth: selected.width,
+            targetHeight: selected.height,
           },
         });
       })
