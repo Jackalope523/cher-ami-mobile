@@ -73,7 +73,7 @@ function RootNavigator() {
   }
 
   if (pingMutation.isPending || configQuery.isLoading) {
-    return <Loading />;
+    return <Loading showLogo />;
   }
 
   // if (nativeApplicationVersion !== configQuery.data?.version) {
