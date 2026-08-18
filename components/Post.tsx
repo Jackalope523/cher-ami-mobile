@@ -8,14 +8,18 @@ import { FeedPost } from '@/lib/responses';
 import { formatPhotoDate } from '@/lib/utility';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { scheduleOnRN } from 'react-native-worklets';
 import AnimatedLoadingIcon from './AnimatedLoadingIcon';
 import { useAuth } from './AuthProvider';
 import DeletePostContents from './DeletePostContents';
-import { useDialogueModal } from './modals/DialogueModalProvider';
+import PhotoViewer from './PhotoViewer';
 import PopPressable from './PopPressable';
 import PostOptionsContents from './PostOptionsContents';
 import ReportPostContents from './ReportPostContents';
+import { useDialogueModal } from './modals/DialogueModalProvider';
 
 type PostProps = {
   post: FeedPost;
@@ -32,6 +36,7 @@ export default function Post({
   issueStartDate = null,
 }: PostProps) {
   const { displayDialogue } = useDialogueModal();
+  const [viewing, setViewing] = useState(false);
   const userQuery = useGetUserQuery(post.authorId);
   const selfQuery = useGetSelfQuery();
   const { getToken } = useAuth();
@@ -54,8 +59,26 @@ export default function Post({
     return null;
   }
 
+  const aspectRatio =
+    (post.imageWidth !== undefined ? post.imageWidth : 372) /
+    (post.imageHeight !== undefined ? post.imageHeight : 259);
+
+  const openViewer = Gesture.Tap()
+    .maxDistance(10)
+    .onEnd(() => {
+      if (!loading) scheduleOnRN(setViewing, true);
+    });
+
   return (
     <View>
+      {viewing && (
+        <PhotoViewer
+          uri={post.photoUrl}
+          token={getToken()}
+          aspectRatio={aspectRatio}
+          onClose={() => setViewing(false)}
+        />
+      )}
       <View
         style={{
           flexDirection: 'row',
@@ -135,24 +158,27 @@ export default function Post({
       </View>
 
       <View style={{ marginBottom: Spacings.md }}>
-        <Image
-          style={{
-            width: Dimensions.get('window').width - 40,
-            aspectRatio:
-              (post.imageWidth !== undefined ? post.imageWidth : 372) /
-              (post.imageHeight !== undefined ? post.imageHeight : 259),
-            borderRadius: 32,
-            marginHorizontal: 20,
-          }}
-          placeholder={Placeholder}
-          placeholderContentFit="fill"
-          source={{
-            headers: {
-              Authorization: `Bearer ${getToken()}`,
-            },
-            uri: post.photoUrl,
-          }}
-        />
+        {/* A tap with a movement threshold rather than a Pressable: a press
+            has no distance limit, so starting a scroll on the photo and not
+            dragging far still counted as a tap and opened the viewer. */}
+        <GestureDetector gesture={openViewer}>
+          <Image
+            style={{
+              width: Dimensions.get('window').width - 40,
+              aspectRatio,
+              borderRadius: 32,
+              marginHorizontal: 20,
+            }}
+            placeholder={Placeholder}
+            placeholderContentFit="fill"
+            source={{
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              },
+              uri: post.photoUrl,
+            }}
+          />
+        </GestureDetector>
 
         {post.caption && (
           <View style={{ paddingHorizontal: 20, marginTop: Spacings.lg }}>
