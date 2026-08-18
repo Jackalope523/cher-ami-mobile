@@ -155,6 +155,16 @@ export default function FeedContents() {
   }
 
   function renderEmptyComponent(isCurrentIssue: boolean = true) {
+    if (!isCurrentIssue) {
+      return (
+        <View style={styles.pastIssueEmpty}>
+          <Text style={[textStyles.body, styles.pastIssueEmptyText]}>
+            No photos were added and no magazine was shipped.
+          </Text>
+        </View>
+      );
+    }
+
     return (
       <View style={{ paddingVertical: 100 }}>
         <View
@@ -179,19 +189,17 @@ export default function FeedContents() {
           </View>
 
           <Text style={textStyles.fancyText}>{'No photos yet'}</Text>
-          {isCurrentIssue && (
-            <Text
-              style={[
-                textStyles.body,
-                {
-                  textAlign: 'center',
-                  color: '#868581',
-                  marginBottom: Spacings.xxl,
-                },
-              ]}>
-              Tap the + button to add the first one!
-            </Text>
-          )}
+          <Text
+            style={[
+              textStyles.body,
+              {
+                textAlign: 'center',
+                color: '#868581',
+                marginBottom: Spacings.xxl,
+              },
+            ]}>
+            Tap the + button to add the first one!
+          </Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Image
@@ -420,6 +428,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FCFBF8',
+  },
+
+  pastIssueEmpty: {
+    alignItems: 'center',
+    paddingVertical: Spacings.xl,
+  },
+
+  pastIssueEmptyText: {
+    color: '#868581',
+    textAlign: 'center',
+    width: '60%'
   },
 
   toast: {
