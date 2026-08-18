@@ -51,7 +51,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       const token = await AsyncStorage.getItem('token');
       const onboarded = (await AsyncStorage.getItem('Onboarded')) === 'true';
 
-      setToken(onboarded ? token : null);
+      setToken(token);
       setOnboarded(onboarded);
       setLoaded(true);
     }

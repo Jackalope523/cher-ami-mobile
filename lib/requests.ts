@@ -1,12 +1,3 @@
-export interface AddPostRequest {
-  time: string;
-  caption: string;
-  imageUri: string;
-  imageName: string;
-  imageWidth: number;
-  imageHeight: number;
-}
-
 export interface UploadImageRequest {
   uploadId: string;
   imageUri: string;

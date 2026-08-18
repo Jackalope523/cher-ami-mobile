@@ -20,7 +20,6 @@ import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { OneSignal } from 'react-native-onesignal';
 import {
-  AddPostRequest,
   CreateCircleRequest,
   EmailAuthRequest,
   EmailVerifyRequest,
@@ -224,56 +223,6 @@ export function useFeedPostsInfiniteQuery(enabled: boolean = true) {
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextPage,
     enabled,
-  });
-}
-
-export function useAddPostMutation(
-  onSuccess?: () => void,
-  onError?: (error: AxiosError) => void,
-) {
-  const api = useAPI();
-  const showToastMessage = useToastMessage();
-  const queryClient = useQueryClient();
-
-  return useMutation<void, AxiosError, AddPostRequest>({
-    mutationKey: ['AddPost'],
-    mutationFn: async (request) => {
-      const formData = new FormData();
-
-      formData.append('Time', request.time);
-      formData.append('Caption', request.caption);
-      formData.append('Image', {
-        uri: request.imageUri,
-        type: 'image/jpeg',
-        name: request.imageName,
-      } as any);
-      formData.append('ImageWidth', request.imageWidth.toString());
-      formData.append('ImageHeight', request.imageHeight.toString());
-
-      await api.post(`/issue/posts`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-    },
-    onSuccess: async () => {
-      showToastMessage('Photo added!', ToastMessageType.Success);
-      OneSignal.User.addTag(
-        'last_posted_at',
-        String(Math.floor(Date.now() / 1000)),
-      );
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['FeedPages'] }),
-        queryClient.invalidateQueries({ queryKey: ['PostCount'] }),
-      ]);
-    },
-    onError: (error) => {
-      console.error('Upload failed:', error);
-      showToastMessage(
-        "Couldn't add your photo. Try again.",
-        ToastMessageType.Error,
-      );
-    },
   });
 }
 
@@ -1005,7 +954,15 @@ export function useAddRecipientMutation() {
       });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['Circle'] });
+      // The billing summary reads the caller's own recipients off the user
+      // record and the card off PaymentMethod, so refreshing only Circle left a
+      // second recipient priced as if it were the first, and the card prompt
+      // showing again for a card already on file.
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['Circle'] }),
+        queryClient.invalidateQueries({ queryKey: ['User', 'Self'] }),
+        queryClient.invalidateQueries({ queryKey: ['PaymentMethod'] }),
+      ]);
     },
     onError: (error) => {
       console.log(error.message);

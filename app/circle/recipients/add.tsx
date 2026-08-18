@@ -1,4 +1,5 @@
 import PlusIcon from '@/assets/icons/plus.svg';
+import CountryHelpContents from '@/components/CountryHelpContents';
 import Error from '@/components/Error';
 import { useImagePicker } from '@/components/ImagePickerProvider';
 import Loading from '@/components/Loading';
@@ -27,8 +28,15 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Dimensions,
+  Keyboard,
+  TextInput as ReactNativeTextInput,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function AddRecipient() {
@@ -51,6 +59,12 @@ export default function AddRecipient() {
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('United States');
   const [isVeteran, setIsVeteran] = useState(false);
+
+  const addressLine1Ref = useRef<ReactNativeTextInput>(null);
+  const addressLine2Ref = useRef<ReactNativeTextInput>(null);
+  const cityRef = useRef<ReactNativeTextInput>(null);
+  const stateRef = useRef<ReactNativeTextInput>(null);
+  const postalCodeRef = useRef<ReactNativeTextInput>(null);
 
   const addRecipientMutation = useAddRecipientMutation();
   const addPaymentMethodMutation = useAddPaymentMethodMutation(
@@ -132,8 +146,8 @@ export default function AddRecipient() {
 
   function pickImage() {
     pickImageAsync({
-      height: 96,
-      width: 96,
+      height: 256,
+      width: 256,
       cropping: true,
     }).then((x) => {
       setAvatar(x?.uri ?? null);
@@ -163,6 +177,11 @@ export default function AddRecipient() {
         onChange={setIsVeteran}
       />,
     );
+  }
+
+  function handleCountryQuestion() {
+    Keyboard.dismiss();
+    displayDialogue(<CountryHelpContents />);
   }
 
   function handleAdd() {
@@ -232,8 +251,12 @@ export default function AddRecipient() {
           autoCapitalize="words"
           textContentType="givenName"
           autoComplete="name-given"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => addressLine1Ref.current?.focus()}
         />
         <TextInput
+          ref={addressLine1Ref}
           title="Address Line 1*"
           maxLength={100}
           value={addressLine1}
@@ -243,8 +266,12 @@ export default function AddRecipient() {
           autoCorrect={true}
           textContentType="streetAddressLine1"
           autoComplete="street-address"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => addressLine2Ref.current?.focus()}
         />
         <TextInput
+          ref={addressLine2Ref}
           title="Address Line 2"
           maxLength={100}
           value={addressLine2 ?? ''}
@@ -253,28 +280,40 @@ export default function AddRecipient() {
           autoCorrect={false}
           textContentType="none"
           autoComplete="off"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => cityRef.current?.focus()}
         />
         <TextInput
+          ref={cityRef}
           title="City*"
           maxLength={50}
           value={city}
           onChangeText={setCity}
           autoCapitalize="words"
           textContentType="addressCity"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => stateRef.current?.focus()}
         />
         <View style={{ flexDirection: 'row', columnGap: 20 }}>
           <TextInput
+            ref={stateRef}
             title="State*"
             maxLength={50}
             value={provinceOrState}
             onChangeText={setProvinceOrState}
             autoCapitalize="words"
             textContentType="addressState"
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => postalCodeRef.current?.focus()}
             containerStyle={{
               width: Dimensions.get('window').width / 2 - 20 - 10,
             }}
           />
           <TextInput
+            ref={postalCodeRef}
             title="ZIP code*"
             maxLength={20}
             value={postalCode}
@@ -283,22 +322,26 @@ export default function AddRecipient() {
             autoCorrect={false}
             textContentType="postalCode"
             autoComplete="postal-code"
+            returnKeyType="done"
+            onSubmitEditing={() => Keyboard.dismiss()}
             containerStyle={{
               width: Dimensions.get('window').width / 2 - 20 - 10,
             }}
           />
         </View>
-        <TextInput
-          title="Country*"
-          maxLength={56}
-          value={country}
-          onChangeText={setCountry}
-          editable={false}
-          selectTextOnFocus={false}
-          keyboardType="default"
-          autoCapitalize="words"
-          autoCorrect={false}
-        />
+        <PopPressable onPress={handleCountryQuestion}>
+          <TextInput
+            title="Country*"
+            maxLength={56}
+            value={country}
+            onChangeText={setCountry}
+            editable={false}
+            selectTextOnFocus={false}
+            keyboardType="default"
+            autoCapitalize="words"
+            autoCorrect={false}
+          />
+        </PopPressable>
         <PopPressable onPress={handleMilitaryQuestion} hitSlop={Spacings.sm}>
           <Text style={[textStyles.caption, styles.militaryLink]}>
             {isVeteran
@@ -315,19 +358,17 @@ export default function AddRecipient() {
         </View>
         {existingRecipients.length > 0 && (
           <View style={styles.summaryItem}>
-            <Text style={textStyles.labelLargeBlack}>
-              {existingRecipients.length === 1
-                ? 'Magazine you already send'
-                : `Magazines you already send (${existingRecipients.length})`}
+            <Text style={[textStyles.labelLargeBlack, styles.summaryLabel]}>
+              Your other recipients ({existingRecipients.length})
             </Text>
             <Text style={textStyles.labelSmall}>{asDollars(existingCost)}</Text>
           </View>
         )}
         <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLargeBlack}>
+          <Text style={[textStyles.labelLargeBlack, styles.summaryLabel]}>
             {isVeteran
-              ? `${name || 'This recipient'} (Military Edition)`
-              : name || 'This recipient'}
+              ? `${'This recipient'} (Military Edition)`
+              : 'This recipient'}
           </Text>
           <Text style={textStyles.labelSmall}>{asDollars(newCost)}</Text>
         </View>
@@ -342,9 +383,14 @@ export default function AddRecipient() {
         <View style={styles.divider} />
         {freeFirstMagazine && (
           <View style={styles.summaryItem}>
-            <Text style={[textStyles.labelLargeBlack, styles.freeLabel]}>
+            <Text
+              style={[
+                textStyles.labelLargeBlack,
+                styles.freeLabel,
+                styles.summaryLabel,
+              ]}>
               {schedule
-                ? `First magazine (${schedule.firstShipmentMonth}) — on us`
+                ? `${schedule.issueMonth}'s magazine — on us`
                 : 'First magazine — on us'}
             </Text>
             <Text style={[textStyles.labelLargeBlack, styles.freeLabel]}>
@@ -357,11 +403,14 @@ export default function AddRecipient() {
           <Text style={textStyles.labelLargeBlack}>$0.00</Text>
         </View>
         <View style={styles.summaryItem}>
-          <Text style={textStyles.labelLargeBlack}>
+          <Text style={[textStyles.labelLargeBlack, styles.summaryLabel]}>
             {schedule
               ? `Then from ${schedule.firstChargeDate}`
               : 'Then each month'}
-            {magazineCount > 1 ? ` (${magazineCount} magazines)` : ''}
+            {magazineCount > 1
+              ?
+                ` (${magazineCount} magazines)`
+              : ''}
           </Text>
           <Text style={textStyles.labelLargeBlack}>
             {asDollars(monthlyTotal)}/mo
@@ -369,8 +418,8 @@ export default function AddRecipient() {
         </View>
         <Text style={[textStyles.caption, styles.disclaimer]}>
           {schedule
-            ? `*Billed on the 1st of a month only when a magazine goes out that month, starting ${schedule.firstChargeDate}. Cancel anytime.`
-            : '*Billed monthly, and only when a magazine goes out. Cancel anytime.'}
+            ? `*Billed on the 1st of a month, and only when a magazine goes out that month. Starting ${schedule.firstChargeDate}.`
+            : '*Billed monthly, and only when a magazine goes out.'}
         </Text>
       </View>
       <View style={styles.billingNote}>
@@ -380,33 +429,30 @@ export default function AddRecipient() {
         </Text>
         {schedule ? (
           <Text style={[textStyles.body, { marginBottom: Spacings.sm }]}>
-            This month&apos;s magazine closes {schedule.closesOn} and goes in
-            the mail in {schedule.firstShipmentMonth}
+            {schedule.issueMonth}&apos;s magazine closes {schedule.closesOn} and
+            goes in the mail in {schedule.firstShipmentMonth}
             {freeFirstMagazine
-              ? ` — that one is on us, so there is nothing to pay for it. Your first payment is ${schedule.firstChargeDate}, for ${schedule.firstChargeMonth}'s magazine.`
+              ? ` — that one is on us. Your first payment is ${schedule.firstChargeDate}, for ${schedule.firstChargeIssueMonth}'s magazine.`
               : `, and that is what your first payment on ${schedule.firstChargeDate} covers.`}
           </Text>
         ) : (
-          // Without the issue's closing date we can still explain the rhythm,
-          // just not the exact months.
           <Text style={[textStyles.body, { marginBottom: Spacings.sm }]}>
-            Each magazine closes at the end of its month and goes in the mail
-            at the start of the next one.
+            Each magazine closes at the end of its month and goes in the mail at
+            the start of the next one.
             {freeFirstMagazine
-              ? ' Your first one is on us — your first payment comes when the magazine after it is sent.'
-              : ' Your first payment comes when their first magazine is sent.'}
+              ? ' Your first one is on us, and your first payment comes when the magazine after it is mailed.'
+              : ' Your first payment comes when their first magazine is mailed.'}
           </Text>
         )}
         <Text style={textStyles.body}>
-          We only charge when a magazine is actually sent. If no photos are
-          added one month, no magazine goes out and there&apos;s nothing to pay.
+          We only charge when a magazine is actually sent — if no photos are
+          added one month, nothing goes out and there&apos;s nothing to pay. You
+          can stop any time by removing the recipient.
         </Text>
         {needsBilling && (
           <Text style={[textStyles.body, { marginTop: Spacings.sm }]}>
-            Nothing is charged today.
-            {schedule
-              ? ` Your first payment would be ${schedule.firstChargeDate}, for ${schedule.firstChargeMonth}'s magazine, and you can cancel any time before then.`
-              : ' We ask for a card now so later magazines keep arriving without us having to interrupt you each month.'}
+            We keep your card on file so each magazine can go out without us
+            having to interrupt you every month.
           </Text>
         )}
       </View>
@@ -518,6 +564,16 @@ const styles = StyleSheet.create({
   summaryItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    columnGap: Spacings.md,
+  },
+
+  summaryLabel: {
+    flexShrink: 1,
+  },
+
+  countryHint: {
+    color: '#868581',
+    marginTop: Spacings.xs,
   },
 
   divider: {

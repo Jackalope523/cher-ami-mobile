@@ -8,9 +8,9 @@ import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { openCropper } from 'react-native-image-crop-picker';
 import Animated, {
   Extrapolation,
+  SharedValue,
   interpolate,
   interpolateColor,
-  SharedValue,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -34,7 +34,7 @@ type ImageSize = {
 const SIZES: ImageSize[] = [
   {
     id: 'standard',
-    label: 'Standard',
+    label: 'The Standard',
     description:
       'Recommended size. 4:3 aspect ratio. Best for family portraits, landscape photos.',
     width: 1088,
@@ -43,7 +43,7 @@ const SIZES: ImageSize[] = [
   },
   {
     id: 'vertical',
-    label: 'Vertical',
+    label: 'The Vertical',
     description: '9:16 aspect ratio. Best for portraits, lifestyle photos.',
     width: 1088,
     height: 1933,
@@ -51,17 +51,17 @@ const SIZES: ImageSize[] = [
   },
   {
     id: 'horizontal',
-    label: 'Horizontal',
-    description: 'Best for landscape and panoramic photos.',
+    label: 'The Horizontal',
+    description: '16:9 aspect ratio. Best for landscape, panoramic photos.',
     width: 2250,
     height: 756,
     aspectRatio: 2250 / 756,
   },
   {
     id: 'feature',
-    label: 'Feature',
+    label: 'The Feature',
     description:
-      'Best for high quality photos that you want to highlight in the magazine. 1 per user, per issue.',
+      'Takes up a whole page, one per user per month. Best for your favorite that you want to emphasize in the magazine.',
     width: 2250,
     height: 2344,
     aspectRatio: 2250 / 2344,
@@ -121,6 +121,10 @@ export default function Size() {
             height: image.cropRect?.height,
             x: image.cropRect?.x,
             y: image.cropRect?.y,
+            // What this layout needs in print, so the next screen can tell
+            // whether the crop has to be upscaled to fill it.
+            targetWidth: selected.width,
+            targetHeight: selected.height,
           },
         });
       })

@@ -12,8 +12,16 @@ import { useGetCircleQuery, useUpdateUserMutation } from '@/lib/hooks';
 import { circleStepHref } from '@/lib/onboarding';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  TextInput as ReactNativeTextInput,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function About() {
@@ -24,6 +32,7 @@ export default function About() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [avatar, setAvatar] = useState<string | null>(null);
+  const lastNameRef = useRef<ReactNativeTextInput>(null);
 
   const userMutation = useUpdateUserMutation(
     () => {
@@ -37,8 +46,8 @@ export default function About() {
 
   function pickAvatar() {
     pickImageAsync({
-      height: 96,
-      width: 96,
+      height: 256,
+      width: 256,
       cropping: true,
     }).then((x) => {
       if (x !== null) {
@@ -61,7 +70,9 @@ export default function About() {
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -70,7 +81,8 @@ export default function About() {
           About you
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.xl }]}>
-          This is how your family will see you when you add photos.
+          This is how your family will know it&apos;s you. This will appear
+           next to your photos on the app and in the magazine.
         </Text>
 
         <PopPressable onPress={pickAvatar} style={styles.avatarContainer}>
@@ -84,7 +96,7 @@ export default function About() {
         </PopPressable>
         <PopPressable onPress={pickAvatar}>
           <Text style={[textStyles.buttonTextOrange, styles.changeAvatar]}>
-            {avatar ? 'Change photo' : 'Add a photo (optional)'}
+            {avatar ? 'Change photo' : 'Add a photo\n(optional, but we recommend it)'}
           </Text>
         </PopPressable>
 
@@ -98,10 +110,14 @@ export default function About() {
           autoCapitalize="words"
           textContentType="givenName"
           autoComplete="name-given"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => lastNameRef.current?.focus()}
         />
 
         <Text style={styles.label}>Last name</Text>
         <TextInput
+          ref={lastNameRef}
           placeholder="Your last name"
           maxLength={100}
           value={lastName}
@@ -110,8 +126,11 @@ export default function About() {
           autoCapitalize="words"
           textContentType="familyName"
           autoComplete="name-family"
+          returnKeyType="done"
+          onSubmitEditing={() => {
+            if (!buttonDisabled()) handleContinue();
+          }}
         />
-
       </ScrollView>
 
       <PopPressable
@@ -132,7 +151,7 @@ export default function About() {
           Continue
         </Text>
       </PopPressable>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

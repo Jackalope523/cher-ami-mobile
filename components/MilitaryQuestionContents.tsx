@@ -36,8 +36,8 @@ export default function MilitaryQuestionContents({
       </Text>
       <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
         If this magazine is going to a veteran or service member, the Military
-        Edition takes 20% off every month. We deliver to APO, FPO, and DPO
-        addresses too.
+        Edition takes 20% off every month. Whether they live at home or
+        have an APO, FPO, or DPO, we&apos;ll make sure they get it.
       </Text>
 
       <Pressable
@@ -46,7 +46,10 @@ export default function MilitaryQuestionContents({
         <View style={[styles.checkbox, checked && styles.checkboxChecked]}>
           {checked && <CheckIcon height={16} width={16} color="#FFFFFF" />}
         </View>
-        <Text style={[textStyles.body, { flexShrink: 1 }]}>
+        {/* flex rather than flexShrink: the row is the only child wide enough to
+            push past the dialogue's padding, and flex makes the text wrap inside
+            the row instead of stretching it. */}
+        <Text style={[textStyles.body, { flex: 1 }]}>
           Yes, I confirm this recipient is a veteran or military service member
         </Text>
       </Pressable>
@@ -62,6 +65,7 @@ const styles = StyleSheet.create({
   checkboxRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'stretch',
     columnGap: Spacings.mdsm,
     marginBottom: Spacings.xl,
   },

@@ -1,3 +1,4 @@
+import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import EditIcon from '@/assets/icons/pencil.svg';
 import APIProvider from '@/components/APIProvider';
 import AuthProvider, { useAuth } from '@/components/AuthProvider';
@@ -12,6 +13,8 @@ import ToastMessageProvider, {
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
+import { TUTORIAL_IMAGES } from '@/components/TutorialSlideshow';
+import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
   useConfigQuery,
@@ -19,8 +22,10 @@ import {
   usePingMutation,
 } from '@/lib/hooks';
 import { StripeProvider } from '@stripe/stripe-react-native';
+import { Asset } from 'expo-asset';
 import { router, SplashScreen, Stack } from 'expo-router';
 import { useEffect, useRef } from 'react';
+import { Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { OneSignal } from 'react-native-onesignal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -42,6 +47,10 @@ function RootNavigator() {
 
   useEffect(() => {
     pingMutation.mutate();
+  }, []);
+
+  useEffect(() => {
+    Asset.loadAsync(TUTORIAL_IMAGES).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -73,7 +82,7 @@ function RootNavigator() {
   }
 
   if (pingMutation.isPending || configQuery.isLoading) {
-    return <Loading />;
+    return <Loading showLogo />;
   }
 
   // if (nativeApplicationVersion !== configQuery.data?.version) {
@@ -84,16 +93,31 @@ function RootNavigator() {
     <StripeProvider
       publishableKey={configQuery.data?.stripePublishableKey ?? ''}>
       <Stack
-        screenOptions={{
+        screenOptions={({ navigation }) => ({
           headerShadowVisible: false,
-          headerTitleStyle: textStyles.screenHeader,
+          headerTitle: ({ children }) => (
+            <Text style={textStyles.screenHeader} numberOfLines={1}>
+              {children}
+            </Text>
+          ),
           headerTitleAlign: 'center',
-          headerBackButtonDisplayMode: 'minimal',
           headerTintColor: '#C15F3C',
+          headerLeft: navigation.canGoBack()
+            ? () => (
+                <PopPressable
+                  onPress={() => navigation.goBack()}
+                  style={{
+                    paddingRight: Spacings.md,
+                  }}>
+                  <ChevronLeftIcon height={24} width={24} color="#C15F3C" />
+                </PopPressable>
+              )
+            : undefined,
           headerStyle: {
             backgroundColor: '#FCFBF8',
           },
-        }}>
+          contentStyle: { backgroundColor: '#FCFBF8' }
+        })}>
         <Stack.Protected guard={getToken() === null}>
           <Stack.Screen
             name="index"
@@ -114,10 +138,24 @@ function RootNavigator() {
               name="onboarding/welcome"
               options={{ title: '', headerShown: false }}
             />
-            <Stack.Screen name="onboarding/about" options={{ title: '' }} />
-            <Stack.Screen name="onboarding/circle" options={{ title: '' }} />
-            <Stack.Screen name="onboarding/setup" options={{ title: '' }} />
-            <Stack.Screen name="onboarding/invite" options={{ title: '' }} />
+            {/* A titled header reads as part of the flow; an empty one looked
+                like content had been clipped away above the heading. */}
+            <Stack.Screen
+              name="onboarding/about"
+              options={{ title: 'Getting started' }}
+            />
+            <Stack.Screen
+              name="onboarding/circle"
+              options={{ title: 'Getting started' }}
+            />
+            <Stack.Screen
+              name="onboarding/setup"
+              options={{ title: 'Getting Started' }}
+            />
+            <Stack.Screen
+              name="onboarding/invite"
+              options={{ title: 'Getting started' }}
+            />
           </Stack.Protected>
 
           <Stack.Protected guard={getOnboarded() ?? false}>
@@ -139,16 +177,12 @@ function RootNavigator() {
               options={{
                 title: 'Profile',
                 headerRight: () => (
-                  <PopPressable onPress={() => router.push('/profile/edit')}>
+                  <PopPressable
+                    onPress={() => router.push('/profile/edit')}
+                    style={{ paddingHorizontal: Spacings.sm }}>
                     <EditIcon height={24} width={24} color={'#C15F3C'} />
                   </PopPressable>
                 ),
-              }}
-            />
-            <Stack.Screen
-              name="post/create"
-              options={{
-                title: 'New Post',
               }}
             />
             <Stack.Screen
@@ -184,7 +218,12 @@ function RootNavigator() {
             available screen, so putting them above the group would land signed-in
             users on a circle-setup screen instead of the feed.
           */}
-          <Stack.Screen name="onboarding/circleSetup" options={{ title: '' }} />
+          {/* Titled for the same reason as the onboarding screens, but worded to
+              suit both entry points — this one is also reached from the feed. */}
+          <Stack.Screen
+            name="onboarding/circleSetup"
+            options={{ title: 'Your family circle' }}
+          />
           <Stack.Screen
             name="circle/recipients/add"
             options={{ title: 'Add a Recipient' }}

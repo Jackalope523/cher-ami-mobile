@@ -11,8 +11,16 @@ import { textStyles } from '@/constants/TextStyles';
 import { useGetSelfQuery, useUpdateUserMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  TextInput as ReactNativeTextInput,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function EditProfile() {
@@ -22,6 +30,7 @@ export default function EditProfile() {
   const pickImageAsync = useImagePicker();
 
   const [avatar, setAvatar] = useState<string | null>(null);
+  const lastNameRef = useRef<ReactNativeTextInput>(null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
 
@@ -35,8 +44,8 @@ export default function EditProfile() {
 
   function pickImage() {
     pickImageAsync({
-      height: 96,
-      width: 96,
+      height: 256,
+      width: 256,
       cropping: true,
     }).then((x) => {
       if (x !== null) {
@@ -82,74 +91,85 @@ export default function EditProfile() {
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      overScrollMode="never"
-      showsVerticalScrollIndicator={false}>
-      <PopPressable onPress={pickImage}>
-        {avatar === null ? (
-          <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
-            <PlusIcon height={48} width={48} color={'#868581'} />
-          </View>
-        ) : (
-          <Image
-            style={styles.avatar}
-            placeholder={Placeholder}
-            placeholderContentFit="fill"
-            source={{
-              headers: {
-                Authorization: `Bearer ${getToken()}`,
-              },
-              uri:
-                avatar !== selfQuery.data.avatarUrl
-                  ? avatar
-                  : selfQuery.data.avatarUrl,
-            }}
-          />
-        )}
-      </PopPressable>
-      <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
-        Change Avatar
-      </Text>
-      <View style={styles.textInputs}>
-        <TextInput
-          title="First Name*"
-          maxLength={100}
-          value={firstName}
-          onChangeText={setFirstName}
-          autoCapitalize="words"
-          textContentType="givenName"
-          autoComplete="name-given"
-        />
-        <TextInput
-          title="Last Name*"
-          maxLength={100}
-          value={lastName}
-          onChangeText={setLastName}
-          autoCapitalize="words"
-          textContentType="familyName"
-          autoComplete="name-family"
-        />
-      </View>
-      <PopPressable
-        onPress={handleSaveChanges}
-        disabled={buttonDisabled()}
-        style={[
-          styles.button,
-          buttonDisabled() && {
-            backgroundColor: '#ECEDEF',
-            borderColor: '#ECEDEF',
-          },
-        ]}>
-        <Text
-          style={[
-            textStyles.buttonTextWhite,
-            buttonDisabled() && { color: '#A8ABB3' },
-          ]}>
-          Save Changes
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        overScrollMode="never"
+        showsVerticalScrollIndicator={false}>
+        <PopPressable onPress={pickImage}>
+          {avatar === null ? (
+            <View style={[styles.avatar, { backgroundColor: '#F4F1EA' }]}>
+              <PlusIcon height={48} width={48} color={'#868581'} />
+            </View>
+          ) : (
+            <Image
+              style={styles.avatar}
+              placeholder={Placeholder}
+              placeholderContentFit="fill"
+              source={{
+                headers: {
+                  Authorization: `Bearer ${getToken()}`,
+                },
+                uri:
+                  avatar !== selfQuery.data.avatarUrl
+                    ? avatar
+                    : selfQuery.data.avatarUrl,
+              }}
+            />
+          )}
+        </PopPressable>
+        <Text style={[textStyles.labelLargeBlack, styles.changeAvatar]}>
+          Change Avatar
         </Text>
-      </PopPressable>
-    </ScrollView>
+        <View style={styles.textInputs}>
+          <TextInput
+            title="First Name*"
+            maxLength={100}
+            value={firstName}
+            onChangeText={setFirstName}
+            autoCapitalize="words"
+            textContentType="givenName"
+            autoComplete="name-given"
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => lastNameRef.current?.focus()}
+          />
+          <TextInput
+            ref={lastNameRef}
+            title="Last Name*"
+            maxLength={100}
+            value={lastName}
+            onChangeText={setLastName}
+            autoCapitalize="words"
+            textContentType="familyName"
+            autoComplete="name-family"
+            returnKeyType="done"
+            onSubmitEditing={() => Keyboard.dismiss()}
+          />
+        </View>
+        <PopPressable
+          onPress={handleSaveChanges}
+          disabled={buttonDisabled()}
+          style={[
+            styles.button,
+            buttonDisabled() && {
+              backgroundColor: '#ECEDEF',
+              borderColor: '#ECEDEF',
+            },
+          ]}>
+          <Text
+            style={[
+              textStyles.buttonTextWhite,
+              buttonDisabled() && { color: '#A8ABB3' },
+            ]}>
+            Save Changes
+          </Text>
+        </PopPressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

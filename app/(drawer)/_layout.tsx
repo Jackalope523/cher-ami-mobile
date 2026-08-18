@@ -68,6 +68,7 @@ export default function Layout() {
               alignItems: 'center',
               columnGap: Spacings.md,
               paddingLeft: Spacings.lg,
+              paddingRight: Spacings.md,
               marginBottom: Spacings.xl,
             }}>
             {selfQuery.data.avatarUrl ? (
@@ -99,10 +100,9 @@ export default function Layout() {
                 <UserIcon height={24} width={24} color={'#868581'} />
               </View>
             )}
-            <Text
-              style={
-                textStyles.heading4
-              }>{`${selfQuery.data.firstName} ${selfQuery.data.lastName}`}</Text>
+            <Text style={[textStyles.heading4, { flexShrink: 1 }]}>
+              {`${selfQuery.data.firstName} ${selfQuery.data.lastName}`}
+            </Text>
           </PopPressable>
           <PopPressable
             onPress={() => {
@@ -200,11 +200,16 @@ export default function Layout() {
       drawerContent={CustomDrawerContent}
       screenOptions={({ navigation }) => ({
         headerShadowVisible: false,
-        headerTitleStyle: textStyles.screenHeader,
+        headerTitle: ({ children }) => (
+          <Text style={textStyles.screenHeader} numberOfLines={1}>
+            {children}
+          </Text>
+        ),
         headerTitleAlign: 'center',
         headerStyle: {
           backgroundColor: '#FCFBF8',
         },
+        headerRightContainerStyle: { paddingRight: Spacings.sm },
         drawerStyle: {
           backgroundColor: '#FCFBF8',
           width: Dimensions.get('window').width * 0.75,
@@ -212,7 +217,7 @@ export default function Layout() {
         headerLeft: () => (
           <PopPressable
             onPress={() => navigation.toggleDrawer()}
-            style={{ paddingHorizontal: 15 }}>
+            style={{ paddingHorizontal: Spacings.lgmd }}>
             <MenuIcon height={24} width={24} />
           </PopPressable>
         ),

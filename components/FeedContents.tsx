@@ -155,6 +155,16 @@ export default function FeedContents() {
   }
 
   function renderEmptyComponent(isCurrentIssue: boolean = true) {
+    if (!isCurrentIssue) {
+      return (
+        <View style={styles.pastIssueEmpty}>
+          <Text style={[textStyles.body, styles.pastIssueEmptyText]}>
+            No photos were added and no magazine was shipped.
+          </Text>
+        </View>
+      );
+    }
+
     return (
       <View style={{ paddingVertical: 100 }}>
         <View
@@ -179,19 +189,17 @@ export default function FeedContents() {
           </View>
 
           <Text style={textStyles.fancyText}>{'No photos yet'}</Text>
-          {isCurrentIssue && (
-            <Text
-              style={[
-                textStyles.body,
-                {
-                  textAlign: 'center',
-                  color: '#868581',
-                  marginBottom: Spacings.xxl,
-                },
-              ]}>
-              Tap the + button to add the first one!
-            </Text>
-          )}
+          <Text
+            style={[
+              textStyles.body,
+              {
+                textAlign: 'center',
+                color: '#868581',
+                marginBottom: Spacings.xxl,
+              },
+            ]}>
+            Tap the + button to add the first one!
+          </Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Image
@@ -262,33 +270,34 @@ export default function FeedContents() {
               }}
               style={{
                 marginHorizontal: Spacings.lgmd,
-                padding: Spacings.lgmd,
+                padding: Spacings.md,
               }}>
               <View
                 style={{
                   flexDirection: 'row',
-                  justifyContent: 'flex-end',
-                  marginBottom: 56,
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  columnGap: Spacings.sm,
+                  marginBottom: Spacings.xs,
                 }}>
-                <Pressable onPress={() => setHideBanner(true)}>
+                <Text
+                  style={{
+                    fontFamily: 'Poppins',
+                    fontWeight: 600,
+                    fontSize: 18,
+                    color: '#242832',
+                    flexShrink: 1,
+                  }}>
+                  Who is this magazine for?
+                </Text>
+                <Pressable
+                  onPress={() => setHideBanner(true)}
+                  hitSlop={Spacings.sm}>
                   <XIcon height={24} width={24} color="#868581" />
                 </Pressable>
               </View>
-
-              <Text
-                style={{
-                  fontFamily: 'Poppins',
-                  fontWeight: 600,
-                  fontSize: 20,
-                  color: '#242832',
-                  marginBottom: Spacings.sm,
-                }}>
-                Who is this magazine for?
-              </Text>
-              <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
-                Add the name and address of the person you&apos;d like to
-                mail your photos to at
-                the end of the month.
+              <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
+                Add the person who should get it in the mail.
               </Text>
 
               <PopPressable onPress={handleAddRecipient} style={styles.button}>
@@ -297,7 +306,7 @@ export default function FeedContents() {
             </ImageBackground>
           )}
           {data?.pages[0].posts.length === 0 && (
-            <View style={styles.toast}>
+            <PopPressable onPress={handleCreatePost} style={styles.toast}>
               <Text
                 style={[
                   textStyles.heading5,
@@ -308,7 +317,7 @@ export default function FeedContents() {
                 {"Be the first to add a photo to this month's magazine!"}
               </Text>
               <Image source={CameraImage} style={{ height: 64, width: 64 }} />
-            </View>
+            </PopPressable>
           )}
           {data?.pages[0].posts.length === 20 && (
             <View style={styles.toast}>
@@ -419,6 +428,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FCFBF8',
+  },
+
+  pastIssueEmpty: {
+    alignItems: 'center',
+    paddingVertical: Spacings.xl,
+  },
+
+  pastIssueEmptyText: {
+    color: '#868581',
+    textAlign: 'center',
+    width: '60%'
   },
 
   toast: {

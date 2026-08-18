@@ -28,13 +28,15 @@ type Slide = {
   body: string;
 };
 
+export const TUTORIAL_IMAGES = [Squirrel, Mice, Pigeon, Bears];
+
 const SLIDES: Slide[] = [
   {
     id: 'welcome',
     image: Squirrel,
     imageAspectRatio: 288 / 228,
-    title: 'Welcome to Cher Ami',
-    body: 'Turn your family’s photos into a real printed magazine — and mail it to the people you love.',
+    title: 'Welcome to Cher Ami!',
+    body: 'Turn your family’s photos into a real printed magazine every month and mail it to the people you love.',
   },
   {
     id: 'share',
@@ -54,8 +56,8 @@ const SLIDES: Slide[] = [
     id: 'simple',
     image: Bears,
     imageAspectRatio: 160 / 223,
-    title: 'No tech needed on their end',
-    body: 'Whoever receives it doesn’t need an app, an account, or Wi-Fi. The magazine simply arrives.',
+    title: 'No app needed to enjoy',
+    body: 'Whoever receives it doesn’t need an app, an account, or even Wi-Fi. The magazine simply arrives, a monthly dose of joy.',
   },
 ];
 

@@ -11,14 +11,13 @@ export default function Invite() {
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} overScrollMode="never">
         <Text style={[textStyles.heading1, { marginBottom: Spacings.md }]}>
-          Invite your family.
+          Invite your family
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.xl }]}>
-          Magazines are better when everyone adds a photo. Send an invitation
-          now, or share the code whenever you like.
+          Magazines are better — and faster — when everyone contributes a photo or two.
         </Text>
 
-        <InviteModalContents dismissModal={() => router.back()} />
+        <InviteModalContents />
       </ScrollView>
 
       <PopPressable onPress={() => router.back()} style={styles.button}>

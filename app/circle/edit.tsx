@@ -42,8 +42,8 @@ export default function EditRecipient() {
 
   function pickImage() {
     pickImageAsync({
-      width: 2 * 186,
-      height: 186,
+      width: 1200,
+      height: 600,
       cropping: true,
     }).then((x) => {
       if (x !== null) {

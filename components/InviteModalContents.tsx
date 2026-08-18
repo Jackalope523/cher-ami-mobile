@@ -4,7 +4,11 @@ import RefreshIcon from '@/assets/icons/refresh.svg';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { useGetCircleQuery, useRerollCodeMutation } from '@/lib/hooks';
+import {
+  useGetCircleQuery,
+  useGetSelfQuery,
+  useRerollCodeMutation,
+} from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { setStringAsync } from 'expo-clipboard';
 import { Share, StyleSheet, Text, View } from 'react-native';
@@ -14,22 +18,28 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import PopPressable from './PopPressable';
 import {
   ToastMessageType,
   useToastMessage,
 } from './modals/ToastMessageProvider';
-import PopPressable from './PopPressable';
 
 interface InviteModalContentsProps {
+  /**
+   * Only supplied when this renders inside a modal. Onboarding shows the same
+   * contents as a full screen, which has its own back button and Done button —
+   * a close X there is a leftover from a modal that isn't on screen.
+   */
   dismissModal?: () => void;
 }
 
 export default function InviteModalContents({
-  dismissModal = () => {},
+  dismissModal,
 }: InviteModalContentsProps) {
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
   const { data } = useGetCircleQuery();
+  const selfQuery = useGetSelfQuery();
   const mutation = useRerollCodeMutation(
     (_) => {
       queryClient.invalidateQueries({ queryKey: ['Circle'] });
@@ -58,18 +68,30 @@ export default function InviteModalContents({
   }
 
   async function handleShare() {
-    const circleName = data?.title ? `"${data.title}"` : 'our family circle';
+    const inviter = selfQuery.data?.firstName?.trim();
+    const circleTitle = data?.title?.trim();
+    const circleLabel = circleTitle ?? 'our family circle';
 
-    await Share.share({
-      message:
-        `Hi! Come join ${circleName} on Cher Ami — we share family photos there, ` +
-        `and every month they become a printed magazine for the people we love.\n\n` +
-        `Here's how to join:\n` +
-        `1. Download the Cher Ami app: https://thecherami.com\n` +
-        `2. Sign up, then choose "Join your family's circle"\n` +
-        `3. Enter our invite code: ${data?.inviteCode}\n\n` +
-        `See you there!`,
-    });
+    const subject = inviter
+      ? circleTitle
+        ? `${inviter} has invited you to ${circleTitle} on Cher Ami!`
+        : `${inviter} has invited you to their family circle on Cher Ami!`
+      : 'You have been invited to a family circle on Cher Ami!';
+
+    await Share.share(
+      {
+        title: subject,
+        message:
+          `Come join ${circleLabel} on Cher Ami!\n\n` +
+          `We share family photos there, and every month they become a ` +
+          `printed magazine for the people we love.\n\n` +
+          `To join, download the app at https://thecherami.com, sign up, ` +
+          `then choose "Join your family's circle" and enter our invite ` +
+          `code: ${data?.inviteCode}\n\n` +
+          `See you there!`,
+      },
+      { subject },
+    );
   }
 
   const copyToClipboard = async () => {
@@ -84,17 +106,19 @@ export default function InviteModalContents({
           style={[textStyles.labelLargeBlack, { marginBottom: Spacings.smxs }]}>
           Invite family &amp; friends
         </Text>
-        <PopPressable onPress={dismissModal}>
-          <XIcon height={24} width={24} color="#868581" />
-        </PopPressable>
+        {dismissModal && (
+          <PopPressable onPress={dismissModal}>
+            <XIcon height={24} width={24} color="#868581" />
+          </PopPressable>
+        )}
       </View>
 
       <Text
         style={[
           textStyles.caption,
-          { marginBottom: Spacings.lgmd, paddingRight: 45 },
+          { marginBottom: Spacings.lgmd, paddingRight: dismissModal ? 45 : 0 },
         ]}>
-        Send an invitation by text, email, or however you like — it includes
+        Send an invitation by text, email, or however you like! It includes
         your invite code and simple instructions.
       </Text>
 
@@ -114,8 +138,7 @@ export default function InviteModalContents({
         Or share the code yourself
       </Text>
       <Text style={[textStyles.caption, { marginBottom: Spacings.mdsm }]}>
-        Tap to copy. They&apos;ll enter it when choosing &ldquo;Join your
-        family&apos;s circle.&rdquo;
+        Tap to copy and share it with others, they&apos;ll enter the code during sign up.
       </Text>
       <PopPressable
         onPress={copyToClipboard}

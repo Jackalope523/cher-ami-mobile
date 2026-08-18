@@ -1,41 +1,38 @@
 import CheckIcon from '@/assets/icons/check.svg';
 import ChevronIcon from '@/assets/icons/chevron-right.svg';
 import Loading from '@/components/Loading';
-import { useImagePicker } from '@/components/ImagePickerProvider';
 import PopPressable from '@/components/PopPressable';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import {
-  useFeedPostsInfiniteQuery,
-  useGetCircleQuery,
-  usePostCountQuery,
-  useUploadImageMutation,
-} from '@/lib/hooks';
+import { useGetCircleQuery } from '@/lib/hooks';
 import { useFinishOnboarding } from '@/lib/onboarding';
-import { defaultPhotoDate } from '@/lib/utility';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { OneSignal } from 'react-native-onesignal';
-import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
 
 /**
  * The last onboarding screen: everything still worth doing, in one place.
  *
- * These steps are all optional, so listing them beats marching people through
- * three more screens — the feed is always one tap away, and anything skipped
- * stays visible here rather than being silently dropped.
+ * Someone who joined an existing circle sees only the notifications step —
+ * see `isJoiner` below.
+ *
+ * Adding the first photo deliberately isn't here — it needs the crop and shape
+ * flow, which is a lot to walk into mid-setup. It gets its own guidance the
+ * first time someone posts instead.
  */
 export default function Setup() {
+  const { joined } = useLocalSearchParams();
   const circleQuery = useGetCircleQuery();
-  const postCountQuery = usePostCountQuery();
-  const pickImageAsync = useImagePicker();
-  const uploadImageMutation = useUploadImageMutation();
-  const { data } = useFeedPostsInfiniteQuery();
   const finishOnboarding = useFinishOnboarding();
+
+  // Someone who joined a circle rather than starting one didn't choose who it
+  // is for and isn't the one gathering the family, so inviting and adding a
+  // recipient aren't theirs to do. Notifications are the part that still
+  // matters — both remain reachable from the feed either way.
+  const isJoiner = joined === '1';
 
   const [invited, setInvited] = useState(false);
   const [notificationsOn, setNotificationsOn] = useState(false);
@@ -45,11 +42,6 @@ export default function Setup() {
     OneSignal.Notifications.getPermissionAsync().then(setNotificationsOn);
   }, []);
 
-  /**
-   * The row's own copy is the soft ask — Apple asks that people know why
-   * before the system prompt appears, and the prompt itself can only be shown
-   * once, so `true` sends anyone who already declined to Settings instead.
-   */
   async function handleNotifications() {
     if (notificationsOn) return;
 
@@ -58,43 +50,10 @@ export default function Setup() {
   }
 
   const hasRecipient = (circleQuery.data?.recipients.length ?? 0) > 0;
-  const hasPhoto = (postCountQuery.data ?? 0) > 0;
 
   function handleInvite() {
     setInvited(true);
     router.push('/onboarding/invite');
-  }
-
-  async function handleAddPhoto() {
-    const uploadId = uuidv4();
-
-    const picked = await pickImageAsync();
-    if (picked === null) return;
-
-    uploadImageMutation.mutate({ uploadId, imageUri: picked.uri });
-
-    const issueStartDate = data?.pages[0].issueDate
-      ? new Date(data.pages[0].issueDate)
-      : null;
-
-    router.push({
-      pathname: '/post/size',
-      params: {
-        issueTitle: data?.pages[0].issueTitle,
-        issueCloseDate: data?.pages[0].issueCloseDate
-          ? new Date(data.pages[0].issueCloseDate).toISOString()
-          : undefined,
-        issueStartDate: issueStartDate?.toISOString(),
-        photoDate: defaultPhotoDate(
-          picked.takenAt,
-          issueStartDate,
-        ).toISOString(),
-        imageUri: picked.uri,
-        uploadId,
-        // Come back here rather than dropping into the feed mid-setup.
-        next: '/onboarding/setup',
-      },
-    });
   }
 
   async function handleFinish() {
@@ -133,51 +92,52 @@ export default function Setup() {
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} overScrollMode="never">
-        <Text style={[textStyles.heading1, { marginBottom: Spacings.md }]}>
-          Your family circle is ready.
+      {/* The padding sits on the scroll content, not the container: a row that
+          pops to 1.03 on press has to grow into it, and a ScrollView clips
+          anything wider than itself. */}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        overScrollMode="never">
+        <Text style={[textStyles.heading2, { marginBottom: Spacings.sm }]}>
+          {isJoiner ? "You're in!" : 'Your family circle is ready'}
         </Text>
-        <Text style={[textStyles.body, { marginBottom: Spacings.xl }]}>
-          A few things that make the first magazine special. Do them now or any
-          time — nothing here is required.
+        <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
+          {isJoiner
+            ? 'Welcome to your family\u2019s circle! Let\u2019s get you up to speed. Turn on notifications so you know when someone adds a photo.'
+            : 'A couple of things to speed up your first magazine. Or, do them later and get started adding photos right away!'}
         </Text>
 
         <View style={{ rowGap: Spacings.mdsm }}>
-          {renderStep(
-            'Invite your family',
-            'Everyone can add their own photos.',
-            invited,
-            handleInvite,
-          )}
-          {renderStep(
-            'Add a recipient',
-            hasRecipient
-              ? 'Their magazine is on its way at the end of the month.'
-              : 'The person who gets the magazine in the mail.',
-            hasRecipient,
-            () => router.push('/circle/recipients/add'),
-          )}
+          {!isJoiner &&
+            renderStep(
+              'Invite your family',
+              'Everyone can add their own photos.',
+              invited,
+              handleInvite,
+            )}
+          {!isJoiner &&
+            renderStep(
+              'Add a recipient',
+              hasRecipient
+                ? 'Their magazine is on its way at the end of the month.'
+                : 'The person who gets the magazine in the mail.',
+              hasRecipient,
+              () => router.push('/circle/recipients/add'),
+            )}
           {renderStep(
             'Turn on notifications',
             notificationsOn
               ? 'We’ll let you know when photos are added.'
-              : 'Hear when the family adds photos and before each magazine closes — nothing else.',
+              : 'Hear when the family adds photos, and before each magazine closes.',
             notificationsOn,
             handleNotifications,
-          )}
-          {renderStep(
-            'Add your first photo',
-            hasPhoto
-              ? 'It’s in this month’s magazine.'
-              : 'It starts this month’s magazine.',
-            hasPhoto,
-            handleAddPhoto,
           )}
         </View>
       </ScrollView>
 
       <PopPressable onPress={handleFinish} style={styles.button}>
-        <Text style={textStyles.buttonTextWhite}>Go to my feed</Text>
+        <Text style={textStyles.buttonTextWhite}>Let&apos;s go!</Text>
       </PopPressable>
     </View>
   );
@@ -187,8 +147,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FCFBF8',
-    paddingHorizontal: Spacings.lgmd,
     justifyContent: 'space-between',
+  },
+
+  scrollContent: {
+    paddingHorizontal: Spacings.lgmd,
   },
 
   step: {
@@ -224,5 +187,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#C15F3C',
     marginVertical: Spacings.lgmd,
+    marginHorizontal: Spacings.lgmd,
   },
 });

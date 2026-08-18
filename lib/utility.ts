@@ -101,6 +101,12 @@ export function toIsoDate(
  * Signing up on July 30th is the case worth checking — that magazine closes
  * August 31st and ships in September, so the first charge is October 1st with
  * the free magazine, or September 1st without it.
+ *
+ * A magazine is named for its *drafting* month, not the month it arrives:
+ * photos posted in August make the August magazine, which mails in September.
+ * So the month a charge lands is never the name of the magazine it pays for —
+ * that one is always the month before. Use `firstChargeIssueMonth` when naming
+ * it and never the charge date's own month.
  */
 export function billingSchedule(
   issueCloseDate: Date | string | null,
@@ -122,6 +128,16 @@ export function billingSchedule(
     Date.UTC(close.getUTCFullYear(), close.getUTCMonth() + chargeMonthOffset, 1),
   );
 
+  // The magazine that charge pays for, named by its drafting month — always the
+  // month before the charge lands.
+  const firstChargeIssue = new Date(
+    Date.UTC(
+      close.getUTCFullYear(),
+      close.getUTCMonth() + chargeMonthOffset - 1,
+      1,
+    ),
+  );
+
   const monthName = (date: Date) =>
     date.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
 
@@ -131,32 +147,65 @@ export function billingSchedule(
       day: 'numeric',
       timeZone: 'UTC',
     }),
+    /** The magazine now being filled, named by its drafting month. */
+    issueMonth: monthName(close),
     firstShipmentMonth: monthName(firstShipment),
-    firstChargeMonth: monthName(firstCharge),
+    firstChargeIssueMonth: monthName(firstChargeIssue),
     firstChargeDate: `${monthName(firstCharge)} 1st`,
   };
 }
 
-export function getNextMonthName() {
-  const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
+export type PrintSharpness = {
+  level: 'fine' | 'soft' | 'poor';
+  message: string;
+};
 
-  const today = new Date();
-  const nextMonthIndex = (today.getMonth() + 1) % 12; // wraps December → January
+/**
+ * How well a crop will hold up in print.
+ *
+ * The layouts in `post/size.tsx` state the pixels each slot needs at 300 DPI, so
+ * the crop's own pixel size against that target is the whole answer — a ratio of
+ * 1 needs no upscaling, 0.5 means the printer has to double it and prints at
+ * roughly 150 DPI. Returns null when there's nothing worth saying.
+ */
+export function printSharpness(
+  cropWidth: number,
+  cropHeight: number,
+  targetWidth: number,
+  targetHeight: number,
+): PrintSharpness | null {
+  if (
+    !cropWidth ||
+    !cropHeight ||
+    !targetWidth ||
+    !targetHeight ||
+    cropWidth < 0 ||
+    cropHeight < 0
+  ) {
+    return null;
+  }
 
-  return monthNames[nextMonthIndex];
+  // The tighter of the two axes decides it: that's the one that has to stretch
+  // furthest to fill the slot.
+  const ratio = Math.min(cropWidth / targetWidth, cropHeight / targetHeight);
+
+  // ~225 DPI and up looks fine on glossy stock.
+  if (ratio >= 0.75) return null;
+
+  // Down to ~150 DPI: noticeable to a careful eye, fine for a casual snapshot.
+  if (ratio >= 0.5) {
+    return {
+      level: 'soft',
+      message:
+        'This photo may look a little soft in print. It will still look lovely but a larger original would be a touch sharper.',
+    };
+  }
+
+  return {
+    level: 'poor',
+    message:
+      'This photo is quite small, so it may look blurry in print. Zooming in less or using a higher quality photo will print much better.',
+  };
 }
 
 export function splitName(fullName: string) {

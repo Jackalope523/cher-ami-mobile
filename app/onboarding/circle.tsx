@@ -4,10 +4,11 @@ import { StyleSheet, View } from 'react-native';
 
 export default function OnboardingCircle() {
 
-  // A joiner skips circle creation, but the rest of the setup still applies —
-  // they can invite others, add their own recipient, or post a first photo.
   function handleJoined() {
-    router.replace('/onboarding/setup');
+    router.replace({
+      pathname: '/onboarding/setup',
+      params: { joined: '1' },
+    });
   }
 
   return (

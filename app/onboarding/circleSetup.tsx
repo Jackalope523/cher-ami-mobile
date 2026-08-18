@@ -37,7 +37,17 @@ export default function CircleSetup() {
         router.replace('/feed');
       }
     },
-    (error) => {
+    async (error) => {
+      if (error.response?.status === 409) {
+        showToastMessage(
+          "You're already in a family circle.",
+          ToastMessageType.Informational,
+        );
+        await queryClient.invalidateQueries({ queryKey: ['Circle'] });
+        router.replace(isOnboarding ? '/onboarding/setup' : '/feed');
+        return;
+      }
+
       console.log(error);
       showToastMessage('Network error. Try again.', ToastMessageType.Error);
     },
@@ -45,8 +55,8 @@ export default function CircleSetup() {
 
   function pickImage() {
     pickImageAsync({
-      width: 2 * 186,
-      height: 186,
+      width: 1200,
+      height: 600,
       cropping: true,
     }).then((x) => {
       if (x !== null) {
@@ -63,11 +73,8 @@ export default function CircleSetup() {
     });
   }
 
-  // A cover photo is still required: the deployed server's create-circle
-  // validator dereferences the image without a null check, so skipping it
-  // would 500. Relax this once the matching server fix ships.
   function buttonDisabled() {
-    return !circleName.trim() || !selectedImage || circleMutation.isPending;
+    return !circleName.trim() || circleMutation.isPending;
   }
 
   return (
@@ -76,12 +83,13 @@ export default function CircleSetup() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         overScrollMode="never">
-        <Text style={[textStyles.heading1, { marginBottom: Spacings.md }]}>
-          Name your family circle.
+        <Text style={[textStyles.heading2, { marginBottom: Spacings.md }]}>
+          Set up your family circle
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
-          This is the name your family will see in the app — something like
-          &ldquo;The Harper Family.&rdquo;
+          This is the name your family will see in the app and on the front cover
+          of your magazine. Anything from
+          &ldquo;The Harper Family&rdquo; to &ldquo;William&apos;s Bunch&rdquo;!
         </Text>
         <TextInput
           placeholder="Family circle name"
@@ -93,11 +101,11 @@ export default function CircleSetup() {
         />
 
         <Text style={[textStyles.heading4, { marginBottom: Spacings.sm }]}>
-          Add a cover photo
+          Add a cover photo (optional)
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.md }]}>
-          Pick a favorite family photo — it will sit at the top of your family
-          circle.
+          Pick a favorite family photo to sit at the top of your family
+          circle. It won&apos;t appear in the magazine and you can change it later.
         </Text>
         <PopPressable style={styles.imageContainer} onPress={pickImage}>
           {selectedImage ? (
