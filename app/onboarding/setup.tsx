@@ -99,13 +99,13 @@ export default function Setup() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         overScrollMode="never">
-        <Text style={[textStyles.heading1, { marginBottom: Spacings.sm }]}>
-          {isJoiner ? "You're in!" : 'Your family circle is ready!'}
+        <Text style={[textStyles.heading2, { marginBottom: Spacings.sm }]}>
+          {isJoiner ? "You're in!" : 'Your family circle is ready'}
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
           {isJoiner
             ? 'Welcome to your family\u2019s circle! Let\u2019s get you up to speed. Turn on notifications so you know when someone adds a photo.'
-            : 'A couple of things to speed up the first magazine. Or, do them later and get started adding photos right away!'}
+            : 'A couple of things to speed up your first magazine. Or, do them later and get started adding photos right away!'}
         </Text>
 
         <View style={{ rowGap: Spacings.mdsm }}>

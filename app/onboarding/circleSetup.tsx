@@ -83,8 +83,8 @@ export default function CircleSetup() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         overScrollMode="never">
-        <Text style={[textStyles.heading1, { marginBottom: Spacings.md }]}>
-          Name your family circle.
+        <Text style={[textStyles.heading2, { marginBottom: Spacings.md }]}>
+          Set up your family circle
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
           This is the name your family will see in the app and on the front cover

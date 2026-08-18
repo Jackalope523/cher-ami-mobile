@@ -105,7 +105,7 @@ export default function JoinOrCreateCircle({
               marginBottom: Spacings.xl,
             },
           ]}>
-          A family circle is a private space where your family shares
+          A family circle is a private space to share
           the photos that turn into your magazines.
         </Text>
 
@@ -140,7 +140,7 @@ export default function JoinOrCreateCircle({
           <View style={styles.divider} />
         </View>
 
-        <View style={[styles.card, { marginBottom: Spacings.xl }]}>
+        <View style={[styles.card, { marginBottom: Spacings.xxxl * 2 }]}>
           <Text style={[textStyles.heading4, { marginBottom: Spacings.sm }]}>
             Join your family&apos;s circle
           </Text>
