@@ -1,3 +1,4 @@
+import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import EditIcon from '@/assets/icons/pencil.svg';
 import APIProvider from '@/components/APIProvider';
 import AuthProvider, { useAuth } from '@/components/AuthProvider';
@@ -86,23 +87,31 @@ function RootNavigator() {
     <StripeProvider
       publishableKey={configQuery.data?.stripePublishableKey ?? ''}>
       <Stack
-        screenOptions={{
+        screenOptions={({ navigation }) => ({
           headerShadowVisible: false,
-          // Rendered as our own Text rather than left to headerTitleStyle: the
-          // native header only honours the font properties there and drops the
-          // padding Damion's overhanging strokes need, so they clipped.
           headerTitle: ({ children }) => (
             <Text style={textStyles.screenHeader} numberOfLines={1}>
               {children}
             </Text>
           ),
           headerTitleAlign: 'center',
-          headerBackButtonDisplayMode: 'minimal',
           headerTintColor: '#C15F3C',
+          headerLeft: navigation.canGoBack()
+            ? () => (
+                <PopPressable
+                  onPress={() => navigation.goBack()}
+                  style={{
+                    paddingRight: Spacings.md,
+                  }}>
+                  <ChevronLeftIcon height={24} width={24} color="#C15F3C" />
+                </PopPressable>
+              )
+            : undefined,
           headerStyle: {
             backgroundColor: '#FCFBF8',
           },
-        }}>
+          contentStyle: { backgroundColor: '#FCFBF8' }
+        })}>
         <Stack.Protected guard={getToken() === null}>
           <Stack.Screen
             name="index"
