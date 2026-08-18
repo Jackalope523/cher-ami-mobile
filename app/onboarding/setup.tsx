@@ -7,7 +7,7 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetCircleQuery } from '@/lib/hooks';
 import { useFinishOnboarding } from '@/lib/onboarding';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -16,13 +16,23 @@ import { OneSignal } from 'react-native-onesignal';
 /**
  * The last onboarding screen: everything still worth doing, in one place.
  *
+ * Someone who joined an existing circle sees only the notifications step —
+ * see `isJoiner` below.
+ *
  * Adding the first photo deliberately isn't here — it needs the crop and shape
  * flow, which is a lot to walk into mid-setup. It gets its own guidance the
  * first time someone posts instead.
  */
 export default function Setup() {
+  const { joined } = useLocalSearchParams();
   const circleQuery = useGetCircleQuery();
   const finishOnboarding = useFinishOnboarding();
+
+  // Someone who joined a circle rather than starting one didn't choose who it
+  // is for and isn't the one gathering the family, so inviting and adding a
+  // recipient aren't theirs to do. Notifications are the part that still
+  // matters — both remain reachable from the feed either way.
+  const isJoiner = joined === '1';
 
   const [invited, setInvited] = useState(false);
   const [notificationsOn, setNotificationsOn] = useState(false);
@@ -90,28 +100,31 @@ export default function Setup() {
         showsVerticalScrollIndicator={false}
         overScrollMode="never">
         <Text style={[textStyles.heading1, { marginBottom: Spacings.sm }]}>
-          Your family circle is ready!
+          {isJoiner ? "You're in!" : 'Your family circle is ready!'}
         </Text>
         <Text style={[textStyles.body, { marginBottom: Spacings.lg }]}>
-          A couple of things to speed up the first magazine. Or, 
-          do them later and get started adding photos right away!
+          {isJoiner
+            ? 'Welcome to your family\u2019s circle! Let\u2019s get you up to speed. Turn on notifications so you know when someone adds a photo.'
+            : 'A couple of things to speed up the first magazine. Or, do them later and get started adding photos right away!'}
         </Text>
 
         <View style={{ rowGap: Spacings.mdsm }}>
-          {renderStep(
-            'Invite your family',
-            'Everyone can add their own photos.',
-            invited,
-            handleInvite,
-          )}
-          {renderStep(
-            'Add a recipient',
-            hasRecipient
-              ? 'Their magazine is on its way at the end of the month.'
-              : 'The person who gets the magazine in the mail.',
-            hasRecipient,
-            () => router.push('/circle/recipients/add'),
-          )}
+          {!isJoiner &&
+            renderStep(
+              'Invite your family',
+              'Everyone can add their own photos.',
+              invited,
+              handleInvite,
+            )}
+          {!isJoiner &&
+            renderStep(
+              'Add a recipient',
+              hasRecipient
+                ? 'Their magazine is on its way at the end of the month.'
+                : 'The person who gets the magazine in the mail.',
+              hasRecipient,
+              () => router.push('/circle/recipients/add'),
+            )}
           {renderStep(
             'Turn on notifications',
             notificationsOn

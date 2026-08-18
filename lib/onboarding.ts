@@ -20,7 +20,9 @@ import { Href, router } from 'expo-router';
  * JoinOrCreateCircle through the feed.
  */
 export function circleStepHref(circle: CircleDTO | null | undefined): Href {
-  return circle === null ? '/onboarding/circle' : '/onboarding/setup';
+  return circle === null
+    ? '/onboarding/circle'
+    : { pathname: '/onboarding/setup', params: { joined: '1' } };
 }
 
 /** The first step after the welcome: ask about them only if sign-in gave no name. */

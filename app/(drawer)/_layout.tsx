@@ -68,6 +68,7 @@ export default function Layout() {
               alignItems: 'center',
               columnGap: Spacings.md,
               paddingLeft: Spacings.lg,
+              paddingRight: Spacings.md,
               marginBottom: Spacings.xl,
             }}>
             {selfQuery.data.avatarUrl ? (
@@ -99,10 +100,9 @@ export default function Layout() {
                 <UserIcon height={24} width={24} color={'#868581'} />
               </View>
             )}
-            <Text
-              style={
-                textStyles.heading4
-              }>{`${selfQuery.data.firstName} ${selfQuery.data.lastName}`}</Text>
+            <Text style={[textStyles.heading4, { flexShrink: 1 }]}>
+              {`${selfQuery.data.firstName} ${selfQuery.data.lastName}`}
+            </Text>
           </PopPressable>
           <PopPressable
             onPress={() => {
