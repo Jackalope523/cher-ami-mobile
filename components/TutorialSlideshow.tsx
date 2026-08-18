@@ -28,6 +28,8 @@ type Slide = {
   body: string;
 };
 
+export const TUTORIAL_IMAGES = [Squirrel, Mice, Pigeon, Bears];
+
 const SLIDES: Slide[] = [
   {
     id: 'welcome',

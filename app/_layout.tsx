@@ -13,6 +13,7 @@ import ToastMessageProvider, {
   useToastMessage,
 } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
+import { TUTORIAL_IMAGES } from '@/components/TutorialSlideshow';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
@@ -21,6 +22,7 @@ import {
   usePingMutation,
 } from '@/lib/hooks';
 import { StripeProvider } from '@stripe/stripe-react-native';
+import { Asset } from 'expo-asset';
 import { router, SplashScreen, Stack } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Text } from 'react-native';
@@ -45,6 +47,10 @@ function RootNavigator() {
 
   useEffect(() => {
     pingMutation.mutate();
+  }, []);
+
+  useEffect(() => {
+    Asset.loadAsync(TUTORIAL_IMAGES).catch(() => {});
   }, []);
 
   useEffect(() => {
