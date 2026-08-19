@@ -13,21 +13,19 @@ import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetCircleQuery, useGetSelfQuery } from '@/lib/hooks';
-import {
-  DrawerContentComponentProps,
-  DrawerContentScrollView,
-} from '@react-navigation/drawer';
 import { Image } from 'expo-image';
 import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { Dimensions, Text, View } from 'react-native';
 import { OneSignal } from 'react-native-onesignal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Layout() {
   const selfQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
   const { getToken, deleteToken } = useAuth();
+  const insets = useSafeAreaInsets();
 
   function handleLogout() {
     deleteToken();
@@ -35,7 +33,7 @@ export default function Layout() {
     router.replace('/');
   }
 
-  function CustomDrawerContent(props: DrawerContentComponentProps) {
+  function CustomDrawerContent() {
     if (selfQuery.isError || circleQuery.isError) {
       return <Error />;
     }
@@ -49,11 +47,12 @@ export default function Layout() {
     }
 
     return (
-      <DrawerContentScrollView
-        {...props}
-        contentContainerStyle={{
+      <View
+        style={{
           flex: 1,
           justifyContent: 'space-between',
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
         }}>
         <View>
           <PopPressable
@@ -191,7 +190,7 @@ export default function Layout() {
             <Text style={textStyles.buttonTextOrange}>Log Out</Text>
           </PopPressable>
         </View>
-      </DrawerContentScrollView>
+      </View>
     );
   }
 
