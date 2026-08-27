@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
 
   dialogue: {
     zIndex: 1,
+    alignSelf: 'stretch',
     padding: Spacings.lgmd,
     marginHorizontal: Spacings.lgmd,
     borderRadius: borderRadius.xl,

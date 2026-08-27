@@ -13,10 +13,20 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
+import { useHeaderHeight } from '@react-navigation/elements';
+import {
+  Dimensions,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function CircleSetup() {
+  const headerHeight = useHeaderHeight();
   const { onboarding } = useLocalSearchParams();
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
@@ -32,7 +42,10 @@ export default function CircleSetup() {
       await queryClient.invalidateQueries({ queryKey: ['Circle'] });
 
       if (isOnboarding) {
-        router.push('/onboarding/setup');
+        router.push({
+          pathname: '/onboarding/setup',
+          params: { joined: '0' },
+        });
       } else {
         router.replace('/feed');
       }
@@ -78,8 +91,13 @@ export default function CircleSetup() {
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={headerHeight}>
       <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: Spacings.lg }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         overScrollMode="never">
@@ -136,7 +154,7 @@ export default function CircleSetup() {
           Create Family Circle
         </Text>
       </PopPressable>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

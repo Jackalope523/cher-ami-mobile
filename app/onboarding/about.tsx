@@ -6,6 +6,7 @@ import {
 } from '@/components/modals/ToastMessageProvider';
 import PopPressable from '@/components/PopPressable';
 import TextInput from '@/components/TextInput';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useGetCircleQuery, useUpdateUserMutation } from '@/lib/hooks';
@@ -25,6 +26,7 @@ import {
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function About() {
+  const headerHeight = useHeaderHeight();
   const circleQuery = useGetCircleQuery();
   const showToastMessage = useToastMessage();
   const pickImageAsync = useImagePicker();
@@ -72,7 +74,8 @@ export default function About() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={headerHeight}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

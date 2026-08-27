@@ -1,7 +1,7 @@
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { withCalendarDay } from '@/lib/utility';
+import { startOfIssueMonth, withCalendarDay } from '@/lib/utility';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useDialogueModal } from './modals/DialogueModalProvider';
 import PopPressable from './PopPressable';
@@ -39,7 +39,7 @@ export default function PhotoDatePickerContents({
   const { dismissDialogue } = useDialogueModal();
 
   const today = startOfDay(new Date());
-  const firstDay = startOfDay(issueStart);
+  const firstDay = startOfDay(startOfIssueMonth(issueStart));
   const selectedDay = startOfDay(value).getTime();
 
   const days: Date[] = [];

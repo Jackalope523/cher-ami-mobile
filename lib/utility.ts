@@ -18,6 +18,10 @@ export function formatPhotoDate(date: Date) {
   return `Photo taken on ${month} ${day}${suffix}, ${year}`;
 }
 
+export function startOfIssueMonth(issueStart: Date): Date {
+  return new Date(issueStart.getFullYear(), issueStart.getMonth(), 1);
+}
+
 /**
  * The default photo date for a new post: when the photo was taken, if we know
  * it and it falls within the current magazine's month — otherwise right now.
@@ -30,7 +34,7 @@ export function defaultPhotoDate(
 
   if (!takenAt || isNaN(takenAt.getTime())) return now;
   if (takenAt > now) return now;
-  if (issueStart && takenAt < issueStart) return now;
+  if (issueStart && takenAt < startOfIssueMonth(issueStart)) return now;
 
   return takenAt;
 }
