@@ -45,7 +45,7 @@ export default function Setup() {
   async function handleNotifications() {
     if (notificationsOn) return;
 
-    await OneSignal.Notifications.requestPermission(true);
+    await OneSignal.Notifications.requestPermission(false);
     setNotificationsOn(await OneSignal.Notifications.getPermissionAsync());
   }
 

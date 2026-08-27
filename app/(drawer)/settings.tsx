@@ -1,3 +1,4 @@
+import BellIcon from '@/assets/icons/bell.svg';
 import BlockIcon from '@/assets/icons/block.svg';
 import Chevron from '@/assets/icons/chevron-right.svg';
 import PrivacyPolicyIcon from '@/assets/icons/file-key.svg';
@@ -9,7 +10,7 @@ import PopPressable from '@/components/PopPressable';
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { openURL } from 'expo-linking';
+import { openLink } from '@/lib/browser';
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -21,7 +22,20 @@ export default function Settings() {
       <View style={styles.optionsContainer}>
         <PopPressable
           onPress={() => {
-            openURL('https://thecherami.com/legal/privacy');
+            router.push('/notifications');
+          }}
+          style={styles.option}>
+          <View style={styles.optionLabel}>
+            <BellIcon height={24} width={24} color={'#B05637'} />
+            <Text style={textStyles.buttonTextOrange}>Notifications</Text>
+          </View>
+          <Chevron height={24} width={24} color={'#B05637'} />
+        </PopPressable>
+      </View>
+      <View style={styles.optionsContainer}>
+        <PopPressable
+          onPress={() => {
+            openLink('https://thecherami.com/legal/privacy');
           }}
           style={styles.option}>
           <View style={styles.optionLabel}>
@@ -32,7 +46,7 @@ export default function Settings() {
         </PopPressable>
         <PopPressable
           onPress={() => {
-            openURL('https://thecherami.com/legal/terms');
+            openLink('https://thecherami.com/legal/terms');
           }}
           style={styles.option}>
           <View style={styles.optionLabel}>
@@ -68,6 +82,14 @@ export default function Settings() {
           <Chevron height={24} width={24} color={'#B05637'} />
         </PopPressable>
       </View>
+      <View style={styles.footer}>
+        <Text style={[textStyles.caption, styles.footerText]}>
+          Made with ❤️ for families, near and far.
+        </Text>
+        <Text style={[textStyles.caption, styles.footerText]}>
+          © 2026 Cher Ami
+        </Text>
+      </View>
     </View>
   );
 }
@@ -99,5 +121,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     columnGap: Spacings.sm,
     alignItems: 'center',
+  },
+
+  footer: {
+    marginTop: 'auto',
+    paddingBottom: Spacings.xl,
+    rowGap: Spacings.xs,
+  },
+
+  footerText: {
+    textAlign: 'center',
   },
 });

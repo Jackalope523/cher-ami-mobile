@@ -40,6 +40,14 @@ export interface UpdateUserRequest {
   avatarUrl: string | null;
 }
 
+export interface NotificationPreferencesRequest {
+  pushNewPosts: boolean;
+  pushIssueReminders: boolean;
+  pushNewMembers: boolean;
+  emailIssueReminders: boolean;
+  emailMarketing: boolean;
+}
+
 export interface CreateCircleRequest {
   title: string;
   imageUri: string | null;

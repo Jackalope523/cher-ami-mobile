@@ -36,6 +36,11 @@ export interface UserDTO {
   isBillingExempt: boolean;
   nameProvidedByUser: boolean;
   onboardingCompleted: boolean;
+  pushNewPosts: boolean;
+  pushIssueReminders: boolean;
+  pushNewMembers: boolean;
+  emailIssueReminders: boolean;
+  emailMarketing: boolean;
   recipients: RecipientItem[];
 }
 

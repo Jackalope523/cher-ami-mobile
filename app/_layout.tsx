@@ -27,7 +27,7 @@ import { router, SplashScreen, Stack } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { OneSignal } from 'react-native-onesignal';
+import { NotificationClickEvent, OneSignal } from 'react-native-onesignal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
@@ -64,13 +64,38 @@ function RootNavigator() {
   // attach this device to their external id straight away. Initializing any
   // earlier would register a device for every visitor and begin tracking
   // before anyone has an account.
-  const oneSignalStarted = useRef(false);
+  const oneSignalInitialized = useRef(false);
   useEffect(() => {
-    if (configQuery.data && selfQuery.data && !oneSignalStarted.current) {
-      oneSignalStarted.current = true;
+    if (!configQuery.data || !selfQuery.data) return;
+
+    if (!oneSignalInitialized.current) {
+      oneSignalInitialized.current = true;
       OneSignal.initialize(configQuery.data.oneSignalAppId);
-      OneSignal.login(selfQuery.data.externalId);
+
+      OneSignal.Notifications.addEventListener(
+        'click',
+        (event: NotificationClickEvent) => {
+          const route = (
+            event.notification.additionalData as { route?: string } | undefined
+          )?.route;
+
+          if (route) {
+            router.push(route as never);
+          }
+        },
+      );
     }
+
+    // Logging out hands this device's push subscription to a fresh anonymous
+    // OneSignal user, so every sign-in has to claim it back. Asked of the SDK
+    // rather than tracked here, because a signed-out session leaves nothing
+    // local to compare against.
+    const { externalId } = selfQuery.data;
+    OneSignal.User.getExternalId().then((current) => {
+      if (current !== externalId) {
+        OneSignal.login(externalId);
+      }
+    });
   }, [configQuery.data, selfQuery.data]);
 
   if (!loaded) {
@@ -170,6 +195,12 @@ function RootNavigator() {
               name="circle/edit"
               options={{
                 title: 'Edit Family Circle',
+              }}
+            />
+            <Stack.Screen
+              name="notifications"
+              options={{
+                title: 'Notifications',
               }}
             />
             <Stack.Screen

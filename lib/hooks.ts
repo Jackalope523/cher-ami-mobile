@@ -18,7 +18,6 @@ import {
 import { AxiosError } from 'axios';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import { OneSignal } from 'react-native-onesignal';
 import {
   CreateCircleRequest,
   EmailAuthRequest,
@@ -26,6 +25,7 @@ import {
   IdRequest,
   ImageRequest,
   JoinCircleRequest,
+  NotificationPreferencesRequest,
   RecipientRequest,
   TokenRequest,
   UpdateCircleRequest,
@@ -587,6 +587,25 @@ export function useUpdateUserMutation(
   });
 }
 
+export function useUpdateNotificationPreferencesMutation() {
+  const api = useAPI();
+  const showToastMessage = useToastMessage();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, AxiosError, NotificationPreferencesRequest>({
+    mutationKey: ['UpdateNotificationPreferences'],
+    mutationFn: async (request) => {
+      await api.put('/user/notifications', request);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['User', 'Self'] });
+    },
+    onError: () => {
+      showToastMessage("Couldn't save that. Try again.", ToastMessageType.Error);
+    },
+  });
+}
+
 export function useUpdateCircleMutation(
   onSuccess?: () => void,
   onError?: (error: AxiosError) => void,
@@ -897,10 +916,6 @@ export function useUploadImageDetailsMutation() {
       await api.post('/issue/posts/upload-details', payload);
     },
     onSuccess: async () => {
-      OneSignal.User.addTag(
-        'last_posted_at',
-        String(Math.floor(Date.now() / 1000)),
-      );
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['FeedPages'] }),
         queryClient.invalidateQueries({ queryKey: ['PostCount'] }),
