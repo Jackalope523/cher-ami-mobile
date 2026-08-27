@@ -85,7 +85,7 @@ export default function InviteModalContents({
           `Come join ${circleLabel} on Cher Ami!\n\n` +
           `We share family photos there, and every month they become a ` +
           `printed magazine for the people we love.\n\n` +
-          `To join, download the app at https://thecherami.com, sign up, ` +
+          `To join, download the app at https://thecherami.com/join, sign up, ` +
           `then choose "Join your family's circle" and enter our invite ` +
           `code: ${data?.inviteCode}\n\n` +
           `See you there!`,

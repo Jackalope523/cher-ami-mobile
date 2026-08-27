@@ -12,9 +12,9 @@ import Loading from '@/components/Loading';
 import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { openLink } from '@/lib/browser';
 import { useGetCircleQuery, useGetSelfQuery } from '@/lib/hooks';
 import { Image } from 'expo-image';
-import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { Dimensions, Text, View } from 'react-native';
@@ -51,7 +51,7 @@ export default function Layout() {
         style={{
           flex: 1,
           justifyContent: 'space-between',
-          paddingTop: insets.top,
+          paddingTop: insets.top + Spacings.md,
           paddingBottom: insets.bottom,
         }}>
         <View>
@@ -149,7 +149,7 @@ export default function Layout() {
         <View>
           <PopPressable
             onPress={() => {
-              openURL('https://www.thecherami.com/help');
+              openLink('https://www.thecherami.com/help');
             }}
             style={{
               flexDirection: 'row',

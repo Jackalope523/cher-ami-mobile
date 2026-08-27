@@ -14,6 +14,7 @@ import {
 import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { openLink } from '@/lib/browser';
 import {
   useAddPaymentMethodMutation,
   useAddRecipientMutation,
@@ -26,7 +27,6 @@ import {
 import { billingSchedule } from '@/lib/utility';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -459,13 +459,13 @@ export default function AddRecipient() {
       <Text style={[textStyles.caption, styles.terms]}>
         By adding a recipient you agree to our{' '}
         <Text
-          onPress={() => openURL('https://thecherami.com/legal/terms')}
+          onPress={() => openLink('https://thecherami.com/legal/terms')}
           style={[textStyles.caption, styles.termsLink]}>
           Terms and Conditions
         </Text>{' '}
         and{' '}
         <Text
-          onPress={() => openURL('https://thecherami.com/legal/privacy')}
+          onPress={() => openLink('https://thecherami.com/legal/privacy')}
           style={[textStyles.caption, styles.termsLink]}>
           Privacy Policy
         </Text>

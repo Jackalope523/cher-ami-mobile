@@ -12,6 +12,7 @@ import TextInput from '@/components/TextInput';
 import TutorialSlideshow from '@/components/TutorialSlideshow';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { openLink } from '@/lib/browser';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   useEmailAuthMutation,
@@ -25,7 +26,6 @@ import {
   useAuthRequest,
 } from 'expo-auth-session';
 import { Image } from 'expo-image';
-import { openURL } from 'expo-linking';
 import { router } from 'expo-router';
 import { maybeCompleteAuthSession } from 'expo-web-browser';
 import { useEffect, useState } from 'react';
@@ -322,7 +322,7 @@ export default function Index() {
         By continuing, you agree to the{' '}
         <Text
           onPress={() => {
-            openURL('https://thecherami.com/legal/terms');
+            openLink('https://thecherami.com/legal/terms');
           }}
           style={[
             textStyles.buttonTextBlack,
@@ -333,7 +333,7 @@ export default function Index() {
         and{' '}
         <Text
           onPress={() => {
-            openURL('https://thecherami.com/legal/privacy');
+            openLink('https://thecherami.com/legal/privacy');
           }}
           style={[
             textStyles.buttonTextBlack,

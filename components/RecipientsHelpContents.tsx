@@ -2,7 +2,7 @@ import XIcon from '@/assets/icons/circle-x.svg';
 import ExternalLinkIcon from '@/assets/icons/chevron-right.svg';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
-import { openURL } from 'expo-linking';
+import { openLink } from '@/lib/browser';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import PopPressable from './PopPressable';
 
@@ -68,13 +68,13 @@ export default function RecipientsHelpContents({
       </Text>
 
       <PopPressable
-        onPress={() => openURL('https://thecherami.com/example')}
+        onPress={() => openLink('https://thecherami.com/example')}
         style={styles.primaryButton}>
         <Text style={textStyles.buttonTextWhite}>View sample magazine</Text>
       </PopPressable>
 
       <PopPressable
-        onPress={() => openURL('https://www.thecherami.com/help')}
+        onPress={() => openLink('https://www.thecherami.com/help')}
         style={styles.secondaryButton}>
         <Text style={textStyles.buttonTextBlack}>Visit Help Center</Text>
         <ExternalLinkIcon height={20} width={20} color="#242832" />
