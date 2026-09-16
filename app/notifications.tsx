@@ -3,8 +3,8 @@ import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import {
-    useGetSelfQuery,
-    useUpdateNotificationPreferencesMutation,
+  useGetSelfQuery,
+  useUpdateNotificationPreferencesMutation,
 } from '@/lib/hooks';
 import { NotificationPreferencesRequest } from '@/lib/requests';
 import { useFocusEffect } from 'expo-router';
@@ -115,7 +115,7 @@ export default function Notifications() {
           onPress={() => Linking.openSettings()}
           style={styles.notice}>
           <Text style={textStyles.body}>
-            Notifications are turned off on this device. You can
+            Notifications are turned off on this device. Tap here to
             turn them back on in your phone&apos;s settings.
           </Text>
         </PopPressable>
