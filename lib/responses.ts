@@ -104,6 +104,7 @@ export interface SetupIntentResponse {
 
 export interface ConfigResponse {
   version: string;
+  minimumVersion: string;
   oneSignalAppId: string;
   stripePublishableKey: string;
 }

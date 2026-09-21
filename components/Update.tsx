@@ -1,8 +1,10 @@
 import DownloadIcon from '@/assets/icons/download.svg';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import { APP_STORE_URL } from '@/constants/Links';
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
+import Button from '@/components/Button';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -11,6 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 export default function Update() {
+  const storeUrl = APP_STORE_URL;
   const scale = useSharedValue(0);
 
   useEffect(() => {
@@ -49,9 +52,17 @@ export default function Update() {
           textStyles.body,
           { textAlign: 'center', paddingHorizontal: Spacings.xl },
         ]}>
-        A new version of Cher Ami is ready. Please update the app from the App
-        Store to keep going.
+        A new version of Cher Ami is ready, and this one can&apos;t talk to us
+        any more. One tap and you&apos;re back to your photos.
       </Text>
+
+      {storeUrl && (
+        <Button
+          label={Platform.OS === 'ios' ? 'Open the App Store' : 'Open Google Play'}
+          onPress={() => Linking.openURL(storeUrl)}
+          style={{ alignSelf: 'stretch', marginHorizontal: Spacings.xl }}
+        />
+      )}
     </View>
   );
 }

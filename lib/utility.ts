@@ -19,7 +19,7 @@ export function formatPhotoDate(date: Date) {
 }
 
 export function startOfIssueMonth(issueStart: Date): Date {
-  return new Date(issueStart.getFullYear(), issueStart.getMonth(), 1);
+  return new Date(issueStart.getUTCFullYear(), issueStart.getUTCMonth(), 1);
 }
 
 /**
@@ -210,6 +210,30 @@ export function printSharpness(
     message:
       'This photo is quite small, so it may look blurry in print. Zooming in less or using a higher quality photo will print much better.',
   };
+}
+
+export function isVersionBelow(
+  version: string | null | undefined,
+  minimum: string | null | undefined,
+) {
+  if (!version || !minimum) return false;
+
+  const parse = (value: string) =>
+    value.split('.').map((part) => parseInt(part, 10));
+
+  const current = parse(version);
+  const floor = parse(minimum);
+
+  if (current.some(isNaN) || floor.some(isNaN)) return false;
+
+  for (let i = 0; i < Math.max(current.length, floor.length); i++) {
+    const a = current[i] ?? 0;
+    const b = floor[i] ?? 0;
+
+    if (a !== b) return a < b;
+  }
+
+  return false;
 }
 
 export function splitName(fullName: string) {
