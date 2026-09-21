@@ -5,7 +5,7 @@ export function formatPhotoDate(date: Date) {
   const day = date.getDate();
   const year = date.getFullYear();
 
-  // Determine ordinal suffix (st, nd, rd, th)
+  // Ordinals are deliberate: "Sep 23rd" reads warmer than the design mock's "Sep 23".
   const suffix =
     day % 10 === 1 && day !== 11
       ? 'st'
@@ -15,7 +15,11 @@ export function formatPhotoDate(date: Date) {
       ? 'rd'
       : 'th';
 
-  return `Photo taken on ${month} ${day}${suffix}, ${year}`;
+  // Only the feed's older magazines can show another year; anything this year
+  // reads cleaner without it.
+  const showYear = year !== new Date().getFullYear();
+
+  return `Photo taken on ${month} ${day}${suffix}${showYear ? `, ${year}` : ''}`;
 }
 
 export function startOfIssueMonth(issueStart: Date): Date {

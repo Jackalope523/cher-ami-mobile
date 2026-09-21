@@ -129,8 +129,8 @@ export default function Notifications() {
         <PopPressable onPress={turnOn} style={styles.notice}>
           <Text style={textStyles.body}>
             {canAsk
-              ? 'Notifications are off on this phone. Tap here to turn them on and hear when the family adds photos!'
-              : 'Notifications are turned off on this phone. Tap here to turn them back on in your phone\u2019s settings.'}
+              ? 'Notifications are off right now. Tap here to turn them on and hear when the family adds photos!'
+              : 'Notifications are turned off. Tap here to open Settings and turn them back on.'}
           </Text>
         </PopPressable>
       )}
