@@ -24,6 +24,10 @@ export const useAPI = () => {
   return context.api;
 };
 
+// Module scope, like `api` below: rebuilding this on a render would throw away
+// every cached query, which a mid-session token renewal would otherwise do.
+const queryClient = new QueryClient();
+
 const api = axios.create({
   baseURL: 'https://app-cherami-prod.azurewebsites.net',
   timeout: 30000,
@@ -62,7 +66,7 @@ const api = axios.create({
 });
 
 export default function APIProvider({ children }: APIProviderProps) {
-  const { getToken, deleteToken } = useAuth();
+  const { getToken, updateToken, deleteToken } = useAuth();
 
   useEffect(() => {
     if (getToken()) {
@@ -81,13 +85,24 @@ export default function APIProvider({ children }: APIProviderProps) {
         },
       );
 
+      // The server hands back a fresh token once the current one is over halfway
+      // through its life, so anyone using the app stays signed in.
+      const renewToken = api.interceptors.response.use((response) => {
+        const renewed = response.headers['x-refreshed-token'];
+
+        if (typeof renewed === 'string' && renewed.length > 0) {
+          updateToken(renewed);
+        }
+
+        return response;
+      });
+
+      // Only 401. A 500 means the server had a problem, not that this person
+      // needs to sign in again.
       const staleToken = api.interceptors.response.use(
         (response) => response,
         (error) => {
-          if (
-            error.response?.status === 401 ||
-            error.response?.status === 500
-          ) {
+          if (error.response?.status === 401) {
             deleteToken();
             router.replace('/');
           }
@@ -108,13 +123,12 @@ export default function APIProvider({ children }: APIProviderProps) {
 
       return () => {
         api.interceptors.request.eject(attachToken);
+        api.interceptors.response.eject(renewToken);
         api.interceptors.response.eject(staleToken);
         api.interceptors.response.eject(logError);
       };
     }
-  }, [deleteToken, getToken]);
-
-  const queryClient = new QueryClient();
+  }, [deleteToken, getToken, updateToken]);
 
   return (
     <QueryClientProvider client={queryClient}>

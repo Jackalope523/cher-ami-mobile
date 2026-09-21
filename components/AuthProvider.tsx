@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { readSecure, removeSecure, writeSecure } from '@/lib/storage';
 import {
   createContext,
   ReactNode,
@@ -46,10 +46,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     async function loadAsync() {
-      // const token = await getItemAsync('token');
-      // const onboarded = (await getItemAsync('Onboarded')) === 'true';
-      const token = await AsyncStorage.getItem('token');
-      const onboarded = (await AsyncStorage.getItem('Onboarded')) === 'true';
+      const token = await readSecure('token');
+      const onboarded = (await readSecure('Onboarded')) === 'true';
 
       setToken(token);
       setOnboarded(onboarded);
@@ -65,14 +63,12 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   function updateToken(token: string) {
     setToken(token);
-    // setItemAsync('token', token);
-    AsyncStorage.setItem('token', token);
+    writeSecure('token', token);
   }
 
   function deleteToken() {
     setToken(null);
-    // deleteItemAsync('token');
-    AsyncStorage.removeItem('token');
+    removeSecure('token');
   }
 
   function getOnboarded() {
@@ -81,8 +77,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   function updateOnboarded(value: boolean) {
     setOnboarded(value);
-    //setItemAsync('Onboarded', value.toString());
-    AsyncStorage.setItem('Onboarded', value.toString());
+    writeSecure('Onboarded', value.toString());
   }
 
   return (
