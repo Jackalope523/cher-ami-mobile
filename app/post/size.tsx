@@ -159,7 +159,11 @@ export default function Size() {
         contentContainerStyle={styles.scrollContent}
         overScrollMode="never"
         bounces={false}>
-        <View style={[styles.carouselWrapper, { height: itemWidth }]}>
+        <View
+          style={[
+            styles.carouselWrapper,
+            { height: itemWidth, width: itemWidth + 2 * CAROUSEL_SPACING },
+          ]}>
           <Animated.FlatList
             data={SIZES}
             renderItem={renderItem}
@@ -351,6 +355,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacings.xl,
   },
   carouselWrapper: {
+    alignSelf: 'center',
     justifyContent: 'center',
     marginTop: Spacings.xl,
     marginBottom: Spacings.xxl,

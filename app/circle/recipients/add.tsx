@@ -218,7 +218,7 @@ export default function AddRecipient() {
     <ScrollView
       contentContainerStyle={[
         styles.container,
-        { width: contentWidth },
+        { width: contentWidth, alignSelf: 'center' },
         keyboardVisible && { paddingBottom: height / 2 },
       ]}
       overScrollMode="never"

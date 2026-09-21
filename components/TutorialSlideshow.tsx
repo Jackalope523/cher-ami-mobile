@@ -111,7 +111,7 @@ export default function TutorialSlideshow({ onDone }: TutorialSlideshowProps) {
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
         renderItem={({ item }) => (
-          <View style={styles.slide}>
+          <View style={[styles.slide, { width }]}>
             <View style={styles.imageContainer}>
               <Image
                 source={item.image}
