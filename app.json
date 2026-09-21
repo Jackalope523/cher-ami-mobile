@@ -2,7 +2,7 @@
   "expo": {
     "name": "Cher Ami",
     "slug": "cherami",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "cherami",
@@ -20,7 +20,13 @@
         "NSCameraUsageDescription": "This app may use your camera if you choose to take a new photo rather than selecting one from your library when prompted.",
         "NSPhotoLibraryUsageDescription": "This app allows you to choose photos from your library to share with your family.",
         "UIBackgroundModes": ["remote-notification"],
-        "NSLocationWhenInUseUsageDescription": "This app may use your location to enhance push notifications and location-based features."
+        "NSLocationWhenInUseUsageDescription": "This app may use your location to enhance push notifications and location-based features.",
+        "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortraitUpsideDown",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ]
       },
       "entitlements": {
         "aps-environment": "production",

@@ -15,7 +15,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useHeaderHeight } from '@react-navigation/elements';
 import {
-  Dimensions,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -23,10 +22,13 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useLayout } from '@/lib/layout';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function CircleSetup() {
   const headerHeight = useHeaderHeight();
+  const { contentWidth } = useLayout();
+  const headerImageWidth = contentWidth - 2 * Spacings.lgmd;
   const { onboarding } = useLocalSearchParams();
   const showToastMessage = useToastMessage();
   const queryClient = useQueryClient();
@@ -67,9 +69,11 @@ export default function CircleSetup() {
   );
 
   function pickImage() {
+    // Stored square, shown as the middle 2:1 band. The magazine may want a
+    // different crop later, and we can't ask every circle for a new photo.
     pickImageAsync({
-      width: 1200,
-      height: 600,
+      width: 2400,
+      height: 2400,
       cropping: true,
     }).then((x) => {
       if (x !== null) {
@@ -127,9 +131,13 @@ export default function CircleSetup() {
         </Text>
         <PopPressable style={styles.imageContainer} onPress={pickImage}>
           {selectedImage ? (
-            <Image source={selectedImage} style={styles.image} />
+            <Image
+              source={selectedImage}
+              style={[styles.image, { width: headerImageWidth }]}
+            />
           ) : (
-            <View style={styles.imagePlaceholder}>
+            <View
+              style={[styles.imagePlaceholder, { width: headerImageWidth }]}>
               <PlusIcon height={64} width={64} color={'#868581'} />
             </View>
           )}
@@ -175,14 +183,12 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     backgroundColor: '#F4F1EA',
     borderRadius: 32,
-    width: Dimensions.get('window').width - 2 * Spacings.lgmd,
     aspectRatio: 2 / 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   image: {
-    width: Dimensions.get('window').width - 2 * Spacings.lgmd,
     aspectRatio: 2 / 1,
     borderRadius: 32,
   },

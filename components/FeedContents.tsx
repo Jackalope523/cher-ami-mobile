@@ -13,6 +13,7 @@ import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { IssueStatus } from '@/lib/enums';
+import { useLayout } from '@/lib/layout';
 import {
   useFeedPostsInfiniteQuery,
   useGetCircleQuery,
@@ -43,6 +44,7 @@ const PENDING_POST_ID = -1;
 
 export default function FeedContents() {
   const { data, status, fetchNextPage } = useFeedPostsInfiniteQuery();
+  const { headerWidth } = useLayout();
   const circleQuery = useGetCircleQuery();
   const userQuery = useGetSelfQuery();
   const showToastMessage = useToastMessage();
@@ -235,7 +237,7 @@ export default function FeedContents() {
 
     if (id === data?.pages[0].id) {
       return (
-        <View style={styles.currentIssueHeader}>
+        <View style={[styles.currentIssueHeader, { width: headerWidth }]}>
           <PostCounter
             issueTitle={title}
             issueCloseDate={data?.pages[0].issueCloseDate}
@@ -245,7 +247,7 @@ export default function FeedContents() {
     }
 
     return (
-      <View style={styles.issueHeader}>
+      <View style={[styles.issueHeader, { width: headerWidth }]}>
         <Text style={textStyles.labelLargeBlack}>{title}</Text>
         <View style={styles.issueHeaderChip}>
           <Text style={textStyles.labelSmall}>{mapDateToText(date)}</Text>
@@ -456,6 +458,7 @@ const styles = StyleSheet.create({
 
   currentIssueHeader: {
     // Opaque: this sits over the feed while pinned.
+    alignSelf: 'center',
     backgroundColor: '#FCFBF8',
     paddingTop: Spacings.sm,
     borderBottomWidth: 1.5 / 2,
@@ -464,6 +467,7 @@ const styles = StyleSheet.create({
 
   issueHeader: {
     // Opaque: this sits over the feed while pinned.
+    alignSelf: 'center',
     backgroundColor: '#FCFBF8',
     flexDirection: 'row',
     justifyContent: 'space-between',

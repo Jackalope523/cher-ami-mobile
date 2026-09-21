@@ -1,5 +1,6 @@
 import { textStyles } from '@/constants/TextStyles';
-import { Dimensions, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
+import { useLayout } from '@/lib/layout';
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -13,6 +14,8 @@ interface OTPSquareProps {
 }
 
 export default function OTPSquare({ value, focused }: OTPSquareProps) {
+  const { contentWidth } = useLayout();
+  const size = Math.min((contentWidth * 0.8) / 6, 64);
   const progress = useDerivedValue(() => {
     return withTiming(focused ? 1 : 0, { duration: 150 });
   }, [focused]);
@@ -36,7 +39,8 @@ export default function OTPSquare({ value, focused }: OTPSquareProps) {
   });
 
   return (
-    <Animated.View style={[styles.inputContainer, focusStyle]}>
+    <Animated.View
+      style={[styles.inputContainer, { height: size, width: size }, focusStyle]}>
       <Text style={textStyles.labelLargeBlack}>{value}</Text>
     </Animated.View>
   );
@@ -48,8 +52,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FCFBF8',
     alignItems: 'center',
     justifyContent: 'center',
-    height: (Dimensions.get('window').width * 0.8) / 6,
-    width: (Dimensions.get('window').width * 0.8) / 6,
     borderColor: '#DEDBD5',
   },
 });

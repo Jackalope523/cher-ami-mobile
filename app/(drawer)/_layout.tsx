@@ -17,7 +17,8 @@ import { useGetCircleQuery, useGetSelfQuery } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
-import { Dimensions, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { useLayout } from '@/lib/layout';
 import { OneSignal } from 'react-native-onesignal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -26,6 +27,7 @@ export default function Layout() {
   const circleQuery = useGetCircleQuery();
   const { getToken, deleteToken } = useAuth();
   const insets = useSafeAreaInsets();
+  const { width } = useLayout();
 
   function handleLogout() {
     deleteToken();
@@ -211,7 +213,7 @@ export default function Layout() {
         headerRightContainerStyle: { paddingRight: Spacings.sm },
         drawerStyle: {
           backgroundColor: '#FCFBF8',
-          width: Dimensions.get('window').width * 0.75,
+          width: Math.min(width * 0.75, 360),
         },
         headerLeft: () => (
           <PopPressable

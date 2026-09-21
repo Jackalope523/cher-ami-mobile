@@ -12,11 +12,13 @@ import { useGetCircleQuery, useUpdateCircleMutation } from '@/lib/hooks';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { useLayout } from '@/lib/layout';
 
 export default function EditRecipient() {
   const { focus } = useLocalSearchParams();
   const { getToken } = useAuth();
+  const { contentWidth } = useLayout();
   const circleQuery = useGetCircleQuery();
   const updateCircleMutation = useUpdateCircleMutation();
   const pickImageAsync = useImagePicker();
@@ -41,9 +43,11 @@ export default function EditRecipient() {
   }, [focus]);
 
   function pickImage() {
+    // Stored square, shown as the middle 2:1 band. The magazine may want a
+    // different crop later, and we can't ask every circle for a new photo.
     pickImageAsync({
-      width: 1200,
-      height: 600,
+      width: 2400,
+      height: 2400,
       cropping: true,
     }).then((x) => {
       if (x !== null) {
@@ -90,14 +94,18 @@ export default function EditRecipient() {
     <View style={styles.container}>
       <PopPressable onPress={pickImage}>
         {header === null ? (
-          <View style={[styles.header, { backgroundColor: '#F4F1EA' }]}>
+          <View
+            style={[
+              styles.header,
+              { width: contentWidth - 40, backgroundColor: '#F4F1EA' },
+            ]}>
             <PlusIcon height={48} width={48} color={'#868581'} />
           </View>
         ) : (
           <PopPressable onPress={pickImage}>
             <Image
               style={{
-                width: Dimensions.get('window').width - 40,
+                width: contentWidth - 40,
                 aspectRatio: 2 / 1,
                 borderRadius: 32,
                 marginVertical: Spacings.xl,
@@ -161,7 +169,6 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    width: Dimensions.get('window').width - 40,
     aspectRatio: 2 / 1,
     borderRadius: 32,
     marginVertical: Spacings.xl,

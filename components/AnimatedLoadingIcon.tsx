@@ -10,9 +10,14 @@ import Animated, {
 interface AnimatedLoadingIconProps {
   height?: number;
   width?: number;
+  color?: string;
 }
 
-export default function AnimatedLoadingIcon({ height = 48, width = 48 }: AnimatedLoadingIconProps) {
+export default function AnimatedLoadingIcon({
+  height = 48,
+  width = 48,
+  color = '#B05637',
+}: AnimatedLoadingIconProps) {
   const rotation = useSharedValue(0);
 
   useEffect(() => {
@@ -34,7 +39,7 @@ export default function AnimatedLoadingIcon({ height = 48, width = 48 }: Animate
 
   return (
     <Animated.View style={rotationAnim}>
-      <LoadingIcon height={height} width={width} color="#B05637" />
+      <LoadingIcon height={height} width={width} color={color} />
     </Animated.View>
   );
 }

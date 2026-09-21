@@ -1,6 +1,6 @@
 import InfoIcon from '@/assets/icons/info.svg';
+import Button from '@/components/Button';
 import PhotoDateRow from '@/components/PhotoDateRow';
-import PopPressable from '@/components/PopPressable';
 import PostCounter from '@/components/PostCounter';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
@@ -10,17 +10,20 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Dimensions,
   Keyboard,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-
-const { width: windowWidth } = Dimensions.get('window');
-const IMAGE_CONTAINER_SIZE = windowWidth - 80;
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from 'react-native-reanimated';
+import { useLayout } from '@/lib/layout';
 
 export default function Caption() {
   const {
@@ -39,6 +42,9 @@ export default function Caption() {
     targetHeight,
   } = useLocalSearchParams();
 
+  const { contentWidth } = useLayout();
+  const imageContainerSize = contentWidth - 80;
+
   const [caption, setCaption] = useState('');
   const [photoDate, setPhotoDate] = useState<Date>(() => {
     const parsed = new Date(photoDateParam as string);
@@ -53,7 +59,7 @@ export default function Caption() {
   const uploadImageDetailsMutation = useUploadImageDetailsMutation();
 
   const aspectRatio = Number(width) / Number(height) || 1;
-  const MAX_SIZE = IMAGE_CONTAINER_SIZE;
+  const MAX_SIZE = imageContainerSize;
   let displayWidth, displayHeight;
 
   if (aspectRatio >= 1) {
@@ -78,10 +84,15 @@ export default function Caption() {
   );
 
   useEffect(() => {
-    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+    // `will` fires alongside the keyboard's own animation; `did` fires after it
+    // finishes, which is what made the photo vanish in a second, separate jump.
+    const show = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hide = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSubscription = Keyboard.addListener(show, () => {
       setKeyboardVisible(true);
     });
-    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+    const hideSubscription = Keyboard.addListener(hide, () => {
       setKeyboardVisible(false);
     });
 
@@ -110,10 +121,6 @@ export default function Caption() {
     }
   }
 
-  function buttonDisabled() {
-    return uploadImageDetailsMutation.isPending;
-  }
-
   return (
     <Pressable
       style={[
@@ -121,9 +128,13 @@ export default function Caption() {
         keyboardVisible && { justifyContent: 'flex-start' },
       ]}
       onPress={Keyboard.dismiss}>
-      <View>
+      <Animated.View
+        layout={LinearTransition.duration(200)}
+        style={[styles.column, { width: contentWidth }]}>
         {!keyboardVisible && (
-          <View>
+          <Animated.View
+            entering={FadeIn.duration(150)}
+            exiting={FadeOut.duration(100)}>
             <PostCounter
               issueTitle={issueTitle as string}
               issueCloseDate={issueCloseDate as string}
@@ -131,6 +142,7 @@ export default function Caption() {
             <View
               style={[
                 styles.imageContainer,
+                { height: imageContainerSize },
                 sharpness && { marginBottom: Spacings.md },
               ]}>
               <View style={[styles.imageWrapper, imageStyle]}>
@@ -154,7 +166,7 @@ export default function Caption() {
                 </Text>
               </View>
             )}
-          </View>
+          </Animated.View>
         )}
 
         <PhotoDateRow
@@ -189,26 +201,18 @@ export default function Caption() {
           onChangeText={setCaption}
           multiline
         />
-      </View>
+      </Animated.View>
 
-      <PopPressable
-        onPress={handlePost}
-        disabled={buttonDisabled()}
-        style={[
-          styles.button,
-          buttonDisabled() && {
-            backgroundColor: '#ECEDEF',
-            borderColor: '#ECEDEF',
-          },
-        ]}>
-        <Text
-          style={[
-            textStyles.buttonTextWhite,
-            buttonDisabled() && { color: '#A8ABB3' },
-          ]}>
-          Post
-        </Text>
-      </PopPressable>
+      <Animated.View
+        layout={LinearTransition.duration(200)}
+        style={[styles.buttonRow, { width: contentWidth }]}>
+        <Button
+          label="Post"
+          loadingLabel="Posting…"
+          loading={uploadImageDetailsMutation.isPending}
+          onPress={handlePost}
+        />
+      </Animated.View>
     </Pressable>
   );
 }
@@ -218,6 +222,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FCFBF8',
     justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  column: {
+    alignSelf: 'center',
+  },
+
+  buttonRow: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
 
   imageWrapper: {
@@ -232,7 +246,6 @@ const styles = StyleSheet.create({
   },
 
   imageContainer: {
-    height: IMAGE_CONTAINER_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: Spacings.xl,
@@ -252,14 +265,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
 
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#C15F3C',
-    paddingVertical: Spacings.md,
-    margin: 20,
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: '#C15F3C',
-  },
 });

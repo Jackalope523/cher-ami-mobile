@@ -25,13 +25,15 @@ import { useMutationState } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { useLayout } from '@/lib/layout';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 
 export default function Manage() {
   const navigation = useNavigation();
   const { getToken } = useAuth();
+  const { contentWidth } = useLayout();
   const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
@@ -120,7 +122,7 @@ export default function Manage() {
         contentContainerStyle={{ paddingBottom: 100 }}>
         {circleQuery.data.headerUrl ? (
           <Image
-            style={styles.header}
+            style={[styles.header, { width: contentWidth - 40 }]}
             placeholder={Placeholder}
             placeholderContentFit="fill"
             source={{
@@ -135,7 +137,11 @@ export default function Manage() {
             }}
           />
         ) : (
-          <View style={[styles.header, { backgroundColor: '#F4F1EA' }]}>
+          <View
+            style={[
+              styles.header,
+              { width: contentWidth - 40, backgroundColor: '#F4F1EA' },
+            ]}>
             <ImageIcon height={48} width={48} color={'#868581'} />
           </View>
         )}
@@ -348,7 +354,6 @@ export default function Manage() {
 
 const styles = StyleSheet.create({
   header: {
-    width: Dimensions.get('window').width - 40,
     aspectRatio: 2 / 1,
     borderRadius: 32,
     marginHorizontal: 20,

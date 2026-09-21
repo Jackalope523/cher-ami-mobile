@@ -9,7 +9,8 @@ import { formatPhotoDate } from '@/lib/utility';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { useLayout } from '@/lib/layout';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import AnimatedLoadingIcon from './AnimatedLoadingIcon';
@@ -40,6 +41,7 @@ export default function Post({
   const userQuery = useGetUserQuery(post.authorId);
   const selfQuery = useGetSelfQuery();
   const { getToken } = useAuth();
+  const { contentWidth } = useLayout();
 
   function handlePostSettings(postId: number) {
     if (post.authorId === selfQuery.data?.id) {
@@ -70,7 +72,7 @@ export default function Post({
     });
 
   return (
-    <View>
+    <View style={{ width: contentWidth, alignSelf: 'center' }}>
       {viewing && (
         <PhotoViewer
           uri={post.photoUrl}
@@ -164,7 +166,7 @@ export default function Post({
         <GestureDetector gesture={openViewer}>
           <Image
             style={{
-              width: Dimensions.get('window').width - 40,
+              width: contentWidth - 40,
               aspectRatio,
               borderRadius: 32,
               marginHorizontal: 20,

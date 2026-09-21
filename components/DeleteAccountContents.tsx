@@ -2,7 +2,8 @@ import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useDeleteUserMutation } from '@/lib/hooks';
 import { useState } from 'react';
-import { Dimensions, Keyboard, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import { useLayout } from '@/lib/layout';
 import { Pressable } from 'react-native-gesture-handler';
 import { useAuth } from './AuthProvider';
 import Error from './Error';
@@ -19,6 +20,8 @@ interface DeleteAccountContentsProps {}
 
 export default function DeleteAccountContents({}: DeleteAccountContentsProps) {
   const showToastMessage = useToastMessage();
+  const { width, height } = useLayout();
+  const statusSize = Math.min(width, height) * 0.3;
   const [text, setText] = useState('');
   const { dismissDialogue } = useDialogueModal();
   const { deleteToken, updateOnboarded } = useAuth();
@@ -42,10 +45,7 @@ export default function DeleteAccountContents({}: DeleteAccountContentsProps) {
   if (deleteAccountMutation.isError) {
     return (
       <View
-        style={{
-          height: Dimensions.get('window').height * 0.3,
-          width: Dimensions.get('window').height * 0.3,
-        }}>
+        style={{ height: statusSize, width: statusSize }}>
         <Error />
       </View>
     );
@@ -54,10 +54,7 @@ export default function DeleteAccountContents({}: DeleteAccountContentsProps) {
   if (deleteAccountMutation.isPending) {
     return (
       <View
-        style={{
-          height: Dimensions.get('window').height * 0.3,
-          width: Dimensions.get('window').height * 0.3,
-        }}>
+        style={{ height: statusSize, width: statusSize }}>
         <Loading />
       </View>
     );

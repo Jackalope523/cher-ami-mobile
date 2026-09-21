@@ -16,11 +16,16 @@ import PopPressable from '@/components/PopPressable';
 import { TUTORIAL_IMAGES } from '@/components/TutorialSlideshow';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
+import Update from '@/components/Update';
 import {
   useConfigQuery,
   useGetSelfQuery,
   usePingMutation,
 } from '@/lib/hooks';
+import { useLayout } from '@/lib/layout';
+import { isVersionBelow } from '@/lib/utility';
+import { nativeApplicationVersion } from 'expo-application';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { Asset } from 'expo-asset';
 import { router, SplashScreen, Stack } from 'expo-router';
@@ -35,6 +40,7 @@ SplashScreen.preventAutoHideAsync();
 function RootNavigator() {
   const { loaded, getToken, getOnboarded } = useAuth();
   const showToastMessage = useToastMessage();
+  const { isTablet } = useLayout();
   const configQuery = useConfigQuery();
   const selfQuery = useGetSelfQuery(getToken() !== null);
   const pingMutation = usePingMutation(
@@ -52,6 +58,12 @@ function RootNavigator() {
   useEffect(() => {
     Asset.loadAsync(TUTORIAL_IMAGES).catch(() => {});
   }, []);
+
+  // Android has no per-device-class orientation in the manifest, so the app ships
+  // locked to portrait and tablets are unlocked here. iOS does it in app.json.
+  useEffect(() => {
+    if (isTablet) ScreenOrientation.unlockAsync().catch(() => {});
+  }, [isTablet]);
 
   useEffect(() => {
     if (loaded) {
@@ -110,9 +122,9 @@ function RootNavigator() {
     return <Loading showLogo />;
   }
 
-  // if (nativeApplicationVersion !== configQuery.data?.version) {
-  //   return <Update />;
-  // }
+  if (isVersionBelow(nativeApplicationVersion, configQuery.data?.minimumVersion)) {
+    return <Update />;
+  }
 
   return (
     <StripeProvider

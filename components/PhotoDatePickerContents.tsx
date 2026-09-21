@@ -39,7 +39,9 @@ export default function PhotoDatePickerContents({
   const { dismissDialogue } = useDialogueModal();
 
   const today = startOfDay(new Date());
-  const firstDay = startOfDay(startOfIssueMonth(issueStart));
+  const firstDay = new Date(
+    Math.min(startOfDay(startOfIssueMonth(issueStart)).getTime(), today.getTime()),
+  );
   const selectedDay = startOfDay(value).getTime();
 
   const days: Date[] = [];

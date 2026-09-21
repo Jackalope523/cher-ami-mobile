@@ -8,17 +8,15 @@ import { textStyles } from '@/constants/TextStyles';
 import { Image } from 'expo-image';
 import { useRef, useState } from 'react';
 import {
-  Dimensions,
   FlatList,
   ImageSourcePropType,
   Pressable,
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width: windowWidth } = Dimensions.get('window');
 
 type Slide = {
   id: string;
@@ -66,6 +64,7 @@ interface TutorialSlideshowProps {
 }
 
 export default function TutorialSlideshow({ onDone }: TutorialSlideshowProps) {
+  const { width } = useWindowDimensions();
   const listRef = useRef<FlatList<Slide>>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -105,8 +104,8 @@ export default function TutorialSlideshow({ onDone }: TutorialSlideshowProps) {
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.id}
         getItemLayout={(_, index) => ({
-          length: windowWidth,
-          offset: windowWidth * index,
+          length: width,
+          offset: width * index,
           index,
         })}
         onViewableItemsChanged={onViewableItemsChanged}
@@ -174,7 +173,6 @@ const styles = StyleSheet.create({
   },
 
   slide: {
-    width: windowWidth,
     paddingHorizontal: Spacings.xl,
     justifyContent: 'center',
   },

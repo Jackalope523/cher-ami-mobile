@@ -1,6 +1,6 @@
 import { borderRadius } from '@/constants/Borders';
 import { createContext, ReactNode, useContext, useState } from 'react';
-import { Dimensions, Keyboard, StyleSheet, View } from 'react-native';
+import { Keyboard, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import Animated, {
   FadeIn,
@@ -40,6 +40,7 @@ export const useBottomSheetModal = () => {
 export default function BottomSheetModalProvider({
   children,
 }: BottomSheetModalProviderProps) {
+  const { width } = useWindowDimensions();
   const [open, setOpen] = useState<ReactNode>();
 
   function dismissBottomSheet() {
@@ -85,7 +86,7 @@ export default function BottomSheetModalProvider({
             style={{
               zIndex: 1,
               position: 'absolute',
-              width: Dimensions.get('window').width,
+              width,
               padding: 20,
               borderTopLeftRadius: borderRadius.xl,
               borderTopRightRadius: borderRadius.xl,

@@ -1,10 +1,10 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
 import {
-  Dimensions,
   Keyboard,
   Pressable,
   StyleSheet,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -32,6 +32,7 @@ interface DrawerModalInterface {
 const DrawerModalContext = createContext<DrawerModalInterface | null>(null);
 
 export default function DrawerProvider({ children }: DrawerModalProviderProps) {
+  const { width } = useWindowDimensions();
   const [open, setOpen] = useState(false);
   const [contents, setContents] = useState<ReactNode>();
 
@@ -40,8 +41,8 @@ export default function DrawerProvider({ children }: DrawerModalProviderProps) {
   //////////////////
 
   const offset = useSharedValue<number>(0);
-  const minOffset = -Dimensions.get('window').width;
-  const dismissThreshold = -Dimensions.get('window').width * 0.25;
+  const minOffset = -width;
+  const dismissThreshold = -width * 0.25;
   const pan = Gesture.Pan()
     .onBegin(() => {})
     .onChange((event) => {
@@ -82,14 +83,17 @@ export default function DrawerProvider({ children }: DrawerModalProviderProps) {
 
           <GestureDetector gesture={pan}>
             <Animated.View
-              style={[styles.drawer, animatedStyle]}
+              style={[styles.drawer, { right: width / 4 }, animatedStyle]}
               entering={SlideInLeft}
               exiting={SlideOutLeft}>
               {contents}
             </Animated.View>
           </GestureDetector>
 
-          <Pressable onPress={closeDrawer} style={styles.pressable} />
+          <Pressable
+            onPress={closeDrawer}
+            style={[styles.pressable, { left: width * 0.75 }]}
+          />
         </View>
       )}
       {children}
@@ -134,7 +138,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     left: 0,
-    right: Dimensions.get('window').width / 4,
     backgroundColor: '#FCFBF8',
   },
 
@@ -142,7 +145,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     bottom: 0,
-    left: Dimensions.get('window').width * 0.75,
     right: 0,
   },
 
@@ -152,7 +154,6 @@ const styles = StyleSheet.create({
   },
 
   pullIndicator: {
-    height: Dimensions.get('window').height / 4,
     width: 4,
     borderRadius: 100,
     backgroundColor: '#372E2E',

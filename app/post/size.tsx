@@ -4,7 +4,8 @@ import { textStyles } from '@/constants/TextStyles';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useLayout } from '@/lib/layout';
 import { openCropper } from 'react-native-image-crop-picker';
 import Animated, {
   Extrapolation,
@@ -17,10 +18,16 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { width: windowWidth } = Dimensions.get('window');
-const CAROUSEL_ITEM_WIDTH = windowWidth - 80; // 40 margin on each side
-const CAROUSEL_SPACING = 40;
-const ITEM_FULL_WIDTH = CAROUSEL_ITEM_WIDTH + CAROUSEL_SPACING;
+const CAROUSEL_SPACING = 40; // 40 margin on each side
+
+// Derived per render rather than at module load: the carousel's snap offsets
+// have to survive an iPad rotation.
+function useCarousel() {
+  const { contentWidth } = useLayout();
+  const itemWidth = contentWidth - 80;
+
+  return { itemWidth, fullWidth: itemWidth + CAROUSEL_SPACING };
+}
 
 type ImageSize = {
   id: string;
@@ -79,6 +86,7 @@ export default function Size() {
     next,
   } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
+  const { itemWidth, fullWidth } = useCarousel();
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useSharedValue(0);
 
@@ -151,13 +159,13 @@ export default function Size() {
         contentContainerStyle={styles.scrollContent}
         overScrollMode="never"
         bounces={false}>
-        <View style={styles.carouselWrapper}>
+        <View style={[styles.carouselWrapper, { height: itemWidth }]}>
           <Animated.FlatList
             data={SIZES}
             renderItem={renderItem}
             horizontal
             showsHorizontalScrollIndicator={false}
-            snapToInterval={ITEM_FULL_WIDTH}
+            snapToInterval={fullWidth}
             decelerationRate="fast"
             contentContainerStyle={styles.flatListContent}
             onScroll={onScroll}
@@ -218,13 +226,15 @@ function CarouselItem({
   index: number;
   scrollX: SharedValue<number>;
 }) {
+  const { itemWidth, fullWidth } = useCarousel();
+
   const animatedStyle = useAnimatedStyle(() => {
     const scale = interpolate(
       scrollX.value,
       [
-        (index - 1) * ITEM_FULL_WIDTH,
-        index * ITEM_FULL_WIDTH,
-        (index + 1) * ITEM_FULL_WIDTH,
+        (index - 1) * fullWidth,
+        index * fullWidth,
+        (index + 1) * fullWidth,
       ],
       [0.9, 1, 0.9],
       Extrapolation.CLAMP,
@@ -233,9 +243,9 @@ function CarouselItem({
     const opacity = interpolate(
       scrollX.value,
       [
-        (index - 1) * ITEM_FULL_WIDTH,
-        index * ITEM_FULL_WIDTH,
-        (index + 1) * ITEM_FULL_WIDTH,
+        (index - 1) * fullWidth,
+        index * fullWidth,
+        (index + 1) * fullWidth,
       ],
       [0.6, 1, 0.6],
       Extrapolation.CLAMP,
@@ -248,7 +258,7 @@ function CarouselItem({
   });
 
   const PADDING = 0;
-  const MAX_SIZE = CAROUSEL_ITEM_WIDTH - PADDING;
+  const MAX_SIZE = itemWidth - PADDING;
   let displayWidth, displayHeight;
 
   if (item.aspectRatio >= 1) {
@@ -266,7 +276,11 @@ function CarouselItem({
   };
 
   return (
-    <View style={styles.carouselItemContainer}>
+    <View
+      style={[
+        styles.carouselItemContainer,
+        { width: itemWidth, height: itemWidth },
+      ]}>
       <Animated.View style={[styles.imageWrapper, imageStyle, animatedStyle]}>
         <Image
           source={imageUri}
@@ -285,13 +299,15 @@ function PaginationDot({
   index: number;
   scrollX: SharedValue<number>;
 }) {
+  const { fullWidth } = useCarousel();
+
   const animatedStyle = useAnimatedStyle(() => {
     const width = interpolate(
       scrollX.value,
       [
-        (index - 1) * ITEM_FULL_WIDTH,
-        index * ITEM_FULL_WIDTH,
-        (index + 1) * ITEM_FULL_WIDTH,
+        (index - 1) * fullWidth,
+        index * fullWidth,
+        (index + 1) * fullWidth,
       ],
       [8, 10, 8],
       Extrapolation.CLAMP,
@@ -300,9 +316,9 @@ function PaginationDot({
     const backgroundColorValue = interpolate(
       scrollX.value,
       [
-        (index - 1) * ITEM_FULL_WIDTH,
-        index * ITEM_FULL_WIDTH,
-        (index + 1) * ITEM_FULL_WIDTH,
+        (index - 1) * fullWidth,
+        index * fullWidth,
+        (index + 1) * fullWidth,
       ],
       [0, 1, 0],
       Extrapolation.CLAMP,
@@ -335,7 +351,6 @@ const styles = StyleSheet.create({
     paddingBottom: Spacings.xl,
   },
   carouselWrapper: {
-    height: CAROUSEL_ITEM_WIDTH,
     justifyContent: 'center',
     marginTop: Spacings.xl,
     marginBottom: Spacings.xxl,
@@ -345,8 +360,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   carouselItemContainer: {
-    width: CAROUSEL_ITEM_WIDTH,
-    height: CAROUSEL_ITEM_WIDTH,
     marginRight: CAROUSEL_SPACING,
     alignItems: 'center',
     justifyContent: 'center',

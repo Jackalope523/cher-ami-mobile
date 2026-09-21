@@ -8,7 +8,6 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Dimensions,
   Keyboard,
   Pressable,
   StyleSheet,
@@ -16,9 +15,7 @@ import {
   View,
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-
-const { width: windowWidth } = Dimensions.get('window');
-const IMAGE_CONTAINER_SIZE = windowWidth - 80;
+import { useLayout } from '@/lib/layout';
 
 export default function Edit() {
   const {
@@ -31,6 +28,8 @@ export default function Edit() {
     imageHeight,
   } = useLocalSearchParams();
   const { getToken } = useAuth();
+  const { contentWidth } = useLayout();
+  const imageContainerSize = contentWidth - 80;
 
   const [caption, setCaption] = useState((captionParam as string) ?? '');
   const [photoDate, setPhotoDate] = useState<Date>(() => {
@@ -48,7 +47,7 @@ export default function Edit() {
   });
 
   const aspectRatio = Number(imageWidth) / Number(imageHeight) || 1;
-  const MAX_SIZE = IMAGE_CONTAINER_SIZE;
+  const MAX_SIZE = imageContainerSize;
   let displayWidth, displayHeight;
 
   if (aspectRatio >= 1) {
@@ -100,7 +99,8 @@ export default function Edit() {
       onPress={Keyboard.dismiss}>
       <View>
         {!keyboardVisible && (
-          <View style={styles.imageContainer}>
+          <View
+            style={[styles.imageContainer, { height: imageContainerSize }]}>
             <View style={[styles.imageWrapper, imageStyle]}>
               <Image
                 source={{
@@ -185,7 +185,6 @@ const styles = StyleSheet.create({
   },
 
   imageContainer: {
-    height: IMAGE_CONTAINER_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: Spacings.xl,

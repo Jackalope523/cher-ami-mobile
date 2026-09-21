@@ -28,18 +28,19 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
-  Dimensions,
   Keyboard,
   TextInput as ReactNativeTextInput,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { useLayout } from '@/lib/layout';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function EditRecipient() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
+  const { contentWidth, height } = useLayout();
   const { getToken } = useAuth();
   const { displayDialogue } = useDialogueModal();
   const queryClient = useQueryClient();
@@ -220,9 +221,8 @@ export default function EditRecipient() {
     <ScrollView
       contentContainerStyle={[
         styles.container,
-        keyboardVisible && {
-          paddingBottom: Dimensions.get('window').height / 2,
-        },
+        { width: contentWidth },
+        keyboardVisible && { paddingBottom: height / 2 },
       ]}
       overScrollMode="never"
       showsVerticalScrollIndicator={false}>
@@ -342,9 +342,7 @@ export default function EditRecipient() {
             returnKeyType="next"
             submitBehavior="submit"
             onSubmitEditing={() => postalCodeRef.current?.focus()}
-            containerStyle={{
-              width: Dimensions.get('window').width / 2 - 20 - 10,
-            }}
+            containerStyle={{ width: contentWidth / 2 - 30 }}
           />
           <TextInput
             ref={postalCodeRef}
@@ -359,9 +357,7 @@ export default function EditRecipient() {
             autoComplete="postal-code"
             returnKeyType="done"
             onSubmitEditing={() => Keyboard.dismiss()}
-            containerStyle={{
-              width: Dimensions.get('window').width / 2 - 20 - 10,
-            }}
+            containerStyle={{ width: contentWidth / 2 - 30 }}
           />
         </View>
         <PopPressable onPress={handleCountryQuestion}>
