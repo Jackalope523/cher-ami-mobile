@@ -67,6 +67,11 @@ const api = axios.create({
 
 export default function APIProvider({ children }: APIProviderProps) {
   const { getToken, updateToken, deleteToken } = useAuth();
+  const token = getToken();
+  
+  useEffect(() => {
+    if (token === null) queryClient.clear();
+  }, [token]);
 
   useEffect(() => {
     if (getToken()) {

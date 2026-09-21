@@ -43,6 +43,7 @@ export default function Notifications() {
   const [preferences, setPreferences] =
     useState<NotificationPreferencesRequest>(DEFAULTS);
   const [permitted, setPermitted] = useState(true);
+  const [canAsk, setCanAsk] = useState(false);
 
   useEffect(() => {
     if (!selfQuery.data) return;
@@ -69,8 +70,22 @@ export default function Notifications() {
   useFocusEffect(
     useCallback(() => {
       OneSignal.Notifications.getPermissionAsync().then(setPermitted);
+      OneSignal.Notifications.canRequestPermission().then(setCanAsk);
     }, []),
   );
+
+  // Never asked (a fresh install or a reinstall): iOS shows no Notifications
+  // section for the app in Settings until it has asked once, so ask here.
+  // Only a real refusal sends someone to Settings.
+  async function turnOn() {
+    if (canAsk) {
+      await OneSignal.Notifications.requestPermission(false);
+      setPermitted(await OneSignal.Notifications.getPermissionAsync());
+      setCanAsk(await OneSignal.Notifications.canRequestPermission());
+    } else {
+      Linking.openSettings();
+    }
+  }
 
   function save(key: keyof NotificationPreferencesRequest, value: boolean) {
     const merged = { ...preferences, [key]: value };
@@ -111,12 +126,11 @@ export default function Notifications() {
   return (
     <View style={styles.container}>
       {!permitted && (
-        <PopPressable
-          onPress={() => Linking.openSettings()}
-          style={styles.notice}>
+        <PopPressable onPress={turnOn} style={styles.notice}>
           <Text style={textStyles.body}>
-            Notifications are turned off on this device. Tap here to
-            turn them back on in your phone&apos;s settings.
+            {canAsk
+              ? 'Notifications are off on this phone. Tap here to turn them on and hear when the family adds photos!'
+              : 'Notifications are turned off on this phone. Tap here to turn them back on in your phone\u2019s settings.'}
           </Text>
         </PopPressable>
       )}
