@@ -33,7 +33,7 @@ import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 export default function Manage() {
   const navigation = useNavigation();
   const { getToken } = useAuth();
-  const { contentWidth } = useLayout();
+  const { contentWidth, column } = useLayout();
   const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
   const { displayBottomSheet, dismissBottomSheetModal } = useBottomSheetModal();
@@ -112,7 +112,7 @@ export default function Manage() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FCFBF8' }}>
+    <View style={[{ flex: 1, backgroundColor: '#FCFBF8' }, column]}>
       <ScrollView
         overScrollMode="never"
         onScrollBeginDrag={() => setScrolling(true)}

@@ -4,7 +4,8 @@ import { textStyles } from '@/constants/TextStyles';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useLayout } from '@/lib/layout';
 import { openCropper } from 'react-native-image-crop-picker';
 import Animated, {
@@ -12,10 +13,12 @@ import Animated, {
   SharedValue,
   interpolate,
   interpolateColor,
+  useAnimatedReaction,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CAROUSEL_SPACING = 40; // 40 margin on each side
@@ -23,10 +26,20 @@ const CAROUSEL_SPACING = 40; // 40 margin on each side
 // Derived per render rather than at module load: the carousel's snap offsets
 // have to survive an iPad rotation.
 function useCarousel() {
-  const { contentWidth } = useLayout();
-  const itemWidth = contentWidth - 80;
+  const { width, height, contentWidth, isTablet } = useLayout();
 
-  return { itemWidth, fullWidth: itemWidth + CAROUSEL_SPACING };
+  // On a landscape tablet the column is wide but the screen is short; sized from
+  // width alone the photo pushes its description off screen. Phones are unchanged.
+  const itemWidth = isTablet
+    ? Math.min(contentWidth - 80, Math.round(height * 0.42))
+    : contentWidth - 80;
+
+  return {
+    itemWidth,
+    fullWidth: itemWidth + CAROUSEL_SPACING,
+    // Centres the photo while its neighbours peek in from the screen edges.
+    sidePadding: (width - itemWidth) / 2,
+  };
 }
 
 type ImageSize = {
@@ -86,7 +99,8 @@ export default function Size() {
     next,
   } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
-  const { itemWidth, fullWidth } = useCarousel();
+  const { itemWidth, fullWidth, sidePadding } = useCarousel();
+  const { column } = useLayout();
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useSharedValue(0);
 
@@ -96,15 +110,38 @@ export default function Size() {
     },
   });
 
-  const onViewableItemsChanged = ({ viewableItems }: any) => {
-    if (viewableItems.length > 0) {
-      setActiveIndex(viewableItems[0].index);
-    }
-  };
+  const listRef = useRef<FlatList<ImageSize>>(null);
 
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 50,
-  }).current;
+  // The selected shape is whichever one the scroll position is centred on. Asking
+  // the list which items are visible picked the neighbour peeking in on the left.
+  useAnimatedReaction(
+    () => Math.round(scrollX.value / fullWidth),
+    (current, previous) => {
+      if (current !== previous) {
+        scheduleOnRN(
+          setActiveIndex,
+          Math.max(0, Math.min(SIZES.length - 1, current)),
+        );
+      }
+    },
+    [fullWidth],
+  );
+
+  function goTo(index: number) {
+    const target = Math.max(0, Math.min(SIZES.length - 1, index));
+    listRef.current?.scrollToOffset({
+      offset: target * fullWidth,
+      animated: true,
+    });
+  }
+
+  // A tap on a neighbouring shape selects it; on the current one, its outer
+  // quarters step to the previous or next shape.
+  function handleItemTap(index: number, x: number) {
+    if (index !== activeIndex) goTo(index);
+    else if (x < itemWidth * 0.25) goTo(index - 1);
+    else if (x > itemWidth * 0.75) goTo(index + 1);
+  }
 
   function handleContinue() {
     const selected = SIZES[activeIndex];
@@ -148,6 +185,7 @@ export default function Size() {
         item={item}
         index={index}
         scrollX={scrollX}
+        onTap={handleItemTap}
       />
     );
   };
@@ -159,23 +197,23 @@ export default function Size() {
         contentContainerStyle={styles.scrollContent}
         overScrollMode="never"
         bounces={false}>
-        <View
-          style={[
-            styles.carouselWrapper,
-            { height: itemWidth, width: itemWidth + 2 * CAROUSEL_SPACING },
-          ]}>
+        <View style={[styles.carouselWrapper, { height: itemWidth }]}>
           <Animated.FlatList
+            ref={listRef}
             data={SIZES}
             renderItem={renderItem}
+            // Items only re-render when this changes, and their tap handler reads both.
+            extraData={`${activeIndex}:${fullWidth}`}
             horizontal
             showsHorizontalScrollIndicator={false}
             snapToInterval={fullWidth}
             decelerationRate="fast"
-            contentContainerStyle={styles.flatListContent}
+            contentContainerStyle={[
+              styles.flatListContent,
+              { paddingHorizontal: sidePadding },
+            ]}
             onScroll={onScroll}
             scrollEventThrottle={16}
-            onViewableItemsChanged={onViewableItemsChanged}
-            viewabilityConfig={viewabilityConfig}
             keyExtractor={(item) => item.id}
             overScrollMode="never"
             bounces={false}
@@ -192,7 +230,7 @@ export default function Size() {
           ))}
         </View>
 
-        <View style={styles.detailsContainer}>
+        <View style={[styles.detailsContainer, column]}>
           <Text
             style={{
               fontFamily: 'Poppins',
@@ -210,7 +248,11 @@ export default function Size() {
       </ScrollView>
 
       <View
-        style={[styles.footer, { paddingBottom: insets.bottom + Spacings.md }]}>
+        style={[
+          styles.footer,
+          column,
+          { paddingBottom: insets.bottom + Spacings.md },
+        ]}>
         <PopPressable style={styles.continueButton} onPress={handleContinue}>
           <Text style={textStyles.buttonTextWhite}>Continue</Text>
         </PopPressable>
@@ -224,13 +266,23 @@ function CarouselItem({
   item,
   index,
   scrollX,
+  onTap,
 }: {
   imageUri: string;
   item: ImageSize;
   index: number;
   scrollX: SharedValue<number>;
+  onTap: (index: number, x: number) => void;
 }) {
   const { itemWidth, fullWidth } = useCarousel();
+
+  // A tap with a movement threshold, as in Post: a Pressable would count the
+  // start of a short swipe as a tap.
+  const tap = Gesture.Tap()
+    .maxDistance(10)
+    .onEnd((event) => {
+      scheduleOnRN(onTap, index, event.x);
+    });
 
   const animatedStyle = useAnimatedStyle(() => {
     const scale = interpolate(
@@ -280,19 +332,22 @@ function CarouselItem({
   };
 
   return (
-    <View
-      style={[
-        styles.carouselItemContainer,
-        { width: itemWidth, height: itemWidth },
-      ]}>
-      <Animated.View style={[styles.imageWrapper, imageStyle, animatedStyle]}>
-        <Image
-          source={imageUri}
-          style={styles.previewImage}
-          contentFit="cover"
-        />
-      </Animated.View>
-    </View>
+    <GestureDetector gesture={tap}>
+      <View
+        style={[
+          styles.carouselItemContainer,
+          { width: itemWidth, height: itemWidth },
+        ]}>
+        <Animated.View
+          style={[styles.imageWrapper, imageStyle, animatedStyle]}>
+          <Image
+            source={imageUri}
+            style={styles.previewImage}
+            contentFit="cover"
+          />
+        </Animated.View>
+      </View>
+    </GestureDetector>
   );
 }
 
@@ -355,13 +410,11 @@ const styles = StyleSheet.create({
     paddingBottom: Spacings.xl,
   },
   carouselWrapper: {
-    alignSelf: 'center',
     justifyContent: 'center',
     marginTop: Spacings.xl,
     marginBottom: Spacings.xxl,
   },
   flatListContent: {
-    paddingHorizontal: CAROUSEL_SPACING,
     alignItems: 'center',
   },
   carouselItemContainer: {

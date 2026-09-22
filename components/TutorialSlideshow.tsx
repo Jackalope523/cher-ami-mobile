@@ -14,9 +14,9 @@ import {
   StyleSheet,
   Text,
   View,
-  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLayout } from '@/lib/layout';
 
 type Slide = {
   id: string;
@@ -64,7 +64,12 @@ interface TutorialSlideshowProps {
 }
 
 export default function TutorialSlideshow({ onDone }: TutorialSlideshowProps) {
-  const { width } = useWindowDimensions();
+  const { width, contentWidth, isTablet } = useLayout();
+
+  // Slides stay full width so paging works; their content sits in the column.
+  const slidePadding = (width - contentWidth) / 2 + Spacings.xl;
+  const imageMaxWidth = (contentWidth - 2 * Spacings.xl) * 0.7;
+  const imageMaxHeight = isTablet ? 340 : 240;
   const listRef = useRef<FlatList<Slide>>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -111,14 +116,18 @@ export default function TutorialSlideshow({ onDone }: TutorialSlideshowProps) {
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
         renderItem={({ item }) => (
-          <View style={[styles.slide, { width }]}>
+          <View
+            style={[styles.slide, { width, paddingHorizontal: slidePadding }]}>
             <View style={styles.imageContainer}>
               <Image
                 source={item.image}
+                // Sized to the picture itself, so the box never grows wider than it.
                 style={{
                   aspectRatio: item.imageAspectRatio,
-                  width: '70%',
-                  maxHeight: 240,
+                  height: Math.min(
+                    imageMaxHeight,
+                    imageMaxWidth / item.imageAspectRatio,
+                  ),
                 }}
                 contentFit="contain"
               />

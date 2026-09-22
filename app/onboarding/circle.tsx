@@ -1,8 +1,10 @@
 import JoinOrCreateCircle from '@/components/JoinOrCreateCircle';
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
+import { useLayout } from '@/lib/layout';
 
 export default function OnboardingCircle() {
+  const { column } = useLayout();
 
   function handleJoined() {
     router.replace({
@@ -12,7 +14,7 @@ export default function OnboardingCircle() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, column]}>
       <JoinOrCreateCircle onboarding onJoined={handleJoined} />
     </View>
   );

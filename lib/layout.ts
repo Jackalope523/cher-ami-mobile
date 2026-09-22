@@ -11,12 +11,15 @@ export function useLayout() {
   const { width, height } = useWindowDimensions();
 
   const isTablet = Math.min(width, height) >= TABLET_SHORT_EDGE;
+  const contentWidth = isTablet ? Math.round(width * CONTENT_RATIO) : width;
 
   return {
     width,
     height,
     isTablet,
-    contentWidth: isTablet ? Math.round(width * CONTENT_RATIO) : width,
+    contentWidth,
     headerWidth: isTablet ? Math.round(width * HEADER_RATIO) : width,
+    /** For a screen's root view: a centred column on tablets, unchanged on phones. */
+    column: { width: contentWidth, alignSelf: 'center' as const },
   };
 }

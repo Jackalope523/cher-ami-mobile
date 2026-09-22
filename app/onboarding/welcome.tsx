@@ -10,6 +10,7 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLayout } from '@/lib/layout';
 
 const STEPS = [
   'Add photos to fill the current month’s magazine.',
@@ -18,6 +19,7 @@ const STEPS = [
 ];
 
 export default function Welcome() {
+  const { column } = useLayout();
   const userQuery = useGetSelfQuery();
   const circleQuery = useGetCircleQuery();
 
@@ -37,7 +39,7 @@ export default function Welcome() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={[styles.container, column]} edges={['top', 'bottom']}>
       <ScrollView showsVerticalScrollIndicator={false} overScrollMode="never">
         <View style={{ alignItems: 'center', marginBottom: Spacings.lg }}>
           {/* The declared ratio has to match squirrel.png's own 500x410, or

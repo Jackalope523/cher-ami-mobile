@@ -8,11 +8,11 @@ import PopPressable from '@/components/PopPressable';
 import { Spacings } from '@/constants/Spacings';
 import { textStyles } from '@/constants/TextStyles';
 import { useEmailAuthMutation, useEmailVerifyMutation } from '@/lib/hooks';
+import { useLayout } from '@/lib/layout';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
-import { useLayout } from '@/lib/layout';
 
 // Arriving here means a code was just sent, so the wait starts straight away.
 const RESEND_COOLDOWN_SECONDS = 30;
@@ -113,7 +113,7 @@ export default function Verify() {
             Didn&apos;t get an email?{' '}
             {resendIn > 0 ? (
               <Text style={{ color: '#868581' }}>
-                You can send a new code in {resendIn}{' '}
+                {'\n'}You can send a new code in {resendIn}{' '}
                 {resendIn === 1 ? 'second' : 'seconds'}.
               </Text>
             ) : (

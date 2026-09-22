@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { OneSignal } from 'react-native-onesignal';
+import { useLayout } from '@/lib/layout';
 
 /**
  * The last onboarding screen: everything still worth doing, in one place.
@@ -24,6 +25,7 @@ import { OneSignal } from 'react-native-onesignal';
  * first time someone posts instead.
  */
 export default function Setup() {
+  const { column } = useLayout();
   const { joined } = useLocalSearchParams();
   const circleQuery = useGetCircleQuery();
   const finishOnboarding = useFinishOnboarding();
@@ -91,7 +93,7 @@ export default function Setup() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, column]}>
       {/* The padding sits on the scroll content, not the container: a row that
           pops to 1.03 on press has to grow into it, and a ScrollView clips
           anything wider than itself. */}

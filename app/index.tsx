@@ -31,6 +31,7 @@ import { maybeCompleteAuthSession } from 'expo-web-browser';
 import { useEffect, useState } from 'react';
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLayout } from '@/lib/layout';
 
 maybeCompleteAuthSession();
 
@@ -62,6 +63,7 @@ const appleConfig: AuthRequestConfig = {
 };
 
 export default function Index() {
+  const { column, isTablet, height } = useLayout();
   const { updateToken, updateOnboarded } = useAuth();
   const [email, setEmail] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -169,11 +171,11 @@ export default function Index() {
 
   return (
     <SafeAreaView
-      style={{
-        flex: 1,
-        padding: 20,
-        backgroundColor: '#FCFBF8',
-      }}>
+      style={[
+        { flex: 1, padding: 20, backgroundColor: '#FCFBF8' },
+        column,
+        isTablet && { justifyContent: 'center' },
+      ]}>
       {!keyboardVisible && (
         <View
           style={{
@@ -196,12 +198,16 @@ export default function Index() {
 
       {!keyboardVisible && (
         <View
-          style={{
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: Spacings.lgmd,
-          }}>
+          style={[
+            {
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: Spacings.lgmd,
+            },
+            // On a tablet the leftover height is most of the screen; size it instead.
+            isTablet && { flex: 0, height: Math.min(320, height * 0.3) },
+          ]}>
           <LandingIllustration />
         </View>
       )}

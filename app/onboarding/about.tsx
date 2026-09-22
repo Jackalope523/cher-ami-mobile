@@ -24,8 +24,10 @@ import {
   View,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useLayout } from '@/lib/layout';
 
 export default function About() {
+  const { column } = useLayout();
   const headerHeight = useHeaderHeight();
   const circleQuery = useGetCircleQuery();
   const showToastMessage = useToastMessage();
@@ -73,7 +75,7 @@ export default function About() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, column]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={headerHeight}>
       <ScrollView

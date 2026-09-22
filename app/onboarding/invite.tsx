@@ -5,10 +5,12 @@ import { textStyles } from '@/constants/TextStyles';
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useLayout } from '@/lib/layout';
 
 export default function Invite() {
+  const { column } = useLayout();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, column]}>
       <ScrollView showsVerticalScrollIndicator={false} overScrollMode="never">
         <Text style={[textStyles.heading1, { marginBottom: Spacings.md }]}>
           Invite your family

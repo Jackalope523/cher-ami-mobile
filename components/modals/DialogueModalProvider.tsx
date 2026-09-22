@@ -2,6 +2,7 @@ import { borderRadius } from '@/constants/Borders';
 import { Spacings } from '@/constants/Spacings';
 import { createContext, ReactNode, useContext, useState } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
+import { useLayout } from '@/lib/layout';
 import { Pressable } from 'react-native-gesture-handler';
 import Animated, {
   FadeIn,
@@ -41,6 +42,7 @@ export const useDialogueModal = () => {
 export default function DialogueModalProvider({
   children,
 }: DialogueModalProviderProps) {
+  const { contentWidth } = useLayout();
   const [open, setOpen] = useState<ReactNode>();
 
   function dismissDialogue() {
@@ -64,7 +66,7 @@ export default function DialogueModalProvider({
             />
           </Pressable>
           <Animated.View
-            style={styles.dialogue}
+            style={[styles.dialogue, { width: contentWidth - 2 * Spacings.lgmd }]}
             entering={SlideInDown}
             exiting={SlideOutDown}>
             {open}
@@ -95,9 +97,7 @@ const styles = StyleSheet.create({
 
   dialogue: {
     zIndex: 1,
-    alignSelf: 'stretch',
     padding: Spacings.lgmd,
-    marginHorizontal: Spacings.lgmd,
     borderRadius: borderRadius.xl,
     backgroundColor: '#FCFBF8',
   },
