@@ -211,6 +211,7 @@ export default function Layout() {
           backgroundColor: '#FCFBF8',
         },
         headerRightContainerStyle: { paddingRight: Spacings.sm },
+        sceneStyle: { backgroundColor: '#FCFBF8' },
         drawerStyle: {
           backgroundColor: '#FCFBF8',
           width: Math.min(width * 0.75, 360),
