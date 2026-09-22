@@ -27,7 +27,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 export default function CircleSetup() {
   const headerHeight = useHeaderHeight();
-  const { contentWidth } = useLayout();
+  const { contentWidth, column } = useLayout();
   const headerImageWidth = contentWidth - 2 * Spacings.lgmd;
   const { onboarding } = useLocalSearchParams();
   const showToastMessage = useToastMessage();
@@ -69,11 +69,9 @@ export default function CircleSetup() {
   );
 
   function pickImage() {
-    // Stored square, shown as the middle 2:1 band. The magazine may want a
-    // different crop later, and we can't ask every circle for a new photo.
     pickImageAsync({
       width: 2400,
-      height: 2400,
+      height: 1200,
       cropping: true,
     }).then((x) => {
       if (x !== null) {
@@ -96,7 +94,7 @@ export default function CircleSetup() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, column]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={headerHeight}>
       <ScrollView
