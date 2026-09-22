@@ -12,11 +12,17 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
+import { useLayout } from '@/lib/layout';
+
+// Arriving here means a code was just sent, so the wait starts straight away.
+const RESEND_COOLDOWN_SECONDS = 30;
 
 export default function Verify() {
+  const { column } = useLayout();
   const showToast = useToastMessage();
   const [code, setCode] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [resendIn, setResendIn] = useState(RESEND_COOLDOWN_SECONDS);
   const { email } = useLocalSearchParams();
   const { updateToken, updateOnboarded } = useAuth();
   const emailVerifyMutation = useEmailVerifyMutation(
@@ -40,9 +46,17 @@ export default function Verify() {
       showToast('We sent you a new code!', ToastMessageType.Success);
     },
     (_) => {
+      setResendIn(0);
       showToast("Couldn't send a new code. Try again.", ToastMessageType.Error);
     },
   );
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+
+    const tick = setTimeout(() => setResendIn((seconds) => seconds - 1), 1000);
+    return () => clearTimeout(tick);
+  }, [resendIn]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -66,6 +80,7 @@ export default function Verify() {
     <View
       style={[
         styles.container,
+        column,
         keyboardVisible && {
           justifyContent: 'flex-start',
         },
@@ -88,17 +103,24 @@ export default function Verify() {
         <OTPInput codeLength={6} code={code} setCode={setCode} />
 
         <Pressable
+          disabled={resendIn > 0 || resendCodeMutation.isPending}
           onPress={() => {
-            if (!resendCodeMutation.isPending) {
-              resendCodeMutation.mutate({ email: email as string });
-            }
+            setResendIn(RESEND_COOLDOWN_SECONDS);
+            resendCodeMutation.mutate({ email: email as string });
           }}
           style={{ paddingVertical: Spacings.mdsm }}>
           <Text style={[textStyles.caption, { textAlign: 'center' }]}>
             Didn&apos;t get an email?{' '}
-            <Text style={{ textDecorationLine: 'underline' }}>
-              Send a new code
-            </Text>
+            {resendIn > 0 ? (
+              <Text style={{ color: '#868581' }}>
+                You can send a new code in {resendIn}{' '}
+                {resendIn === 1 ? 'second' : 'seconds'}.
+              </Text>
+            ) : (
+              <Text style={{ textDecorationLine: 'underline' }}>
+                Send a new code
+              </Text>
+            )}
           </Text>
         </Pressable>
       </View>
